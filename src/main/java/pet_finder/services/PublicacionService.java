@@ -1,7 +1,11 @@
 package pet_finder.services;
 
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 import pet_finder.dtos.PublicacionDetailDTO;
 import pet_finder.dtos.PublicacionRequestDTO;
+import pet_finder.dtos.UbicacionRequestDTO;
 import pet_finder.models.Publicacion;
 import pet_finder.models.Ubicacion;
 import pet_finder.repositories.PublicacionRepository;
@@ -42,9 +46,20 @@ public class PublicacionService {
         p.setDescripcion(req.descripcion());
         p.setMascota(mascota);
         p.setMiembro(miembro);
+
+        // Valida la Ubicacion
+        boolean ubicacionReal = validarUbicacion(req.ubicacion());
+        if (!ubicacionReal) {
+            throw new IllegalArgumentException("La Ubicacion '"
+                    +req.ubicacion().pais()+", "
+                    +req.ubicacion().region()+", "
+                    +req.ubicacion().ciudad()+"' no se encontró.");
+        }
+
         // Crea una nueva Ubicacion asociada y lo setea en la Publicacion
         Ubicacion ubicacion = new Ubicacion(req.ubicacion().ciudad(),req.ubicacion().region(),req.ubicacion().pais());
         p.setUbicacion(ubicacion);
+
         // SE GUARDA LA PUBLICACION
         Publicacion save = publicacionRepository.save(p);
 
@@ -101,6 +116,7 @@ public class PublicacionService {
 
     // BAJA LOGICA
     public void eliminarPublicacion (Long id) {
+
         // Eliminacion regular
         //if (!publicacionRepository.existsById(id)) {
         //      throw new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id);
@@ -119,5 +135,32 @@ public class PublicacionService {
         // SE ACTUALIZA LA PUBLICACION REALIZANDO SU BAJA (activo = false)
         publicacionRepository.save(p);
     }
+
+    public boolean validarUbicacion(UbicacionRequestDTO ubicacionDTO) {
+        String query = String.format("%s, %s, %s",
+                ubicacionDTO.ciudad(), ubicacionDTO.region(), ubicacionDTO.pais());
+
+        String url = UriComponentsBuilder
+                .fromHttpUrl("https://nominatim.openstreetmap.org/search")
+                .queryParam("q", query)
+                .queryParam("format", "json")
+                .build().toUriString();
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", "mi-app"); // obligatorio para Nominatim
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                url, HttpMethod.GET, entity, String.class
+        );
+
+        // Considera válida si hay al menos un resultado
+        return response.getStatusCode() == HttpStatus.OK &&
+                response.getBody() != null &&
+                !response.getBody().equals("[]");
+    }
+
 
 }
