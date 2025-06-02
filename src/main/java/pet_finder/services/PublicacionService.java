@@ -1,14 +1,15 @@
-package com.UTN.pet_finder_mdp.services;
+package pet_finder.services;
 
-import com.UTN.pet_finder_mdp.dtos.PublicacionDetailDTO;
-import com.UTN.pet_finder_mdp.dtos.PublicacionRequestDTO;
-import com.UTN.pet_finder_mdp.models.Publicacion;
-import com.UTN.pet_finder_mdp.repositories.PublicacionRepository;
+import pet_finder.dtos.PublicacionDetailDTO;
+import pet_finder.dtos.PublicacionRequestDTO;
+import pet_finder.models.Publicacion;
+import pet_finder.models.Ubicacion;
+import pet_finder.repositories.PublicacionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import pet_finder.repositories.UbicacionRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PublicacionService {
@@ -28,63 +29,66 @@ public class PublicacionService {
         this.ubicacionRepository = ubicacionRepository;
     }
 
+    // CREAR
     public PublicacionDetailDTO crearPublicacion (PublicacionRequestDTO req) {
-
-        Mascota mascota = mascotaRepository.findById(req.getMascotaId())
-                .orElseThrow(() -> new EntityNotFoundException("No se encontro la Mascota con el ID = "+req.getMascotaId()));
-
-        Miembro miembro = miembroRepository.findById(req.getMiembroId())
-                .orElseThrow(() -> new EntityNotFoundException("No se encontro el Miembro con el ID = "+req.getMiembroId()));;
-
-        Ubicacion ubicacion = ubicacionRepository.findById(req.getUbicacionId())
-                .orElseThrow(() -> new EntityNotFoundException("No se encontro la Ubicacion con el ID = "+req.getUbicacionId()));;
+        // Busca la Mascota segun el ID
+        Mascota mascota = mascotaRepository.findById(req.mascotaId())
+                .orElseThrow(() -> new EntityNotFoundException("No se encontro la Mascota con el ID = "+req.mascotaId()));
+        // Busca el Miembro segun el ID
+        Miembro miembro = miembroRepository.findById(req.miembroId())
+                .orElseThrow(() -> new EntityNotFoundException("No se encontro el Miembro con el ID = "+req.miembroId()));
 
         Publicacion p = new Publicacion();
-        p.setDescripcion(req.getDescripcion());
+        p.setDescripcion(req.descripcion());
         p.setMascota(mascota);
         p.setMiembro(miembro);
+        // Crea una nueva Ubicacion asociada y lo setea en la Publicacion
+        Ubicacion ubicacion = new Ubicacion(req.ubicacion().ciudad(),req.ubicacion().region(),req.ubicacion().pais());
         p.setUbicacion(ubicacion);
+        // SE GUARDA LA PUBLICACION
         Publicacion save = publicacionRepository.save(p);
 
         return new PublicacionDetailDTO(save.getId(), save.getDescripcion(), save.getFecha(), save.getActivo(),
                 save.getMascota().getId(), save.getMascota().getNombre(),
                 save.getMiembro().getId(), save.getMiembro().getNombre(),
-                save.getUbicacion().getId(), save.getUbicacion().getDireccion());
+                save.getUbicacion().getCiudad(), save.getUbicacion().getRegion(), save.getUbicacion().getPais());
 
     }
 
+    // LISTAR POR ID
     public PublicacionDetailDTO listarPublicacionPorId (Long id) {
         Publicacion p = publicacionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
 
-        return new PublicacionDetailDTO(save.getId(), save.getDescripcion(), save.getFecha(), save.getActivo(),
-                save.getMascota().getId(), save.getMascota().getNombre(),
-                save.getMiembro().getId(), save.getMiembro().getNombre(),
-                save.getUbicacion().getId(), save.getUbicacion().getDireccion());
+        return new PublicacionDetailDTO(p.getId(), p.getDescripcion(), p.getFecha(), p.getActivo(),
+                p.getMascota().getId(), p.getMascota().getNombre(),
+                p.getMiembro().getId(), p.getMiembro().getNombre(),
+                p.getUbicacion().getCiudad(), p.getUbicacion().getRegion(), p.getUbicacion().getPais());
     }
 
+    // LISTAR
     public List<PublicacionDetailDTO> listarPublicaciones () {
         return publicacionRepository.findAll().stream()
                 .map(p -> new PublicacionDetailDTO(p.getId(),p.getDescripcion(),p.getFecha(),p.getActivo(),p.getMascota().getId(),p.getMascota().getNombre(),p.getMiembro().getId(),p.getMiembro().getNombre(),p.getUbicacion().getId(),p.getUbicacion().getDireccion()))
                         .toList();
     }
 
-    public PublicacionDetailDTO actualizarPublicacion(Long id, PublicacionRequestDTO req) {
+    // ACTUALIZAR
+    public PublicacionDetailDTO actualizarPublicacion (Long id, PublicacionRequestDTO req) {
         Publicacion p = publicacionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
 
-        p.setDescripcion(req.getDescripcion());
+        p.setDescripcion(req.descripcion());
 
-        Mascota mascota = mascotaRepository.findById(req.getMascotaId())
-                .orElseThrow(() -> new EntityNotFoundException("No se encontro la Mascota con el ID = "+req.getMascotaId()));
+        Mascota mascota = mascotaRepository.findById(req.mascotaId())
+                .orElseThrow(() -> new EntityNotFoundException("No se encontro la Mascota con el ID = "+req.mascotaId()));
         p.setMascota(mascota);
 
-        Miembro miembro = miembroRepository.findById(req.getMiembroId())
-                .orElseThrow(() -> new EntityNotFoundException("No se encontro el Miembro con el ID = "+req.getMiembroId()));;
+        Miembro miembro = miembroRepository.findById(req.miembroId())
+                .orElseThrow(() -> new EntityNotFoundException("No se encontro el Miembro con el ID = "+req.miembroId()));;
         p.setMiembro(miembro);
 
-        Ubicacion ubicacion = ubicacionRepository.findById(req.getUbicacionId())
-                .orElseThrow(() -> new EntityNotFoundException("No se encontro la Ubicacion con el ID = "+req.getUbicacionId()));;
+        Ubicacion ubicacion = new Ubicacion(req.ubicacion().ciudad(),req.ubicacion().region(),req.ubicacion().pais());
         p.setUbicacion(ubicacion);
 
         Publicacion update = publicacionRepository.save(p);
@@ -92,20 +96,27 @@ public class PublicacionService {
         return new PublicacionDetailDTO(update.getId(), update.getDescripcion(), update.getFecha(), update.getActivo(),
                 update.getMascota().getId(), update.getMascota().getNombre(),
                 update.getMiembro().getId(), update.getMiembro().getNombre(),
-                update.getUbicacion().getId(), update.getUbicacion().getDireccion());
+                update.getUbicacion().getCiudad(), update.getUbicacion().getRegion(), update.getUbicacion().getPais());
     }
 
-    public void eliminarPublicacion(Long id) {
+    // BAJA LOGICA
+    public void eliminarPublicacion (Long id) {
         // Eliminacion regular
         //if (!publicacionRepository.existsById(id)) {
         //      throw new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id);
         //}
         //publicacionRepository.deleteById(id);
 
-        // Eliminacion logica
+        // Eliminacion logica de la Publicacion
         Publicacion p = publicacionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
         p.setActivo(false);
+
+        // Baja lógica de la ubicación asociada
+        if (p.getUbicacion() != null) {
+            p.getUbicacion().setActivo(false);
+        }
+        // SE ACTUALIZA LA PUBLICACION REALIZANDO SU BAJA (activo = false)
         publicacionRepository.save(p);
     }
 

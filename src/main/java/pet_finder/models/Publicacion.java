@@ -1,9 +1,6 @@
-package com.UTN.pet_finder_mdp.models;
+package pet_finder.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDate;
 
 @Entity
@@ -13,15 +10,9 @@ public class Publicacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank(message = "Ingrese alguna información descriptiva de la mascota.")
-    @Column()
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
-
     private LocalDate fecha;
-
-    @NotNull
-    private Boolean activo;
 
     @OneToOne
     @JoinColumn(name = "mascota_id")
@@ -29,9 +20,12 @@ public class Publicacion {
     @ManyToOne
     @JoinColumn(name = "miembro_id")
     private Miembro miembro;
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "ubicacion_id")
     private Ubicacion ubicacion;
+
+    @Column(nullable = false)
+    private Boolean activo;
 
     public Publicacion() {
         this.activo = true; // Activo default
@@ -68,14 +62,6 @@ public class Publicacion {
         this.fecha = fecha;
     }
 
-    public Boolean getActivo() {
-        return activo;
-    }
-
-    public void setActivo(Boolean activo) {
-        this.activo = activo;
-    }
-
     public Mascota getMascota() {
         return mascota;
     }
@@ -98,5 +84,13 @@ public class Publicacion {
 
     public void setUbicacion(Ubicacion ubicacion) {
         this.ubicacion = ubicacion;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
 }

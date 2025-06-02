@@ -1,10 +1,9 @@
 package pet_finder.repositories;
 
-import pet_finder.models.Publicacion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import pet_finder.models.Ubicacion;
 
 @Repository
-public interface PublicacionRepository extends JpaRepository<Publicacion, Long> {
-
+public interface UbicacionRepository extends JpaRepository<Ubicacion,Long> {
 }
