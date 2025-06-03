@@ -22,7 +22,7 @@ public class MiembroController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Miembro>> listar(){
+    public ResponseEntity<List<MiembroDetailDTO>> listar(){
         return ResponseEntity.ok(miembroService.listar());
     }
 
@@ -50,9 +50,15 @@ public class MiembroController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminar(@PathVariable Long id){
+    public ResponseEntity<String> eliminarPorId(@PathVariable Long id){
         miembroService.eliminarPorId(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Miembro eliminado éxitosamente");
+        return ResponseEntity.ok("Miembro eliminado éxitosamente");
+    }
+
+    @DeleteMapping("/{email}")
+    public ResponseEntity<String> eliminarPorEmail(@PathVariable String email){
+        miembroService.eliminarPorEmail(email);
+        return ResponseEntity.ok("Miembro eliminado éxitosamente");
     }
 
 

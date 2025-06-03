@@ -1,9 +1,6 @@
 package pet_finder.validations;
 
-import pet_finder.exceptions.emailYaRegistradoException;
-import pet_finder.exceptions.errorEnRolException;
-import pet_finder.exceptions.formatoInvalidoException;
-import pet_finder.exceptions.usuarioNoEncontradoException;
+import pet_finder.exceptions.*;
 import pet_finder.models.Miembro;
 import pet_finder.models.Rol;
 import pet_finder.repositories.MiembroRepository;
@@ -70,6 +67,12 @@ public class MiembroValidation {
     public void esAdministrador(Miembro miembro){
         if (miembro.getRol() == Rol.ADMINISTRADOR){
             throw new errorEnRolException("El miembro ya es un administrador.");
+        }
+    }
+
+    public void esInactivo(Miembro miembro){
+        if (!miembro.isActivo()){
+            throw new miembroInactivoException("El miembro es un usuario inactivo.");
         }
     }
 

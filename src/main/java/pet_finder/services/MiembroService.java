@@ -32,6 +32,7 @@ public class MiembroService {
         miembro.setEmail(request.getEmail());
         miembro.setContrasenia(request.getContrasenia());
         miembro.setRol(Rol.MIEMBRO);
+        miembro.setActivo(true);
 
         miembroValidation.validarNombre(miembro);
         miembroValidation.validarApellido(miembro);
@@ -43,14 +44,17 @@ public class MiembroService {
         return new MiembroDetailDTO(miembroGuardado);
     }
 
-    public List<Miembro> listar(){
-        return miembroRepository.findAll();
+    public List<MiembroDetailDTO> listar(){
+        return miembroRepository.findAll()
+                .stream()
+                .filter(Miembro::isActivo)      //Muestro solo los activos
+                .map(MiembroDetailDTO::new).toList();
     }
 
     public MiembroDetailDTO obtenerPorId(Long Id){
         Miembro miembro = miembroRepository.findById(Id)
                 .orElseThrow(() -> new usuarioNoEncontradoException("No se encontro un miembro con ese ID"));
-        return new MiembroDetailDTO(miembro.getId(),miembro.getNombre(),miembro.getApellido(),miembro.getEmail(),miembro.getRol().name());
+        return new MiembroDetailDTO(miembro);
     }
 
     public Miembro obtenerPorEmail(String email){
@@ -87,19 +91,29 @@ public class MiembroService {
     }
 
 
-    public String eliminarPorId(Long Id){
-        miembroValidation.validarExistenciaPorId(Id);
+    public String eliminarPorId(Long id){
+        Miembro miembroAEliminar = miembroRepository.findById(id)
+                .orElseThrow(() -> new usuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
-            miembroRepository.deleteById(Id);
-            return "Se ha eliminado con éxito al miembro con ID: " + Id;
+        miembroValidation.esInactivo(miembroAEliminar);
+        miembroAEliminar.setActivo(false);
+
+        miembroRepository.save(miembroAEliminar);
+
+            return "Se ha dado de baja con éxito al miembro con ID: " + id;
     }
 
     public String eliminarPorEmail(String email){
-        miembroValidation.validarExistenciaPorEmail(email);
 
-        miembroRepository.deleteByEmail(email);
-        return "Se ha eliminado con éxito al miembro con email: " + email;
+        Miembro miembroAEliminar = miembroRepository.findByEmail(email)
+                .orElseThrow(() -> new usuarioNoEncontradoException("No se encontro un miembro con ese correo electronico"));
+
+        miembroValidation.esInactivo(miembroAEliminar);
+        miembroAEliminar.setActivo(false);
+
+        miembroRepository.save(miembroAEliminar);
+
+        return "Se ha dado de baja con éxito al miembro con el correo: " + email;
     }
-
 
 }
