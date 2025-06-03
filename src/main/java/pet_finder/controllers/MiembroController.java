@@ -42,7 +42,7 @@ public class MiembroController {
         return ResponseEntity.ok(nuevoMiembro);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/hacer-administrador/{id}")
     public ResponseEntity<String> hacerAdministradorPorId(@PathVariable Long id){
         MiembroDetailDTO nuevoAdmin = miembroService.hacerAdministrador(id);
         return ResponseEntity.ok("El miembro " + nuevoAdmin.nombre() + " " + nuevoAdmin.apellido() + " es ahora administrador en el sistema.");
