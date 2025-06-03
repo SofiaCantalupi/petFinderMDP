@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(formatoInvalidoException.class)
-    public ResponseEntity<String> manejarformatoInvalidoException(formatoInvalidoException ex){
+    public ResponseEntity<String> manejarFormatoInvalidoException(formatoInvalidoException ex){
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 

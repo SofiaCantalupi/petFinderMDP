@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface MiembroRepository extends JpaRepository<Miembro,Long> {
     Optional<Miembro> findByEmail(String email);
     void deleteByEmail(String email);
+    boolean existsByEmailAndIdNot(String email, Long id);       //Verifica que exista el mail registrado pero con otro ID (para los updates)
 }

@@ -10,7 +10,7 @@ public class Miembro {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Column(nullable = false,length = 50)
     private String nombre;
@@ -18,7 +18,6 @@ public class Miembro {
     @Column(nullable = false,length = 50)
     private String apellido;
 
-    @Email(message = "El correo electrónico no es válido.")
     @Column(nullable = false,unique = true)
     private String email;
 
@@ -29,22 +28,25 @@ public class Miembro {
     @Column(nullable = false)
     private Rol rol;
 
+    @Column(nullable = false)
+    private boolean activo;
+
     //Habria que poner la relación con publicaciones. OneToMany. Miembro seria el lado propietario (preguntar mañana)
 
     public Miembro() {
     }
 
-    public Miembro(String nombre, String apellido, String email,String contrasenia) {
+    public Miembro(String nombre, String apellido, String email,String contrasenia,boolean activo) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.contrasenia = contrasenia;
-        this.rol = Rol.MIEMBRO;         //Ponemos que por defecto sean miembros. La idea seria tener pocos Administradores ya creados.
+        this.activo = activo;
     }
 
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
 
@@ -64,10 +66,10 @@ public class Miembro {
     }
 
 
-    public @Email String getEmail() {
+    public String getEmail() {
         return email;
     }
-    public void setEmail(@Email String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -87,4 +89,10 @@ public class Miembro {
         this.rol = rol;
     }
 
+    public boolean isActivo() {
+        return activo;
+    }
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
 }

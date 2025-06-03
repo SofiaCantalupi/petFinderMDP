@@ -1,5 +1,7 @@
 package pet_finder.controllers;
 
+import pet_finder.dtos.MiembroDetailDTO;
+import pet_finder.dtos.MiembroRequestDTO;
 import pet_finder.models.Miembro;
 import pet_finder.services.MiembroService;
 import jakarta.validation.Valid;
@@ -19,25 +21,37 @@ public class MiembroController {
         this.miembroService = miembroService;
     }
 
-    @GetMapping("/miembros")
-    public ResponseEntity<List<Miembro>> listarMiembros(){
-        return ResponseEntity.ok(miembroService.listarMiembros());
+    @GetMapping
+    public ResponseEntity<List<Miembro>> listar(){
+        return ResponseEntity.ok(miembroService.listar());
     }
 
     @GetMapping("/miembros/{id}")
-    public ResponseEntity<Miembro> buscarMiembroPorId(@PathVariable Long id){
-        return ResponseEntity.ok(miembroService.obtenerMiembroPorId(id));
+    public ResponseEntity<MiembroDetailDTO> obtenerPorId(@PathVariable Long id){
+        return ResponseEntity.ok(miembroService.obtenerPorId(id));
     }
 
     @PostMapping        //Quizá se podria agregar la ruta /registro, porqué este vendria a ser el register.
-    public ResponseEntity<Miembro> altaMiembro(@Valid @RequestBody Miembro miembro){
-        Miembro nuevoMiembro = miembroService.altaMiembro(miembro);
+    public ResponseEntity<MiembroDetailDTO> crear(@Valid @RequestBody MiembroRequestDTO request){
+        MiembroDetailDTO nuevoMiembro = miembroService.crear(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoMiembro);
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<MiembroDetailDTO> modificarPorId(@PathVariable Long id, @Valid @RequestBody MiembroRequestDTO request){
+        MiembroDetailDTO nuevoMiembro = miembroService.modificarPorId(id,request);
+        return ResponseEntity.ok(nuevoMiembro);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> hacerAdministradorPorId(@PathVariable Long id){
+        MiembroDetailDTO nuevoAdmin = miembroService.hacerAdministrador(id);
+        return ResponseEntity.ok("El miembro " + nuevoAdmin.nombre() + " " + nuevoAdmin.apellido() + " es ahora administrador en el sistema.");
+    }
+
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> bajaMiembro(@PathVariable Long id){
-        miembroService.borrarMiembroPorId(id);
+    public ResponseEntity<String> eliminar(@PathVariable Long id){
+        miembroService.eliminarPorId(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Miembro eliminado éxitosamente");
     }
 

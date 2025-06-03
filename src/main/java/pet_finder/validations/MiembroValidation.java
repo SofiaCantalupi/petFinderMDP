@@ -1,9 +1,11 @@
 package pet_finder.validations;
 
 import pet_finder.exceptions.emailYaRegistradoException;
+import pet_finder.exceptions.errorEnRolException;
 import pet_finder.exceptions.formatoInvalidoException;
 import pet_finder.exceptions.usuarioNoEncontradoException;
 import pet_finder.models.Miembro;
+import pet_finder.models.Rol;
 import pet_finder.repositories.MiembroRepository;
 import org.springframework.stereotype.Component;
 import pet_finder.repositories.MiembroRepository;
@@ -55,6 +57,19 @@ public class MiembroValidation {
     public void validarExistenciaPorEmail(String email){
         if(miembroRepository.findByEmail(email).isEmpty()){
             throw new usuarioNoEncontradoException("No se encontró un usuario con el email: " + email);
+        }
+    }
+
+    public void validarEmailUpdates(Miembro miembro){       //Testear
+        boolean existe = miembroRepository.existsByEmailAndIdNot(miembro.getEmail(),miembro.getId());
+        if(existe){
+            throw new emailYaRegistradoException("El correo electronico actualizado ya esta registrado por otro usuario.");
+        }
+    }
+
+    public void esAdministrador(Miembro miembro){
+        if (miembro.getRol() == Rol.ADMINISTRADOR){
+            throw new errorEnRolException("El miembro ya es un administrador.");
         }
     }
 

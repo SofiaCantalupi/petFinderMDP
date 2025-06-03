@@ -1,5 +1,7 @@
 package pet_finder.services;
 
+import pet_finder.dtos.MiembroDetailDTO;
+import pet_finder.dtos.MiembroRequestDTO;
 import pet_finder.exceptions.usuarioNoEncontradoException;
 import pet_finder.models.Miembro;
 import pet_finder.models.Rol;
@@ -21,46 +23,83 @@ public class MiembroService {
     }
 
 
-    public Miembro altaMiembro(Miembro miembro){
+    public MiembroDetailDTO crear(MiembroRequestDTO request){
 
-        //Validaciones
+        Miembro miembro = new Miembro();
+
+        miembro.setNombre(request.getNombre());
+        miembro.setApellido(request.getApellido());
+        miembro.setEmail(request.getEmail());
+        miembro.setContrasenia(request.getContrasenia());
+        miembro.setRol(Rol.MIEMBRO);
+
         miembroValidation.validarNombre(miembro);
         miembroValidation.validarApellido(miembro);
         miembroValidation.validarContrasenia(miembro);       //Probablemente acá tenga que hacer el traslado con SpringSecurity de la password.
         miembroValidation.validarEmailRegistrado(miembro);
 
-        miembro.setRol(Rol.MIEMBRO);        //Asegura de que por defecto son miembros.  //Hariamos uno aparte de admins?
+        Miembro miembroGuardado = miembroRepository.save(miembro);
 
-        return miembroRepository.save(miembro);
+        return new MiembroDetailDTO(miembroGuardado);
     }
 
-    public List<Miembro> listarMiembros(){
+    public List<Miembro> listar(){
         return miembroRepository.findAll();
     }
 
-    public Miembro obtenerMiembroPorId(Long Id){
-        return (miembroRepository.findById(Id))
+    public MiembroDetailDTO obtenerPorId(Long Id){
+        Miembro miembro = miembroRepository.findById(Id)
                 .orElseThrow(() -> new usuarioNoEncontradoException("No se encontro un miembro con ese ID"));
+        return new MiembroDetailDTO(miembro.getId(),miembro.getNombre(),miembro.getApellido(),miembro.getEmail(),miembro.getRol().name());
     }
 
-    public Miembro obtenerMiembroPorEmail(String email){
+    public Miembro obtenerPorEmail(String email){
         return (miembroRepository.findByEmail(email))
                 .orElseThrow(() -> new usuarioNoEncontradoException("No se encontró un miembro con ese mail."));
     }
 
+    public MiembroDetailDTO modificarPorId(Long id,MiembroRequestDTO request){
+        Miembro miembroAModificar = miembroRepository.findById(id)
+                .orElseThrow(() -> new usuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
-    public String borrarMiembroPorId(Long Id){
-        miembroValidation.validarExistenciaPorId(Id);   //Si no existe tira la exception acá.
+        miembroAModificar.setNombre(request.getNombre());
+        miembroAModificar.setApellido(request.getApellido());
+        miembroAModificar.setEmail(request.getEmail());
+
+        miembroValidation.validarNombre(miembroAModificar);
+        miembroValidation.validarApellido(miembroAModificar);
+        miembroValidation.validarEmailUpdates(miembroAModificar);
+
+        Miembro miembroModificado = miembroRepository.save(miembroAModificar);
+        return new MiembroDetailDTO(miembroModificado);
+    }
+
+    public MiembroDetailDTO hacerAdministrador(Long id){
+        Miembro miembroAHacerAdmin = miembroRepository.findById(id)
+                .orElseThrow(() -> new usuarioNoEncontradoException("No se encontro un miembro con ese ID"));
+
+        miembroValidation.esAdministrador(miembroAHacerAdmin);  //Validamos que el miembro no sea admin.
+
+        miembroAHacerAdmin.setRol(Rol.ADMINISTRADOR);
+
+        Miembro miembroModificado = miembroRepository.save(miembroAHacerAdmin);
+        return new MiembroDetailDTO(miembroModificado);
+    }
+
+
+    public String eliminarPorId(Long Id){
+        miembroValidation.validarExistenciaPorId(Id);
 
             miembroRepository.deleteById(Id);
             return "Se ha eliminado con éxito al miembro con ID: " + Id;
     }
 
-    public String borrarMiembroPorEmail(String email){
-        miembroValidation.validarExistenciaPorEmail(email);   //Si no existe tira la exception acá.
+    public String eliminarPorEmail(String email){
+        miembroValidation.validarExistenciaPorEmail(email);
 
         miembroRepository.deleteByEmail(email);
         return "Se ha eliminado con éxito al miembro con email: " + email;
     }
+
 
 }
