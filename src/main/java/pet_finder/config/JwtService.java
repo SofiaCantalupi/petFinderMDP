@@ -16,6 +16,7 @@ public class JwtService {
 
     private static final String SECRET_KEY = "mi-clave-secreta-super-segura-para-jwt-1234567890abcd";
 
+    //Este metodo convierte la constante SECRET_KEY en un objeto de clase Key que se usa para "crear y validar" (firmar y verificar) los tokens
     private Key getSignInKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }

@@ -28,7 +28,7 @@ public class AuthController {
     // Login de usuario
     @PostMapping("/login")
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDTO request) {
-        String token = authService.login(request);      //Si el log in es registro, se guarda un Token y se devuelve.
+        String token = authService.logIn(request);      //Si el log in es registro, se guarda un Token y se devuelve.
         return ResponseEntity.ok(token);  // Más adelante devolvemos un DTO con el token
     }
 
