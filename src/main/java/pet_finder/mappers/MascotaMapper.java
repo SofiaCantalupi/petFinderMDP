@@ -28,16 +28,7 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
 
     @Override
     public MascotaDetailDTO aDetail(Mascota entidad) {
-        MascotaDetailDTO detail = new MascotaDetailDTO();
-
-        detail.setId(entidad.getId());
-        detail.setDescripcion(entidad.getDescripcion());
-        detail.setTipoMascota(entidad.getTipoMascota());
-        detail.setEstadoMascota(entidad.getEstadoMascota());
-        detail.setNombre(entidad.getNombre());
-        detail.setActivo(entidad.getActivo());
-
-        return detail;
+        return new MascotaDetailDTO(entidad);
     }
 
     @Override
