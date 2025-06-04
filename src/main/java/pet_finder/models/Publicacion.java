@@ -3,6 +3,10 @@ package pet_finder.models;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+/**
+ * @author Daniel Herrera
+ */
+
 @Entity
 @Table(name = "publicaciones")
 public class Publicacion {
