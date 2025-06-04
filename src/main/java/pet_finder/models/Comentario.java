@@ -32,8 +32,8 @@ public class Comentario {
 
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", nullable = false)
-    private Usuario usuario;
+    @JoinColumn(name = "id_miembro", nullable = false)
+    private Miembro miembro;
 
 
     public Comentario() {
@@ -59,12 +59,12 @@ public class Comentario {
     }
 
 
-    public Comentario(String texto, LocalDate fechaPublicacion, Publicacion publicacion, Usuario usuario) {
+    public Comentario(String texto, LocalDate fechaPublicacion, Publicacion publicacion, Miembro miembro) {
         this.activo = true;
         this.texto = texto;
         this.fechaPublicacion = fechaPublicacion;
         this.publicacion = publicacion;
-        this.usuario = usuario;
+        this.miembro = miembro;
     }
 
     public @NotBlank(message = "El comentario tiene que tener texto") @Size(max = 150, message = "Máximo 150 caracteres") String getTexto() {
@@ -91,12 +91,11 @@ public class Comentario {
         this.publicacion = publicacion;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    public Miembro getMiembro() {
+        return miembro;
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    public void setMiembro(Miembro miembro) {
+        this.miembro = miembro;
     }
-
 }

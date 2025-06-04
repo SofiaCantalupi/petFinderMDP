@@ -1,11 +1,14 @@
 package pet_finder.services;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
-import pet_finder.dtos.ComentarioDetailDTO;
-import pet_finder.dtos.ComentarioRequestDTO;
 import pet_finder.models.Comentario;
+import pet_finder.models.Miembro;
+import pet_finder.models.Publicacion;
 import pet_finder.repositories.ComentarioRepositories;
+import pet_finder.repositories.MiembroRepository;
+import pet_finder.repositories.PublicacionRepository;
 
 import java.util.List;
 
@@ -13,12 +16,60 @@ import java.util.List;
 public class ComentarioServices {
 
     private final ComentarioRepositories comentarioRepository;
-    //falta agregar el repositorio de usuario y publicacion.
+    private final PublicacionRepository publicacionRepository;
+    private final MiembroRepository miembroRepository;
 
 
 
-    public ComentarioServices(ComentarioRepositories comentarioRepository) {
+    public ComentarioServices(ComentarioRepositories comentarioRepository, PublicacionRepository publicacionRepository, MiembroRepository miembroRepository) {
         this.comentarioRepository = comentarioRepository;
+        this.publicacionRepository = publicacionRepository;
+        this.miembroRepository = miembroRepository;
+    }
+
+
+
+
+    public Comentario crearComentario(Comentario comentario){
+
+        Publicacion publicacion = publicacionRepository.findById(comentario.getPublicacion().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Publicación no encontrada con esa ID " + comentario.getPublicacion().getId()));
+
+        Miembro miembro = miembroRepository.findById(comentario.getMiembro().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con esa ID " + comentario.getMiembro().getId()));
+
+
+        comentario.setPublicacion(publicacion);
+        comentario.setMiembro(miembro);
+
+        return comentarioRepository.save(comentario);
+    }
+
+
+
+
+    public List<Comentario> listarPorPublicacion(Long idPublicacion) {
+
+        /*if (dtos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        chequear si se agrega
+        */
+
+        return comentarioRepository.findByPublicacionIdAndActivoTrue(idPublicacion);
+    }
+
+
+
+
+
+    public void eliminarComentarioPorId(Long id){
+
+        Comentario comentario = comentarioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("No existe un comentario con esa id"));
+
+        comentario.setActivo(false);
+        comentarioRepository.save(comentario);
     }
 
 
@@ -27,15 +78,15 @@ public class ComentarioServices {
 
 
 
-
-    public ComentarioDetailDTO crearComentario(ComentarioRequestDTO requestDTO){
+     // lo dejo por las dudas, despues se elimina, pero esto es para trabajar sin la interfaz Mapper
+     /* public ComentarioDetailDTO crearComentario(ComentarioRequestDTO requestDTO){
 
         Publicacion publicacion = publicacionRepository.findById(requestDTO.getIdPublicacion())
                 .orElseThrow(() -> new RuntimeException("Publicación no encontrada con esa ID " + requestDTO.getIdPublicacion()));
 
-        Usuario usuario = usuarioRepository.findById(requestDTO.getIdUsuario())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con esa ID " + requestDTO.getIdUsuario()));
-        //cambiar la exception a entityNotFound
+        Miembro miembro = miembroRepository.findById(requestDTO.getIdUsuario())
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con esa ID " + requestDTO.getIdUsuario()));
+
 
 
         Comentario comentario = new Comentario();
@@ -43,45 +94,23 @@ public class ComentarioServices {
         comentario.setTexto(requestDTO.getTexto());
         comentario.setFechaPublicacion(requestDTO.getFechaPublicacion());
         comentario.setPublicacion(publicacion);
-        comentario.setUsuario(usuario);
+        comentario.setMiembro(miembro);
 
 
-        //hay que hacer esto porque la base de datos es la genera los ids, si retorno "comentario", no va a tener id
-        //porque el metodo save no modifica a "comentario".
+
         Comentario guardado = comentarioRepository.save(comentario);
 
-        return new ComentarioDetailDTO(
-                guardado.getId(),
-                guardado.getTexto(),
-                guardado.getFechaPublicacion(),
-                publicacion.getId(),
-                usuario.getId(),
-                usuario.getNombre()
-        );
-
-    }
+        return new ComentarioDetailDTO(guardado);
 
 
 
-
-
-    public List<ComentarioDetailDTO> listarComentarios(){
+        public List<ComentarioDetailDTO> listarComentarios(){
 
         return comentarioRepository.findAll().stream()
-                .map(comentario -> new ComentarioDetailDTO(
-                        comentario.getId(),
-                        comentario.getTexto(),
-                        comentario.getFechaPublicacion(),
-                        comentario.getIdPublicacion(),
-                        comentario.getIdUsuario
-                ))
+                .map(comentario -> new ComentarioDetailDTO(comentario))
                 .toList();
     }
 
-
-
-    public void eliminarComentarioPorID(Long id){
-        if (!comentarioRepository.existsById(id)) throw new RuntimeException("No existe un comentario con esa id");
-    }
+    }*/
 
 }
