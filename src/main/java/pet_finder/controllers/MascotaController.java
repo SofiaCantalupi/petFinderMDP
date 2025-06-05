@@ -32,23 +32,23 @@ public class MascotaController {
 
     @PostMapping
     public ResponseEntity<MascotaDetailDTO> crear(@Valid @RequestBody MascotaRequestDTO request){
-       Mascota mascota = mapper.aEntidad(request);
-       Mascota guardada = service.guardar(mascota);
+       Mascota mascota = mapper.aEntidad(request); // el request es mappeado a entidad
+       Mascota guardada = service.guardar(mascota); // se guarda la mascota nueva
        return ResponseEntity.ok(mapper.aDetail(guardada));
     }
 
     @PutMapping("/mascota/{id}")
     public ResponseEntity<MascotaDetailDTO> modificar(@Valid @RequestBody MascotaRequestDTO request, @PathVariable Long id){
-        Mascota encontrada = service.obtenerPorId(id);
-        Mascota modificada = mapper.modificar(encontrada,request);
-        service.guardar(encontrada);
+        Mascota existente = service.obtenerPorId(id);  // este metodo valida tanto existencia como activo
+        Mascota modificada = mapper.modificar(existente,request); // toma la entidad que se quiere modificar y retorna una entidad con los cambios realizados
+        Mascota guardada = service.guardar(modificada); // guarda la entidad con  los respectivos cambios
 
-        return ResponseEntity.ok(mapper.aDetail(modificada));
+        return ResponseEntity.ok(mapper.aDetail(guardada));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id){
-        service.eliminar(id);
+        service.eliminar(id); // baja logica, no se elimina el registro
         return ResponseEntity.noContent().build();
     }
 

@@ -21,7 +21,7 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
         mascota.setNombre(request.getNombre());
 
         // La Mascota siempre es creada con Activo = true
-        mascota.setActivo(true);
+        mascota.setEsActivo(true);
 
         return mascota;
     }
@@ -40,6 +40,7 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
                 .toList();
     }
 
+    // este metodo toma el request y la entidad que se quiere modificar, actualiza los datos en la entidad existente y retorna la entidad modificada.
     @Override
     public Mascota modificar(Mascota entidad, MascotaRequestDTO request) {
         // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
@@ -47,9 +48,7 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
         entidad.setEstadoMascota(request.getEstadoMascota());
         entidad.setTipoMascota(request.getTipoMascota());
         entidad.setDescripcion(request.getDescripcion());
-
-        // Si el estado activo del Request es distinto a null, se settea el valor del request. De lo contrario, se deja el estado de la entidad existente
-        entidad.setActivo(request.getActivo() != null ? request.getActivo() : entidad.getActivo());
+        entidad.setEsActivo(request.getActivo());
 
         return entidad; // retorna la entidad actualizada
     }

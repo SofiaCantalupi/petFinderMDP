@@ -29,11 +29,11 @@ public class Mascota {
     private String descripcion;
 
     @Column(nullable = false)
-    private Boolean activo;
+    private Boolean esActivo;
 
     // Constructor vacio
     public Mascota() {
-        this.activo = true;
+        this.esActivo = true;
     }
 
     // Setters & Getters
@@ -78,11 +78,11 @@ public class Mascota {
         this.descripcion = descripcion;
     }
 
-    public @NotNull Boolean getActivo() {
-        return activo;
+    public @NotNull Boolean getEsActivo() {
+        return esActivo;
     }
 
-    public void setActivo(@NotNull Boolean activo) {
-        this.activo = activo;
+    public void setEsActivo(@NotNull Boolean esActivo) {
+        this.esActivo = esActivo;
     }
 }
