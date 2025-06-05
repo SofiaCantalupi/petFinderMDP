@@ -2,6 +2,10 @@ package pet_finder.models;
 
 import jakarta.persistence.*;
 
+/**
+ * @author Daniel Herrera
+ */
+
 @Entity
 @Table(name = "ubicaciones")
 public class Ubicacion {
@@ -9,9 +13,14 @@ public class Ubicacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String direccion;
+    private Integer altura;
+
     private String ciudad;
     private String region; // Estado, provincia o departamento
     private String pais;
+
     private Double latitud;
     private Double longitud;
 
@@ -19,27 +28,47 @@ public class Ubicacion {
     private Boolean activo;
 
     public Ubicacion() {
-        this.activo = true; // Activo default
+        this.activo = true; // Activo por default
     }
 
-    public Ubicacion(String ciudad, String region, String pais) {
+    public Ubicacion(String direccion, Integer altura, String ciudad, String region, String pais) {
+        this.direccion = direccion;
+        this.altura = altura;
         this.ciudad = ciudad;
         this.region = region;
         this.pais = pais;
-        this.activo = true; // Activo default
+        this.activo = true; // Activo por default
     }
 
-    public Ubicacion(String ciudad, String region, String pais, Double latitud, Double longitud) {
+    public Ubicacion(String direccion, Integer altura, String ciudad, String region, String pais, Double latitud, Double longitud) {
+        this.direccion = direccion;
+        this.altura = altura;
         this.ciudad = ciudad;
         this.region = region;
         this.pais = pais;
         this.latitud = latitud;
         this.longitud = longitud;
-        this.activo = true; // Activo default
+        this.activo = true; // Activo por default
     }
 
     public Long getId() {
         return id;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public Integer getAltura() {
+        return altura;
+    }
+
+    public void setAltura(Integer altura) {
+        this.altura = altura;
     }
 
     public String getCiudad() {
