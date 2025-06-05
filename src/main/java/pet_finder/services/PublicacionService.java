@@ -6,6 +6,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import pet_finder.dtos.PublicacionDetailDTO;
 import pet_finder.dtos.PublicacionRequestDTO;
 import pet_finder.dtos.UbicacionRequestDTO;
+import pet_finder.exceptions.EntidadInactivaException;
 import pet_finder.models.Mascota;
 import pet_finder.models.Miembro;
 import pet_finder.models.Publicacion;
@@ -93,7 +94,7 @@ public class PublicacionService {
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
         // Valida si la Publicacion esta activa
         if (!p.getActivo()) {
-            throw new IllegalStateException("La publicación con ID " + id + " se encuentra inactiva.");
+            throw new EntidadInactivaException ("La publicación con ID " + id + " se encuentra inactiva.");
         }
 
         return new PublicacionDetailDTO(p.getId(),
@@ -139,7 +140,7 @@ public class PublicacionService {
 
         // Valida si la Publicacion esta activa
         if (!p.getActivo()) {
-            throw new IllegalStateException("La publicación con ID " + id + " se encuentra inactiva.");
+            throw new EntidadInactivaException("La publicación con ID " + id + " se encuentra inactiva.");
         }
 
         p.setDescripcion(req.descripcion());
@@ -186,7 +187,7 @@ public class PublicacionService {
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
         // Valida si la Publicacion esta activa
         if (!p.getActivo()) {
-            throw new IllegalStateException("La publicación con ID " + id + " se encuentra inactiva.");
+            throw new EntidadInactivaException("La publicación con ID " + id + " se encuentra inactiva.");
         }
         // Elimina logicamente la Publicacion
         p.setActivo(false);
