@@ -3,11 +3,11 @@ package pet_finder.config;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pet_finder.dtos.MiembroDetailDTO;
-import pet_finder.exceptions.formatoInvalidoException;
-import pet_finder.exceptions.miembroInactivoException;
-import pet_finder.exceptions.usuarioNoEncontradoException;
+import pet_finder.exceptions.FormatoInvalidoException;
+import pet_finder.exceptions.MiembroInactivoException;
+import pet_finder.exceptions.UsuarioNoEncontradoException;
 import pet_finder.models.Miembro;
-import pet_finder.models.Rol;
+import pet_finder.enums.RolUsuario;
 import pet_finder.repositories.MiembroRepository;
 import pet_finder.validations.MiembroValidation;
 
@@ -47,7 +47,7 @@ public class AuthService {
         miembro.setContrasenia(passwordEncoder.encode(miembro.getContrasenia()));
         //Le asigno la nueva contraseña, es la anterior ya validada pero esta vez encriptada.
 
-        miembro.setRol(Rol.MIEMBRO);        //Datos por defecto
+        miembro.setRol(RolUsuario.MIEMBRO);        //Datos por defecto
         miembro.setActivo(true);
 
         Miembro guardado = miembroRepository.save(miembro); //Guardo en la base de datos.
@@ -60,16 +60,16 @@ public class AuthService {
 
         //Primero verifico el email asegurandome de que haya un miembro registrado con el mismo ingresado en el LogInRequestDTO
         Miembro miembro = miembroRepository.findByEmail(request.email())
-                .orElseThrow(() -> new usuarioNoEncontradoException("No se encontró un miembro con ese email"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró un miembro con ese email"));
 
         //Si lo hay, verifico que este activo (Que no se le haya dado la baja pasiva)
         if (!miembro.isActivo()) {
-            throw new miembroInactivoException("El miembro está inactivo.");
+            throw new MiembroInactivoException("El miembro está inactivo.");
         }
 
         //Recien ahora verifico la contraseña.
         if (!passwordEncoder.matches(request.contrasenia(), miembro.getContrasenia())) {
-            throw new formatoInvalidoException("La contraseña no es válida");
+            throw new FormatoInvalidoException("La contraseña no es válida");
         }
 
         //Si la contraseña es valida, se genera el token y se retorna dentro del AuthResponseDTO.

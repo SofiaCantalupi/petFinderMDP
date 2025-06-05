@@ -25,6 +25,7 @@ public class MascotaRequestDTO {
 
     // Constructor
     public MascotaRequestDTO() {
+        this.activo = true;
     }
 
     // Setters and Getters
