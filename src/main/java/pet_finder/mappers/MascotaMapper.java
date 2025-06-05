@@ -12,6 +12,7 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
 
     @Override
     public Mascota aEntidad(MascotaRequestDTO request) {
+        // Se crea una nueva Mascota, con los datos recibidos del Request
         Mascota mascota = new Mascota();
 
         mascota.setEstadoMascota(request.getEstadoMascota());
@@ -19,35 +20,36 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
         mascota.setDescripcion(request.getDescripcion());
         mascota.setNombre(request.getNombre());
 
-        if (request.getActivo() != null) {
-            mascota.setActivo(request.getActivo());
-        }
+        // La Mascota siempre es creada con Activo = true
+        mascota.setEsActivo(true);
 
         return mascota;
     }
 
     @Override
     public MascotaDetailDTO aDetail(Mascota entidad) {
+        // Se utiliza constructor del record DetailDTO para retornar un nuevo DetailDTO con los valores de la Mascota recibida
         return new MascotaDetailDTO(entidad);
     }
 
     @Override
     public List<MascotaDetailDTO> deEntidadesAdetails(List<Mascota> entidades) {
+        // Cada Mascota de la lista se mappea a Detail
         return entidades.stream()
                 .map(this::aDetail)
                 .toList();
     }
 
+    // este metodo toma el request y la entidad que se quiere modificar, actualiza los datos en la entidad existente y retorna la entidad modificada.
     @Override
     public Mascota modificar(Mascota entidad, MascotaRequestDTO request) {
+        // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
         entidad.setNombre(request.getNombre());
         entidad.setEstadoMascota(request.getEstadoMascota());
         entidad.setTipoMascota(request.getTipoMascota());
         entidad.setDescripcion(request.getDescripcion());
+        entidad.setEsActivo(request.getActivo());
 
-        // si el estado activo del request es distinto de null, se settea el valor del request, sino en de la entidad existente
-        entidad.setActivo(request.getActivo() != null ? request.getActivo() : entidad.getActivo());
-
-        return entidad;
+        return entidad; // retorna la entidad actualizada
     }
 }

@@ -2,9 +2,9 @@ package pet_finder.services;
 
 import pet_finder.dtos.MiembroDetailDTO;
 import pet_finder.dtos.MiembroRequestDTO;
-import pet_finder.exceptions.usuarioNoEncontradoException;
+import pet_finder.exceptions.UsuarioNoEncontradoException;
 import pet_finder.models.Miembro;
-import pet_finder.models.Rol;
+import pet_finder.enums.RolUsuario;
 import pet_finder.repositories.MiembroRepository;
 import pet_finder.validations.MiembroValidation;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ public class MiembroService {
         miembro.setApellido(request.getApellido());
         miembro.setEmail(request.getEmail());
         miembro.setContrasenia(request.getContrasenia());
-        miembro.setRol(Rol.MIEMBRO);
+        miembro.setRol(RolUsuario.MIEMBRO);
         miembro.setActivo(true);
 
         miembroValidation.validarNombre(miembro);
@@ -53,18 +53,18 @@ public class MiembroService {
 
     public MiembroDetailDTO obtenerPorId(Long Id){
         Miembro miembro = miembroRepository.findById(Id)
-                .orElseThrow(() -> new usuarioNoEncontradoException("No se encontro un miembro con ese ID"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
         return new MiembroDetailDTO(miembro);
     }
 
     public Miembro obtenerPorEmail(String email){
         return (miembroRepository.findByEmail(email))
-                .orElseThrow(() -> new usuarioNoEncontradoException("No se encontró un miembro con ese mail."));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró un miembro con ese mail."));
     }
 
     public MiembroDetailDTO modificarPorId(Long id,MiembroRequestDTO request){
         Miembro miembroAModificar = miembroRepository.findById(id)
-                .orElseThrow(() -> new usuarioNoEncontradoException("No se encontro un miembro con ese ID"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
         miembroAModificar.setNombre(request.getNombre());
         miembroAModificar.setApellido(request.getApellido());
@@ -80,11 +80,11 @@ public class MiembroService {
 
     public MiembroDetailDTO hacerAdministrador(Long id){
         Miembro miembroAHacerAdmin = miembroRepository.findById(id)
-                .orElseThrow(() -> new usuarioNoEncontradoException("No se encontro un miembro con ese ID"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
         miembroValidation.esAdministrador(miembroAHacerAdmin);  //Validamos que el miembro no sea admin.
 
-        miembroAHacerAdmin.setRol(Rol.ADMINISTRADOR);
+        miembroAHacerAdmin.setRol(RolUsuario.ADMINISTRADOR);
 
         Miembro miembroModificado = miembroRepository.save(miembroAHacerAdmin);
         return new MiembroDetailDTO(miembroModificado);
@@ -93,7 +93,7 @@ public class MiembroService {
 
     public String eliminarPorId(Long id){
         Miembro miembroAEliminar = miembroRepository.findById(id)
-                .orElseThrow(() -> new usuarioNoEncontradoException("No se encontro un miembro con ese ID"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
         miembroValidation.esInactivo(miembroAEliminar);
         miembroAEliminar.setActivo(false);
@@ -106,7 +106,7 @@ public class MiembroService {
     public String eliminarPorEmail(String email){
 
         Miembro miembroAEliminar = miembroRepository.findByEmail(email)
-                .orElseThrow(() -> new usuarioNoEncontradoException("No se encontro un miembro con ese correo electronico"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese correo electronico"));
 
         miembroValidation.esInactivo(miembroAEliminar);
         miembroAEliminar.setActivo(false);

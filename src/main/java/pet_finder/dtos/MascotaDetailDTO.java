@@ -12,7 +12,7 @@ public record MascotaDetailDTO ( Long id, String nombre, EstadoMascota estadoMas
                 mascota.getEstadoMascota(),
                 mascota.getTipoMascota(),
                 mascota.getDescripcion(),
-                mascota.getActivo()
+                mascota.getEsActivo()
         );
     }
 }

@@ -1,7 +1,7 @@
 package pet_finder.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
+import pet_finder.enums.RolUsuario;
 
 
 @Entity
@@ -26,7 +26,7 @@ public class Miembro {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Rol rol;
+    private RolUsuario rolUsuario;
 
     @Column(nullable = false)
     private boolean activo;
@@ -82,11 +82,11 @@ public class Miembro {
     }
 
 
-    public Rol getRol() {
-        return rol;
+    public RolUsuario getRol() {
+        return rolUsuario;
     }
-    public void setRol(Rol rol) {
-        this.rol = rol;
+    public void setRol(RolUsuario rolUsuario) {
+        this.rolUsuario = rolUsuario;
     }
 
     public boolean isActivo() {

@@ -29,18 +29,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errores);
     }
 
-    @ExceptionHandler(emailYaRegistradoException.class)
-    public ResponseEntity<String> manejarEmailExistenteException(emailYaRegistradoException ex){
+    @ExceptionHandler(EmailYaRegistradoException.class)
+    public ResponseEntity<String> manejarEmailExistenteException(EmailYaRegistradoException ex){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
-    @ExceptionHandler(formatoInvalidoException.class)
-    public ResponseEntity<String> manejarFormatoInvalidoException(formatoInvalidoException ex){
+    @ExceptionHandler(FormatoInvalidoException.class)
+    public ResponseEntity<String> manejarFormatoInvalidoException(FormatoInvalidoException ex){
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(usuarioNoEncontradoException.class)
-    public ResponseEntity<String> manejarUsuarioNoEncontradoException(usuarioNoEncontradoException ex){
+    @ExceptionHandler(UsuarioNoEncontradoException.class)
+    public ResponseEntity<String> manejarUsuarioNoEncontradoException(UsuarioNoEncontradoException ex){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

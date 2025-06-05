@@ -16,14 +16,14 @@ public class GlobalHandlerException {
 
     // para excepciones en general
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<RespuestaError> manejarGeneral(Exception ex) {
-        RespuestaError error = new RespuestaError(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado.");
+    public ResponseEntity<ErrorResponse> manejarGeneral(Exception ex) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     // para errores que surgan de @Valid
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<RespuestaError> manejadorValidaciones(MethodArgumentNotValidException exc) {
+    public ResponseEntity<ErrorResponse> manejadorValidaciones(MethodArgumentNotValidException exc) {
         Map<String, String> errors = exc.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -33,16 +33,39 @@ public class GlobalHandlerException {
                         (msg1, msg2) -> msg1
                 ));
 
-        RespuestaError respuestaError = new RespuestaError(HttpStatus.BAD_REQUEST, errors);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuestaError);
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 
     }
 
-    // notFound
+    // ------ Handlers para excepciones especificas
+    // para excepcion EntityNotFound
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<RespuestaError> manejarNoEncontrado(EntityNotFoundException ex) {
-        RespuestaError error = new RespuestaError(HttpStatus.NOT_FOUND, ex.getMessage());
+    public ResponseEntity<ErrorResponse> manejarNotFound(EntityNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+
+    // EmailYaRegistradoException
+    @ExceptionHandler(EmailYaRegistradoException.class)
+    public ResponseEntity<ErrorResponse> manejarEmailYaRegistrado(EmailYaRegistradoException exc){
+        ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT,exc.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    // UsuarioNoEncontradoException
+    @ExceptionHandler(UsuarioNoEncontradoException.class)
+    public ResponseEntity<ErrorResponse> manejarUsuarioNoEncontrado(UsuarioNoEncontradoException exc){
+        ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND, exc.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    // FormatoInvalidoException
+    @ExceptionHandler(FormatoInvalidoException.class)
+    public ResponseEntity<ErrorResponse> manejarFormatoInvalido(FormatoInvalidoException exc){
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, exc.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 
 }

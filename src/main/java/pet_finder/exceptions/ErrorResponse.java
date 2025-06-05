@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
-public class RespuestaError {
+public class ErrorResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
     private int estado;
@@ -13,7 +13,7 @@ public class RespuestaError {
     private Object mensaje; // puede ser String o Map<String, String>
 
     // Constructor
-    public RespuestaError(HttpStatus estado, Object mensaje) {
+    public ErrorResponse(HttpStatus estado, Object mensaje) {
         this.timestamp = LocalDateTime.now();
         this.estado = estado.value();
         this.error = estado.getReasonPhrase();
