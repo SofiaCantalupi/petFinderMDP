@@ -75,8 +75,9 @@ public class AuthService {
         //Si la contraseña es valida, se genera el token y se retorna dentro del AuthResponseDTO.
         String token = jwtService.generateToken(miembro); // JWT firmado
 
-        return new AuthResponseDTO(token, miembro.getNombre(), miembro.getRol().name());
+        return null;
+        //return new AuthResponseDTO(token, miembro.getNombre(), miembro.getRol().name());
     }
 
     }
-}
+

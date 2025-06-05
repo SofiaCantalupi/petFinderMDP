@@ -1,10 +1,16 @@
 package pet_finder.config;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import pet_finder.models.Miembro;
 
 import java.security.Key;
+import java.util.Date;
+import java.util.Map;
 
 
 @Service
@@ -21,7 +27,57 @@ public class JwtService {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-    public String generateToken(Miembro miembro){
-        return "token";
+    //Generación del token sin especificaciones.
+    //Este token va a ser el que use el usuario para navegar por la aplicación web una vez logeado.
+    //Este token nomás contiene el mail del usuario.
+    public String generateToken(UserDetails userDetails) {
+        return Jwts.builder()           //builder inicializa la construccion del token
+                .setSubject(userDetails.getUsername())       // Llama al metodo getUsername del userDetails, que en realidad obtiene el mail del miembro
+                .setIssuedAt(new Date(System.currentTimeMillis()))  // Fecha de creación del token
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))  // Fecha de expiración del token, 1 hora.(+1 segundo * 60 segundos * 60 minutos)
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)  // Firmar con clave secreta usando HS256
+                .compact();    // Compacta el JWT en String
+
     }
+
+    //Generación del token (con claim), el cual contendria el rol, para que el administrador lo use.
+    public String generarTokenParaAdmin(Map<String, Object> claims, UserDetails userDetails) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    //Trae las claims de un token
+    public Claims extraerTodasClaims(String token) {
+        return Jwts.parserBuilder()     //ParserBuilder se usa para obtener la información del token.
+                .setSigningKey(getSignInKey())   // Usa la clave para validar la firma
+                .build()
+                .parseClaimsJws(token)           // Parsea el token
+                .getBody();                     // Obtiene el cuerpo con los claims
+    }
+
+    //Extrae el mail del usuario desde el token.
+    public String extraerEmail(String token) {
+        return extraerTodasClaims(token).getSubject();
+    }
+
+    //Se fija si el token ya expiró.
+    private Boolean esTokenExpirado(String token) {
+        return extraerTodasClaims(token).getExpiration().before(new Date());
+    }
+
+    //Metodo para validar que el usuario logeado coincida con el del token y que no este expirado
+    public Boolean validarToken(String token, UserDetails userDetails) {
+        final String email = extraerEmail(token);
+        return (email.equals(userDetails.getUsername()) && !esTokenExpirado(token));
+    }
+
+
+
+
 }
+
