@@ -1,5 +1,6 @@
 package pet_finder.config;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pet_finder.dtos.MiembroDetailDTO;
@@ -72,11 +73,12 @@ public class AuthService {
             throw new FormatoInvalidoException("La contraseña no es válida");
         }
 
-        //Si la contraseña es valida, se genera el token y se retorna dentro del AuthResponseDTO.
-        String token = jwtService.generateToken(miembro); // JWT firmado
+        //Si la contraseña es valida, pasamos el miembro a UserDetails para generar el token
+        UserDetails miembroUserDetails = new MiembroUserDetails(miembro);
+        // se genera el token y se retorna dentro del AuthResponseDTO.
+        String token = jwtService.generateToken(miembroUserDetails); // JWT firmado
 
-        return null;
-        //return new AuthResponseDTO(token, miembro.getNombre(), miembro.getRol().name());
+        return new AuthResponseDTO(token,miembro.getNombre(),miembro.getRol().name());
     }
 
     }
