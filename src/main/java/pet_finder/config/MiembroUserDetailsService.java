@@ -2,10 +2,12 @@ package pet_finder.config;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
 import pet_finder.exceptions.UsuarioNoEncontradoException;
 import pet_finder.models.Miembro;
 import pet_finder.repositories.MiembroRepository;
 
+@Service
 public class MiembroUserDetailsService implements UserDetailsService {
 
     private final MiembroRepository miembroRepository;

@@ -50,7 +50,7 @@ public class SecurityConfig {
 
 
     @Bean
-    public PasswordEncoder passwordEncoder(){       //Esto nos va a servir para encriptar las contraseñas, requisito de SpringSecurity.
+    public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
