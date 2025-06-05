@@ -25,14 +25,14 @@ public class PublicacionController {
     }
 
     @PostMapping
-    public ResponseEntity<PublicacionDetailDTO> crearPublicacion (@Valid @RequestBody PublicacionRequestDTO req) {
-        PublicacionDetailDTO dto = publicacionService.crearPublicacion(req);
+    public ResponseEntity<PublicacionDetailDTO> crear (@Valid @RequestBody PublicacionRequestDTO req) {
+        PublicacionDetailDTO dto = publicacionService.crear(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @GetMapping
-    public ResponseEntity<List<PublicacionDetailDTO>> listarPublicaciones () {
-        List<PublicacionDetailDTO> publicaciones = publicacionService.listarPublicaciones();
+    public ResponseEntity<List<PublicacionDetailDTO>> listarActivas() {
+        List<PublicacionDetailDTO> publicaciones = publicacionService.listarActivas();
         if (publicaciones.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -40,20 +40,20 @@ public class PublicacionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PublicacionDetailDTO> listarPublicacionPorId (@PathVariable Long id) {
-        PublicacionDetailDTO dto = publicacionService.listarPublicacionPorId(id);
+    public ResponseEntity<PublicacionDetailDTO> listarPorId (@PathVariable Long id) {
+        PublicacionDetailDTO dto = publicacionService.listarPorId(id);
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PublicacionDetailDTO> actualizarPublicacion (@PathVariable Long id, @Valid @RequestBody PublicacionRequestDTO req) {
-        PublicacionDetailDTO dto = publicacionService.actualizarPublicacion(id,req);
+    public ResponseEntity<PublicacionDetailDTO> actualizar (@PathVariable Long id, @Valid @RequestBody PublicacionRequestDTO req) {
+        PublicacionDetailDTO dto = publicacionService.actualizar(id,req);
         return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarPublicacion (@PathVariable Long id) {
-        publicacionService.eliminarPublicacion(id);
+    public ResponseEntity<Void> eliminar (@PathVariable Long id) {
+        publicacionService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 

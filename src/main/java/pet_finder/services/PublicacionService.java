@@ -15,7 +15,6 @@ import pet_finder.repositories.MiembroRepository;
 import pet_finder.repositories.PublicacionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
-import pet_finder.repositories.UbicacionRepository;
 
 import java.util.List;
 
@@ -38,8 +37,8 @@ public class PublicacionService {
         this.miembroRepository = miembroRepository;
     }
 
-    // CREAR
-    public PublicacionDetailDTO crearPublicacion (PublicacionRequestDTO req) {
+    // NUEVA PUBLICACION
+    public PublicacionDetailDTO crear(PublicacionRequestDTO req) {
         // todo: (CAMBIAR ESTO) Busca la Mascota segun el ID
         Mascota mascota = mascotaRepository.findById(req.mascotaId())
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro la Mascota con el ID = "+req.mascotaId()));
@@ -88,9 +87,14 @@ public class PublicacionService {
     }
 
     // LISTAR POR ID
-    public PublicacionDetailDTO listarPublicacionPorId (Long id) {
+    public PublicacionDetailDTO listarPorId(Long id) {
+        // Valida si existe la Publicacion con ese id
         Publicacion p = publicacionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
+        // Valida si la Publicacion esta activa
+        if (!p.getActivo()) {
+            throw new IllegalStateException("La publicación con ID " + id + " se encuentra inactiva.");
+        }
 
         return new PublicacionDetailDTO(p.getId(),
                 p.getDescripcion(), p.getFecha(), p.getActivo(),
@@ -101,8 +105,8 @@ public class PublicacionService {
                 p.getUbicacion().getPais());
     }
 
-    // LISTAR
-    public List<PublicacionDetailDTO> listarPublicaciones () {
+    // LISTAR TODAS LAS PUBLICACIONES
+    public List<PublicacionDetailDTO> listarTodas() {
         return publicacionRepository.findAll().stream()
                 .map(p -> new PublicacionDetailDTO(p.getId(),
                         p.getDescripcion(), p.getFecha(), p.getActivo(),
@@ -114,18 +118,38 @@ public class PublicacionService {
                         .toList();
     }
 
-    // ACTUALIZAR
-    public PublicacionDetailDTO actualizarPublicacion (Long id, PublicacionRequestDTO req) {
+    // LISTAR LAS PUBLICACIONES ACTIVAS
+    public List<PublicacionDetailDTO> listarActivas() {
+        return publicacionRepository.findAllByActivoTrue().stream()
+                .map(p -> new PublicacionDetailDTO(p.getId(),
+                        p.getDescripcion(), p.getFecha(), p.getActivo(),
+                        p.getMascota().getNombre(), p.getMascota().getTipoMascota().name(),
+                        p.getMiembro().getId(), p.getMiembro().getNombre(),
+                        p.getUbicacion().getDireccion(), p.getUbicacion().getAltura(),
+                        p.getUbicacion().getCiudad(), p.getUbicacion().getRegion(),
+                        p.getUbicacion().getPais()))
+                .toList();
+    }
+
+    // ACTUALIZAR LA PUBLICACION POR ID
+    public PublicacionDetailDTO actualizar (Long id, PublicacionRequestDTO req) {
+        // Valida que exista la Publicacion con esa ID
         Publicacion p = publicacionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
 
+        // Valida si la Publicacion esta activa
+        if (!p.getActivo()) {
+            throw new IllegalStateException("La publicación con ID " + id + " se encuentra inactiva.");
+        }
+
         p.setDescripcion(req.descripcion());
 
-        Mascota mascota = mascotaRepository.findById(req.mascotaId())
+        // todo: MODIFICAR para que funcione con CASCADE
+        Mascota mascota = mascotaRepository.findById (req.mascotaId())
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro la Mascota con el ID = "+req.mascotaId()));
         p.setMascota(mascota);
 
-        Miembro miembro = miembroRepository.findById(req.miembroId())
+        Miembro miembro = miembroRepository.findById (req.miembroId())
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro el Miembro con el ID = "+req.miembroId()));;
         p.setMiembro(miembro);
 
@@ -137,19 +161,19 @@ public class PublicacionService {
         p.setUbicacion(ubicacion);
 
         // ACTUALIZA LA PUBLICACION
-        Publicacion update = publicacionRepository.save(p);
+        Publicacion actualizado = publicacionRepository.save(p);
 
-        return new PublicacionDetailDTO(update.getId(),
-                update.getDescripcion(), update.getFecha(), update.getActivo(),
-                update.getMascota().getNombre(), update.getMascota().getTipoMascota().name(),
-                update.getMiembro().getId(), update.getMiembro().getNombre(),
-                update.getUbicacion().getDireccion(), update.getUbicacion().getAltura(),
-                update.getUbicacion().getCiudad(), update.getUbicacion().getRegion(),
-                update.getUbicacion().getPais());
+        return new PublicacionDetailDTO(actualizado.getId(),
+                actualizado.getDescripcion(), actualizado.getFecha(), actualizado.getActivo(),
+                actualizado.getMascota().getNombre(), actualizado.getMascota().getTipoMascota().name(),
+                actualizado.getMiembro().getId(), actualizado.getMiembro().getNombre(),
+                actualizado.getUbicacion().getDireccion(), actualizado.getUbicacion().getAltura(),
+                actualizado.getUbicacion().getCiudad(), actualizado.getUbicacion().getRegion(),
+                actualizado.getUbicacion().getPais());
     }
 
     // BAJA LOGICA
-    public void eliminarPublicacion (Long id) {
+    public void eliminar(Long id) {
 
         // Eliminacion regular
         //if (!publicacionRepository.existsById(id)) {
@@ -160,8 +184,13 @@ public class PublicacionService {
         // Eliminacion logica de la Publicacion
         Publicacion p = publicacionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
+        // Valida si la Publicacion esta activa
+        if (!p.getActivo()) {
+            throw new IllegalStateException("La publicación con ID " + id + " se encuentra inactiva.");
+        }
+        // Elimina logicamente la Publicacion
         p.setActivo(false);
-        // SI la ubicacion de la Publicacion no es nula
+        // Valida que su Ubicacion sea eliminada logicamente tambien
         if (p.getUbicacion() != null) {
             // Baja lógica de la ubicación asociada
             p.getUbicacion().setActivo(false);
