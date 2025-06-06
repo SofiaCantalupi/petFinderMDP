@@ -26,7 +26,7 @@ public class MiembroController {
         return ResponseEntity.ok(miembroService.listar());
     }
 
-    @GetMapping("/miembros/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<MiembroDetailDTO> obtenerPorId(@PathVariable Long id){
         return ResponseEntity.ok(miembroService.obtenerPorId(id));
     }
@@ -55,7 +55,7 @@ public class MiembroController {
         return ResponseEntity.ok("Miembro eliminado éxitosamente");
     }
 
-    @DeleteMapping("/{email}")
+    @DeleteMapping("/borrarPorEmail/{email}")
     public ResponseEntity<String> eliminarPorEmail(@PathVariable String email){
         miembroService.eliminarPorEmail(email);
         return ResponseEntity.ok("Miembro eliminado éxitosamente");

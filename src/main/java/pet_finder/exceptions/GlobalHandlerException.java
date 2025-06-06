@@ -66,6 +66,12 @@ public class GlobalHandlerException {
         ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, exc.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+    @ExceptionHandler(MiembroInactivoException.class)
+    public ResponseEntity<ErrorResponse> manejarMiembroInactivo(MiembroInactivoException exc){
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, exc.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 
 
 }
