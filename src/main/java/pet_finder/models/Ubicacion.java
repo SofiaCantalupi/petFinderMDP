@@ -37,6 +37,7 @@ public class Ubicacion {
         this.ciudad = ciudad;
         this.region = region;
         this.pais = pais;
+
         this.activo = true; // Activo por default
     }
 
@@ -48,6 +49,7 @@ public class Ubicacion {
         this.pais = pais;
         this.latitud = latitud;
         this.longitud = longitud;
+
         this.activo = true; // Activo por default
     }
 
