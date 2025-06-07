@@ -22,9 +22,11 @@ public class ComentarioMapper implements Mapper <ComentarioRequestDTO, Comentari
 
     @Override
     public Comentario aEntidad(ComentarioRequestDTO request) {
+
         Comentario comentario = new Comentario();
         comentario.setTexto(request.getTexto());
         comentario.setFechaPublicacion(request.getFechaPublicacion());
+
 
         return comentario;
     }
@@ -40,14 +42,9 @@ public class ComentarioMapper implements Mapper <ComentarioRequestDTO, Comentari
 
     @Override
     public List<ComentarioDetailDTO> deEntidadesAdetails(List<Comentario> comentarios) {
-        List<ComentarioDetailDTO> detalles = new ArrayList<>();
-
-        for (Comentario comentario : comentarios) {
-            ComentarioDetailDTO detalle = aDetail(comentario);
-            detalles.add(detalle);
-        }
-
-        return detalles;
+        return comentarios.stream()
+                .map(this::aDetail)
+                .toList();
     }
 
 

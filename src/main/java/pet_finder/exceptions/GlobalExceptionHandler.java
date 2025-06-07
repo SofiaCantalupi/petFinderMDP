@@ -43,4 +43,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> manejarUsuarioNoEncontradoException(UsuarioNoEncontradoException ex){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+
+
+
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> manejarExcepcionGeneral(Exception ex) {
+        ex.printStackTrace(); // muestra en consola el recorrido completo, esto sirve para mejor mejor los errores y saber de donde vienen
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Ocurrió un error inesperado: " + ex.getMessage());
+    }
+
 }

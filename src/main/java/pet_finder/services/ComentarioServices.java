@@ -30,14 +30,14 @@ public class ComentarioServices {
 
 
 
-    public Comentario crearComentario(Comentario comentario){
+    public Comentario crearComentario(Comentario comentario, Long idPublicacion, Long idMiembro){
 
-        Publicacion publicacion = publicacionRepository.findById(comentario.getPublicacion().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Publicación no encontrada con esa ID " + comentario.getPublicacion().getId()));
 
-        Miembro miembro = miembroRepository.findById(comentario.getMiembro().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con esa ID " + comentario.getMiembro().getId()));
+        Publicacion publicacion = publicacionRepository.findById(idPublicacion)
+                .orElseThrow(() -> new EntityNotFoundException("Publicación no encontrada con esa ID " + idPublicacion));
 
+        Miembro miembro = miembroRepository.findById(idMiembro)
+                .orElseThrow(() -> new EntityNotFoundException("Miembro no encontrado con esa ID " + idMiembro));
 
         comentario.setPublicacion(publicacion);
         comentario.setMiembro(miembro);
@@ -73,44 +73,5 @@ public class ComentarioServices {
     }
 
 
-
-
-
-
-
-     // lo dejo por las dudas, despues se elimina, pero esto es para trabajar sin la interfaz Mapper
-     /* public ComentarioDetailDTO crearComentario(ComentarioRequestDTO requestDTO){
-
-        Publicacion publicacion = publicacionRepository.findById(requestDTO.getIdPublicacion())
-                .orElseThrow(() -> new RuntimeException("Publicación no encontrada con esa ID " + requestDTO.getIdPublicacion()));
-
-        Miembro miembro = miembroRepository.findById(requestDTO.getIdUsuario())
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con esa ID " + requestDTO.getIdUsuario()));
-
-
-
-        Comentario comentario = new Comentario();
-
-        comentario.setTexto(requestDTO.getTexto());
-        comentario.setFechaPublicacion(requestDTO.getFechaPublicacion());
-        comentario.setPublicacion(publicacion);
-        comentario.setMiembro(miembro);
-
-
-
-        Comentario guardado = comentarioRepository.save(comentario);
-
-        return new ComentarioDetailDTO(guardado);
-
-
-
-        public List<ComentarioDetailDTO> listarComentarios(){
-
-        return comentarioRepository.findAll().stream()
-                .map(comentario -> new ComentarioDetailDTO(comentario))
-                .toList();
-    }
-
-    }*/
 
 }
