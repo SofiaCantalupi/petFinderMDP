@@ -23,16 +23,7 @@ public class MiembroService {
     }
 
 
-    public Miembro crear(MiembroRequestDTO request){
-
-        Miembro miembro = new Miembro();
-
-        miembro.setNombre(request.getNombre());
-        miembro.setApellido(request.getApellido());
-        miembro.setEmail(request.getEmail());
-        miembro.setContrasenia(request.getContrasenia());
-        miembro.setRol(RolUsuario.MIEMBRO);
-        miembro.setActivo(true);
+    public Miembro crear(Miembro miembro){
 
         miembroValidation.validarNombre(miembro);
         miembroValidation.validarApellido(miembro);
@@ -54,6 +45,9 @@ public class MiembroService {
     public Miembro obtenerPorId(Long Id){
         Miembro miembro = miembroRepository.findById(Id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
+
+        miembroValidation.esInactivo(miembro);
+
         return miembro;
     }
 

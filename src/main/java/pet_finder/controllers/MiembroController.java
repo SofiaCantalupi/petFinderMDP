@@ -3,6 +3,7 @@ package pet_finder.controllers;
 import org.springframework.security.access.prepost.PreAuthorize;
 import pet_finder.dtos.MiembroDetailDTO;
 import pet_finder.dtos.MiembroRequestDTO;
+import pet_finder.mappers.MiembroMapper;
 import pet_finder.models.Miembro;
 import pet_finder.services.MiembroService;
 import jakarta.validation.Valid;
@@ -17,9 +18,11 @@ import java.util.List;
 public class MiembroController {
 
     public final MiembroService miembroService;
+    public final MiembroMapper miembroMapper;
 
-    public MiembroController(MiembroService miembroService) {
+    public MiembroController(MiembroService miembroService,MiembroMapper miembroMapper) {
         this.miembroService = miembroService;
+        this.miembroMapper = miembroMapper;
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
@@ -38,8 +41,9 @@ public class MiembroController {
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @PostMapping
     public ResponseEntity<MiembroDetailDTO> crear(@Valid @RequestBody MiembroRequestDTO request){
-        MiembroDetailDTO nuevoMiembro = new MiembroDetailDTO(miembroService.crear(request));
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoMiembro);
+        Miembro miembro = miembroMapper.aEntidad(request);
+        Miembro miembroCreado = miembroService.crear(miembro);
+        return ResponseEntity.status(HttpStatus.CREATED).body(miembroMapper.aDetail(miembroCreado));
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
