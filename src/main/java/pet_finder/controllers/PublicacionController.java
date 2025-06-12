@@ -3,6 +3,7 @@ package pet_finder.controllers;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pet_finder.dtos.PublicacionDetailDTO;
 import pet_finder.dtos.PublicacionRequestDTO;
@@ -30,6 +31,7 @@ public class PublicacionController {
         this.publicacionMapper = publicacionMapper;
     }
 
+    @PreAuthorize("hasRole('MIEMBRO')")
     @PostMapping
     public ResponseEntity<PublicacionDetailDTO> crear (@Valid @RequestBody PublicacionRequestDTO req) {
         Publicacion publicacion = publicacionMapper.aEntidad(req);
@@ -38,6 +40,7 @@ public class PublicacionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(publicacionMapper.aDetail(guardada));
     }
 
+    @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMIN')")
     @GetMapping
     public ResponseEntity<List<PublicacionDetailDTO>> listarActivas() {
         List<Publicacion> publicaciones = publicacionService.listarActivas();
@@ -48,6 +51,7 @@ public class PublicacionController {
         return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
     }
 
+    @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<PublicacionDetailDTO> listarPorId (@PathVariable Long id) {
         Publicacion publicacion = publicacionService.obtenerPorId(id);
@@ -55,6 +59,7 @@ public class PublicacionController {
         return ResponseEntity.ok(publicacionMapper.aDetail(publicacion));
     }
 
+    @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<PublicacionDetailDTO> modificar (@PathVariable Long id, @Valid @RequestBody PublicacionRequestDTO req) {
         Publicacion publicacion = publicacionService.obtenerPorId(id);
@@ -64,6 +69,7 @@ public class PublicacionController {
         return ResponseEntity.ok(publicacionMapper.aDetail(actualizado));
     }
 
+    @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar (@PathVariable Long id) {
         publicacionService.eliminar(id);
