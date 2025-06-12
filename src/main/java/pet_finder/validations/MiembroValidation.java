@@ -31,7 +31,7 @@ public class MiembroValidation {
         }
     }
     public void validarContrasenia(Miembro miembro){
-        String regexContrasenia = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{6,15}$";
+        String regexContrasenia = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{6,15}$" ;
         if(!miembro.getContrasenia().matches(regexContrasenia)){
             throw new FormatoInvalidoException("La contraseña no cumple con el formato. Recordá que debe tener como minimo una letra mayuscula," +
                     " una letra miniscula, un numero, un caracter especial(Por ejemplo: !$%&_#) y su longitud debe ser de 6 a 15 caracteres.");

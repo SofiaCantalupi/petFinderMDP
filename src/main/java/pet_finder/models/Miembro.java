@@ -21,7 +21,7 @@ public class Miembro {
     @Column(nullable = false,unique = true)
     private String email;
 
-    @Column(nullable = false,length = 15)
+    @Column(nullable = false,length = 100)
     private String contrasenia;
 
     @Enumerated(EnumType.STRING)
