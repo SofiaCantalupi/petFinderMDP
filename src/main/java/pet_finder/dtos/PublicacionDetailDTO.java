@@ -12,17 +12,13 @@ public record PublicacionDetailDTO (
         LocalDate fecha,
         Boolean activo,
 
-        // todo: El nombre de la mascota puede ser nulo?
-        // todo: Alguien rescata al animal, pero no sabe su nombre y no tiene collar..
-        String nombreMascota,
-        String tipoMascota,
-        // todo : CAMBIAR AL REQUEST MASCOTA DTO
-        // @Valid
-        // MascotaRequestDTO mascotaDTO
+        MascotaDetailDTO mascotaDTO,
 
+        // todo: Considerar cambiar a miembroDetailDTO
         Long miembroId,
-        String nombreMiembro,
+        String miembroEmail,
 
+        // todo: Considerar cambiar a ubicacionDetailDTO
         String direccion,
         Integer altura,
         String ciudad,

@@ -67,5 +67,17 @@ public class GlobalHandlerException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    // EntidadInactivaException
+    @ExceptionHandler(EntidadInactivaException.class)
+    public ResponseEntity<ErrorResponse> manejarEntidadInactiva(EntidadInactivaException exc){
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, exc.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 
+    // UbicacionInvalidaException
+    @ExceptionHandler(UbicacionInvalidaException.class)
+    public ResponseEntity<ErrorResponse> manejarUbicacionInvalida(UbicacionInvalidaException exc){
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, exc.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 }
