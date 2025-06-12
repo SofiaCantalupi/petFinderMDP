@@ -23,7 +23,7 @@ public class MiembroService {
     }
 
 
-    public MiembroDetailDTO crear(MiembroRequestDTO request){
+    public Miembro crear(MiembroRequestDTO request){
 
         Miembro miembro = new Miembro();
 
@@ -41,7 +41,7 @@ public class MiembroService {
 
         Miembro miembroGuardado = miembroRepository.save(miembro);
 
-        return new MiembroDetailDTO(miembroGuardado);
+        return miembroGuardado;
     }
 
     public List<MiembroDetailDTO> listar(){
@@ -51,10 +51,10 @@ public class MiembroService {
                 .map(MiembroDetailDTO::new).toList();
     }
 
-    public MiembroDetailDTO obtenerPorId(Long Id){
+    public Miembro obtenerPorId(Long Id){
         Miembro miembro = miembroRepository.findById(Id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
-        return new MiembroDetailDTO(miembro);
+        return miembro;
     }
 
     public Miembro obtenerPorEmail(String email){
@@ -62,7 +62,7 @@ public class MiembroService {
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró un miembro con ese mail."));
     }
 
-    public MiembroDetailDTO modificarPorId(Long id,MiembroRequestDTO request){
+    public Miembro modificarPorId(Long id,MiembroRequestDTO request){
         Miembro miembroAModificar = miembroRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
@@ -75,10 +75,10 @@ public class MiembroService {
         miembroValidation.validarEmailUpdates(miembroAModificar);
 
         Miembro miembroModificado = miembroRepository.save(miembroAModificar);
-        return new MiembroDetailDTO(miembroModificado);
+        return miembroModificado;
     }
 
-    public MiembroDetailDTO hacerAdministrador(Long id){
+    public Miembro hacerAdministrador(Long id){
         Miembro miembroAHacerAdmin = miembroRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
@@ -87,7 +87,7 @@ public class MiembroService {
         miembroAHacerAdmin.setRol(RolUsuario.ADMINISTRADOR);
 
         Miembro miembroModificado = miembroRepository.save(miembroAHacerAdmin);
-        return new MiembroDetailDTO(miembroModificado);
+        return miembroModificado;
     }
 
 
