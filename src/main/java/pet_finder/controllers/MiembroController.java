@@ -28,23 +28,25 @@ public class MiembroController {
 
     @GetMapping("{id}")
     public ResponseEntity<MiembroDetailDTO> obtenerPorId(@PathVariable Long id){
-        return ResponseEntity.ok(miembroService.obtenerPorId(id));
+        MiembroDetailDTO miembroDetailDTO = new MiembroDetailDTO(miembroService.obtenerPorId(id));
+        return ResponseEntity.ok(miembroDetailDTO);
     }
 
     @PostMapping        //Quizá se podria agregar la ruta /registro, porqué este vendria a ser el register.
     public ResponseEntity<MiembroDetailDTO> crear(@Valid @RequestBody MiembroRequestDTO request){
-        MiembroDetailDTO nuevoMiembro = miembroService.crear(request);
+        MiembroDetailDTO nuevoMiembro = new MiembroDetailDTO(miembroService.crear(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoMiembro);
     }
     @PutMapping("/{id}")
     public ResponseEntity<MiembroDetailDTO> modificarPorId(@PathVariable Long id, @Valid @RequestBody MiembroRequestDTO request){
-        MiembroDetailDTO nuevoMiembro = miembroService.modificarPorId(id,request);
+        Miembro miembro = miembroService.modificarPorId(id,request);
+        MiembroDetailDTO nuevoMiembro = new MiembroDetailDTO(miembro);
         return ResponseEntity.ok(nuevoMiembro);
     }
 
     @PutMapping("/hacer-administrador/{id}")
     public ResponseEntity<String> hacerAdministradorPorId(@PathVariable Long id){
-        MiembroDetailDTO nuevoAdmin = miembroService.hacerAdministrador(id);
+        MiembroDetailDTO nuevoAdmin = new MiembroDetailDTO(miembroService.hacerAdministrador(id));
         return ResponseEntity.ok("El miembro " + nuevoAdmin.nombre() + " " + nuevoAdmin.apellido() + " es ahora administrador en el sistema.");
     }
 
