@@ -16,15 +16,26 @@ public class MiembroUserDetails implements UserDetails {
         this.miembro = miembro;
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + miembro.getRol().name()));
     }
 
+    public Long getId() {
+        return miembro.getId();
+    }
+
     @Override
     public String getPassword() {
         return miembro.getContrasenia();
+    }
+
+    public String getNombre() {
+        return miembro.getNombre();
+    }
+
+    public String getApellido() {
+        return miembro.getApellido();
     }
 
     @Override
