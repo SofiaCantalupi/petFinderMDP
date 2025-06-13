@@ -3,6 +3,7 @@ package pet_finder.controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pet_finder.dtos.MascotaDetailDTO;
 import pet_finder.dtos.MascotaRequestDTO;
@@ -13,7 +14,7 @@ import pet_finder.services.MascotaService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/mascotas")
+@RequestMapping("api/mascotas")
 public class MascotaController {
     public final MascotaService service;
     public final MascotaMapper mapper;
@@ -24,12 +25,14 @@ public class MascotaController {
         this.mapper = mapper;
     }
 
+    @PreAuthorize("hasRole('MIEMBRO')")
     @GetMapping("/id/{id}")
     public ResponseEntity<MascotaDetailDTO> obtenerPorId(@PathVariable Long id){
         Mascota encontrada = service.obtenerPorId(id);
         return ResponseEntity.ok(mapper.aDetail(encontrada));
     }
 
+    @PreAuthorize("hasRole('MIEMBRO')")
     @PostMapping
     public ResponseEntity<MascotaDetailDTO> crear(@Valid @RequestBody MascotaRequestDTO request){
        Mascota mascota = mapper.aEntidad(request); // el request es mappeado a entidad
@@ -37,6 +40,7 @@ public class MascotaController {
        return ResponseEntity.ok(mapper.aDetail(guardada));
     }
 
+    @PreAuthorize("hasRole('MIEMBRO')")
     @PutMapping("/mascota/{id}")
     public ResponseEntity<MascotaDetailDTO> modificar(@Valid @RequestBody MascotaRequestDTO request, @PathVariable Long id){
         Mascota existente = service.obtenerPorId(id);  // este metodo valida tanto existencia como activo
@@ -46,12 +50,15 @@ public class MascotaController {
         return ResponseEntity.ok(mapper.aDetail(guardada));
     }
 
+    @PreAuthorize("hasRole('MIEMBRO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id){
         service.eliminar(id); // baja logica, no se elimina el registro
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('MIEMBRO')")
+    @GetMapping
     public ResponseEntity<List<MascotaDetailDTO>> listar(){
         List<Mascota> mascotas = service.listar();
         List<MascotaDetailDTO> details = mapper.deEntidadesAdetails(mascotas);
