@@ -1,17 +1,14 @@
 package pet_finder.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
 
 @Entity
 @Table(name = "mascotas")
 public class Mascota {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 50)
@@ -30,6 +27,11 @@ public class Mascota {
 
     @Column(nullable = false)
     private Boolean esActivo;
+
+    @Column(nullable = false)
+    private long miembroId;
+
+    private String fotoUrl;
 
     // Constructor vacio
     public Mascota() {
@@ -70,19 +72,35 @@ public class Mascota {
         this.tipoMascota = tipoMascota;
     }
 
-    public @Size(max = 1000, message = "La descripción no debe superar los 1000 caracteres.") @NotBlank(message = "El campo \"Descripción\" es obligatorio.") String getDescripcion() {
+    public String getDescripcion() {
         return descripcion;
     }
 
-    public void setDescripcion(@Size(max = 1000, message = "La descripción no debe superar los 1000 caracteres.") @NotBlank(message = "El campo \"Descripción\" es obligatorio.") String descripcion) {
+    public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
 
-    public @NotNull Boolean getEsActivo() {
+    public Boolean getEsActivo() {
         return esActivo;
     }
 
-    public void setEsActivo(@NotNull Boolean esActivo) {
+    public void setEsActivo(Boolean esActivo) {
         this.esActivo = esActivo;
+    }
+
+    public long getMiembroId() {
+        return miembroId;
+    }
+
+    public void setMiembroId(long miembroId) {
+        this.miembroId = miembroId;
+    }
+
+    public String getFotoUrl() {
+        return fotoUrl;
+    }
+
+    public void setFotoUrl(String fotoUrl) {
+        this.fotoUrl = fotoUrl;
     }
 }
