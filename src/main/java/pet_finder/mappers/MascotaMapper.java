@@ -48,7 +48,10 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
         entidad.setEstadoMascota(request.getEstadoMascota());
         entidad.setTipoMascota(request.getTipoMascota());
         entidad.setDescripcion(request.getDescripcion());
-        entidad.setEsActivo(request.getActivo());
+
+        // Como se trabaja con la entidad a modificar, no hace falta settear esActivo como true;
+        // Antes de modificarla, se valida que el registro se encuentre activo, sino lanza error
+        // entidad.setEsActivo(true); -> No es necesario
 
         return entidad; // retorna la entidad actualizada
     }
