@@ -24,7 +24,9 @@ public class Publicacion {
     @ManyToOne
     @JoinColumn(name = "miembro_id")
     private Miembro miembro;
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    // fetch me permite recibir Ubicacion a la vez que obtengo PublicacionById
+    // cascade me permite crear o modificar la Ubicacion mediante la Publicacion
+    @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "ubicacion_id")
     private Ubicacion ubicacion;
 

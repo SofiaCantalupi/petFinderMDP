@@ -2,14 +2,32 @@ package pet_finder.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
+@EnableMethodSecurity
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
+
+    private final UserDetailsService userDetailsService;
+    private final JwtAuthFilter jwtAuthFilter;
+
+    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthFilter jwtAuthFilter) {
+        this.userDetailsService = userDetailsService;
+        this.jwtAuthFilter = jwtAuthFilter;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{     //Acá voy a especificar a que rutas se va a poder acceder y a cuales con auth.
@@ -22,13 +40,20 @@ public class SecurityConfig {
 
         )
                 .csrf(csrf -> csrf.disable())           //No util para SpringBoot (En este caso)
-                .httpBasic(Customizer.withDefaults())       //Esto hace que se tenga que "logear" para autentificarse.
+                .userDetailsService(userDetailsService)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // usamos JWT
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
 
     @Bean
-    public PasswordEncoder passwordEncoder(){       //Esto nos va a servir para encriptar las contraseñas, requisito de SpringSecurity.
+    public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
