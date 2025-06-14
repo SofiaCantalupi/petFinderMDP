@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pet_finder.dtos.ComentarioDetailDTO;
 import pet_finder.dtos.ComentarioRequestDTO;
@@ -49,11 +50,14 @@ public class ComentarioController {
 
 
     @GetMapping("/publicacion/{idPublicacion}")
-    public ResponseEntity<List<ComentarioDetailDTO>> listarPorPublicacion(@PathVariable Long idPublicacion) {
+    public ResponseEntity<?> listarPorPublicacion(@PathVariable Long idPublicacion) {
         List<Comentario> comentarios = comentarioService.listarPorPublicacion(idPublicacion);
+
+        if (comentarios.isEmpty()) {
+            return ResponseEntity.ok("Sé el primero en comentar.");
+        }
+
         List<ComentarioDetailDTO> dtos = comentarioMapper.deEntidadesAdetails(comentarios);
-
-
         return ResponseEntity.ok(dtos);
     }
 
@@ -66,6 +70,16 @@ public class ComentarioController {
     }
 
 
+    @DeleteMapping("/{id}/propio")
+    public ResponseEntity<String> eliminarComentarioPropio(@PathVariable Long id) {
+        // Obtener el email del usuario autenticado desde el SecurityContext
+        String emailMiembro = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // Ejecutar eliminación delegando al servicio
+        comentarioService.eliminarComentarioPropio(id, emailMiembro);
+
+        return ResponseEntity.ok("Comentario eliminado correctamente.");
+    }
 
 
 

@@ -3,12 +3,14 @@ package pet_finder.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.models.Comentario;
 import pet_finder.models.Miembro;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.ComentarioRepositories;
 import pet_finder.repositories.MiembroRepository;
 import pet_finder.repositories.PublicacionRepository;
+import pet_finder.validations.MiembroValidation;
 
 import java.util.List;
 
@@ -18,13 +20,14 @@ public class ComentarioServices {
     private final ComentarioRepositories comentarioRepository;
     private final PublicacionRepository publicacionRepository;
     private final MiembroRepository miembroRepository;
+    private final MiembroValidation miembroValidation;
 
 
-
-    public ComentarioServices(ComentarioRepositories comentarioRepository, PublicacionRepository publicacionRepository, MiembroRepository miembroRepository) {
+    public ComentarioServices(ComentarioRepositories comentarioRepository, PublicacionRepository publicacionRepository, MiembroRepository miembroRepository, MiembroValidation miembroValidation) {
         this.comentarioRepository = comentarioRepository;
         this.publicacionRepository = publicacionRepository;
         this.miembroRepository = miembroRepository;
+        this.miembroValidation = miembroValidation;
     }
 
 
@@ -49,13 +52,6 @@ public class ComentarioServices {
 
 
     public List<Comentario> listarPorPublicacion(Long idPublicacion) {
-
-        /*if (dtos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        chequear si se agrega
-        */
-
         return comentarioRepository.findByPublicacionIdAndActivoTrue(idPublicacion);
     }
 
@@ -72,6 +68,23 @@ public class ComentarioServices {
         comentarioRepository.save(comentario);
     }
 
+
+    public void eliminarComentarioPropio(Long idComentario, String emailMiembro) {
+
+        Comentario comentario = comentarioRepository.findById(idComentario)
+                .orElseThrow(() -> new EntityNotFoundException("No existe un comentario con esa id"));
+
+        Miembro miembro = miembroRepository.findByEmail(emailMiembro)
+                .orElseThrow(() -> new EntityNotFoundException("No se encontró un usuario con el email: " + emailMiembro));
+
+        // valida que el comentario sea propio
+        if (!comentario.getMiembro().getId().equals(miembro.getId())) {
+            throw new OperacionNoPermitidaException("No puedes eliminar un comentario que no es tuyo.");
+        }
+
+        comentario.setActivo(false);
+        comentarioRepository.save(comentario);
+    }
 
 
 }

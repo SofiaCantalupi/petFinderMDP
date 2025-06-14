@@ -45,6 +45,10 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(OperacionNoPermitidaException.class)
+    public ResponseEntity<String> manejarOperacionNoPermitidaException(OperacionNoPermitidaException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
 
 
     @ExceptionHandler(Exception.class)
