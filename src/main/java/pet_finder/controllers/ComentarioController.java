@@ -70,7 +70,7 @@ public class ComentarioController {
     }
 
 
-    @DeleteMapping("/{id}/propio")
+    @DeleteMapping("/propio/{id}")
     public ResponseEntity<String> eliminarComentarioPropio(@PathVariable Long id) {
         // Obtener el email del usuario autenticado desde el SecurityContext
         String emailMiembro = SecurityContextHolder.getContext().getAuthentication().getName();
