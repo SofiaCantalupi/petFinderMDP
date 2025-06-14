@@ -47,7 +47,9 @@ public class ComentarioMapper implements Mapper <ComentarioRequestDTO, Comentari
             detalles.add(detalle);
         }
 
-        return detalles;
+        return comentarios.stream()
+                .map(this::aDetail)
+                .toList();
     }
 
 

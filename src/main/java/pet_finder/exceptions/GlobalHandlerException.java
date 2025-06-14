@@ -86,4 +86,11 @@ public class GlobalHandlerException {
         ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, exc.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    @ExceptionHandler(OperacionNoPermitidaException.class)
+    public ResponseEntity<String> manejarOperacionNoPermitidaException(OperacionNoPermitidaException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
+
+
 }

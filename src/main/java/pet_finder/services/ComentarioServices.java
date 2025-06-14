@@ -9,7 +9,7 @@ import pet_finder.models.Publicacion;
 import pet_finder.repositories.ComentarioRepositories;
 import pet_finder.repositories.MiembroRepository;
 import pet_finder.repositories.PublicacionRepository;
-
+import pet_finder.exceptions.OperacionNoPermitidaException;
 import java.util.List;
 
 @Service
@@ -18,7 +18,6 @@ public class ComentarioServices {
     private final ComentarioRepositories comentarioRepository;
     private final PublicacionRepository publicacionRepository;
     private final MiembroRepository miembroRepository;
-
 
 
     public ComentarioServices(ComentarioRepositories comentarioRepository, PublicacionRepository publicacionRepository, MiembroRepository miembroRepository) {
@@ -30,13 +29,13 @@ public class ComentarioServices {
 
 
 
-    public Comentario crearComentario(Comentario comentario){
+    public Comentario crearComentario(Comentario comentario, Long idPublicacion, Long idMiembro){
 
-        Publicacion publicacion = publicacionRepository.findById(comentario.getPublicacion().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Publicación no encontrada con esa ID " + comentario.getPublicacion().getId()));
+        Publicacion publicacion = publicacionRepository.findById(idPublicacion)
+                .orElseThrow(() -> new EntityNotFoundException("Publicación no encontrada con esa ID " + idPublicacion));
 
-        Miembro miembro = miembroRepository.findById(comentario.getMiembro().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con esa ID " + comentario.getMiembro().getId()));
+        Miembro miembro = miembroRepository.findById(idMiembro)
+                .orElseThrow(() -> new EntityNotFoundException("Miembro no encontrado con esa ID " + idMiembro));
 
 
         comentario.setPublicacion(publicacion);
@@ -50,16 +49,8 @@ public class ComentarioServices {
 
     public List<Comentario> listarPorPublicacion(Long idPublicacion) {
 
-        /*if (dtos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        chequear si se agrega
-        */
-
         return comentarioRepository.findByPublicacionIdAndActivoTrue(idPublicacion);
     }
-
-
 
 
 
@@ -72,45 +63,20 @@ public class ComentarioServices {
         comentarioRepository.save(comentario);
     }
 
+    public void eliminarComentarioPropio(Long idComentario, String emailMiembro) {
 
+        Comentario comentario = comentarioRepository.findById(idComentario)
+                .orElseThrow(() -> new EntityNotFoundException("No existe un comentario con esa id"));
 
+        Miembro miembro = miembroRepository.findByEmail(emailMiembro)
+                .orElseThrow(() -> new EntityNotFoundException("No se encontró un usuario con el email: " + emailMiembro));
 
+        // valida que el comentario sea propio
+        if (!comentario.getMiembro().getId().equals(miembro.getId())) {
+            throw new OperacionNoPermitidaException("No puedes eliminar un comentario que no es tuyo.");
+        }
 
-
-
-     // lo dejo por las dudas, despues se elimina, pero esto es para trabajar sin la interfaz Mapper
-     /* public ComentarioDetailDTO crearComentario(ComentarioRequestDTO requestDTO){
-
-        Publicacion publicacion = publicacionRepository.findById(requestDTO.getIdPublicacion())
-                .orElseThrow(() -> new RuntimeException("Publicación no encontrada con esa ID " + requestDTO.getIdPublicacion()));
-
-        Miembro miembro = miembroRepository.findById(requestDTO.getIdUsuario())
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con esa ID " + requestDTO.getIdUsuario()));
-
-
-
-        Comentario comentario = new Comentario();
-
-        comentario.setTexto(requestDTO.getTexto());
-        comentario.setFechaPublicacion(requestDTO.getFechaPublicacion());
-        comentario.setPublicacion(publicacion);
-        comentario.setMiembro(miembro);
-
-
-
-        Comentario guardado = comentarioRepository.save(comentario);
-
-        return new ComentarioDetailDTO(guardado);
-
-
-
-        public List<ComentarioDetailDTO> listarComentarios(){
-
-        return comentarioRepository.findAll().stream()
-                .map(comentario -> new ComentarioDetailDTO(comentario))
-                .toList();
+        comentario.setActivo(false);
+        comentarioRepository.save(comentario);
     }
-
-    }*/
-
 }
