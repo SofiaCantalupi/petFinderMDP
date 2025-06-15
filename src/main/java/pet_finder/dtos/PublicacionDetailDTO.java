@@ -1,6 +1,9 @@
 package pet_finder.dtos;
 
+import pet_finder.models.Publicacion;
+
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @author Daniel Herrera
@@ -15,13 +18,23 @@ public record PublicacionDetailDTO (
         MascotaDetailDTO mascotaDTO,
 
         // todo: Considerar cambiar a miembroDetailDTO
-        Long miembroId,
-        String miembroEmail,
+        MiembroDetailDTO miembroDTO,
 
         // todo: Considerar cambiar a ubicacionDetailDTO
-        String direccion,
-        Integer altura,
-        String ciudad,
-        String region,
-        String pais
-) {}
+        UbicacionDetailDTO ubicacionDTO,
+
+        List<ComentarioDetailDTO> comentarios
+) {
+    public PublicacionDetailDTO(Publicacion publicacion, MascotaDetailDTO mascotaDTO, MiembroDetailDTO miembroDTO, UbicacionDetailDTO ubicacionDTO, List<ComentarioDetailDTO> comentariosDTO){
+        this(
+                publicacion.getId(),
+                publicacion.getDescripcion(),
+                publicacion.getFecha(),
+                publicacion.getActivo(),
+                mascotaDTO,
+                miembroDTO,
+                ubicacionDTO,
+                comentariosDTO
+        );
+    }
+}

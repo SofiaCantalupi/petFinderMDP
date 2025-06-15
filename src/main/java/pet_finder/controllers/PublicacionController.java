@@ -16,7 +16,6 @@ import java.util.List;
 /**
  * @author Daniel Herrera
  */
-
 @RestController
 @RequestMapping("/publicaciones")
 public class PublicacionController {

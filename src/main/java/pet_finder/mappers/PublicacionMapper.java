@@ -2,13 +2,10 @@ package pet_finder.mappers;
 
 import org.springframework.stereotype.Component;
 import pet_finder.dtos.*;
-import pet_finder.models.Mascota;
-import pet_finder.models.Miembro;
-import pet_finder.models.Publicacion;
-import pet_finder.models.Ubicacion;
+import pet_finder.models.*;
+import pet_finder.services.ComentarioServices;
 import pet_finder.services.MascotaService;
 import pet_finder.services.MiembroService;
-import pet_finder.validations.UbicacionValidation;
 
 import java.util.List;
 
@@ -20,41 +17,40 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
 
     private final MascotaService mascotaService;
     private final MiembroService miembroService;
+    private final ComentarioServices comentarioService;
 
-    private final UbicacionValidation ubicacionValidation;
+    private final UbicacionMapper ubicacionMapper;
 
-    public PublicacionMapper (MascotaService mascotaService, MiembroService miembroService, UbicacionValidation ubicacionValidation) {
+    public PublicacionMapper (MascotaService mascotaService,
+                              MiembroService miembroService,
+                              ComentarioServices comentarioService,
+                              UbicacionMapper ubicacionMapper) {
         this.mascotaService = mascotaService;
         this.miembroService = miembroService;
-        this.ubicacionValidation = ubicacionValidation;
+        this.comentarioService = comentarioService;
+        this.ubicacionMapper = ubicacionMapper;
     }
 
     @Override
     public Publicacion aEntidad(PublicacionRequestDTO request) {
+
         // Se crea una nueva Publicacion, con los datos recibidos del Request
         Publicacion publicacion = new Publicacion();
-        publicacion.setDescripcion(request.descripcion());
+        publicacion.setDescripcion(request.getDescripcion());
 
-        // todo: Añadir link de imagen
+        // todo: Añadir imagen
 
-        // Valida la existencia de la Mascota
-        Mascota mascota = mascotaService.obtenerPorId(request.mascotaId());
+        // Trae la Mascota vinculada
+        Mascota mascota = mascotaService.obtenerPorId(request.getMascotaId());
         publicacion.setMascota(mascota);
 
-        // Valida la existencia del Miembro
-        // todo: Necesito una Entidad, no necesito un DTO
-        Miembro miembro = miembroService.obtenerPorId(request.miembroId());
+        // Trae al Miembro vinculado
+        Miembro miembro = miembroService.obtenerPorId(request.getMiembroId());
         publicacion.setMiembro(miembro);
 
-        // Valida si la Ubicacion se puede geocodificar (realmente existe)
-        ubicacionValidation.validarGeocodificacion(request.ubicacion());
-        // Crea una nueva Ubicacion y la setea
-        Ubicacion ubicacion = new Ubicacion();
-        ubicacion.setPais(request.ubicacion().pais());
-        ubicacion.setRegion(request.ubicacion().region());
-        ubicacion.setCiudad(request.ubicacion().ciudad());
-        ubicacion.setDireccion(request.ubicacion().direccion());
-        ubicacion.setAltura(request.ubicacion().altura());
+        // Genera una nueva Ubicacion y la valida
+        Ubicacion ubicacion = ubicacionMapper.aEntidad(request.getUbicacion());
+
         publicacion.setUbicacion(ubicacion);
 
         return publicacion;
@@ -62,14 +58,25 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
 
     @Override
     public PublicacionDetailDTO aDetail(Publicacion entidad) {
-        // Se utiliza constructor del record DetailDTO para retornar un nuevo DetailDTO con los valores de la Publicacion recibida
+
+        List<Comentario> comentarios = comentarioService.listarPorPublicacion(entidad.getId());
+        List<ComentarioDetailDTO> comentariosDto = comentarios.stream()
+                .map(ComentarioDetailDTO::new)
+                .toList();
+
+        // Se utiliza constructor del record DetailDTO
         return new PublicacionDetailDTO(
+                // Publicacion
                 entidad.getId(), entidad.getDescripcion(),
                 entidad.getFecha(), entidad.getActivo(),
+                // Mascota
                 new MascotaDetailDTO(entidad.getMascota()),
-                entidad.getMiembro().getId(), entidad.getMiembro().getEmail(),
-                entidad.getUbicacion().getDireccion(), entidad.getUbicacion().getAltura(),
-                entidad.getUbicacion().getCiudad(), entidad.getUbicacion().getRegion(), entidad.getUbicacion().getPais());
+                // Miembro
+                new MiembroDetailDTO(entidad.getMiembro()),
+                // Ubicacion
+                new UbicacionDetailDTO(entidad.getUbicacion()),
+                // Comentarios
+                comentariosDto);
     }
 
     @Override
@@ -83,30 +90,21 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
     // este metodo toma el request y la entidad que se quiere modificar, actualiza los datos en la entidad existente y retorna la entidad modificada.
     @Override
     public Publicacion modificar (Publicacion entidad, PublicacionRequestDTO request) {
-        // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
-        entidad.setDescripcion(request.descripcion());
 
-        // todo: Añadir link de imagen
-        // Se setea la Ubicacion anterior
-        Mascota mascota = mascotaService.obtenerPorId(request.mascotaId());
+        // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
+        entidad.setDescripcion(request.getDescripcion());
+
+        // todo: Añadir imagen
+
+        Mascota mascota = mascotaService.obtenerPorId(request.getMascotaId());
         entidad.setMascota(mascota);
 
-        // todo: Necesito una Entidad Miembro, no un DTO
-        Miembro miembro = miembroService.obtenerPorId(request.miembroId());
+        Miembro miembro = miembroService.obtenerPorId(request.getMiembroId());
         entidad.setMiembro(miembro);
 
-        // Se setea la Ubicacion anterior
-        entidad.setUbicacion(entidad.getUbicacion());
-
-        // Valida si la Ubicacion recibida por DTO se puede geocodificar (realmente existe)
-        ubicacionValidation.validarGeocodificacion(request.ubicacion());
-
-        // Se modifica la Ubicacion con los nuevos datos recibidos del DTO
-        entidad.getUbicacion().setDireccion(request.ubicacion().direccion());
-        entidad.getUbicacion().setAltura(request.ubicacion().altura());
-        entidad.getUbicacion().setCiudad(request.ubicacion().ciudad());
-        entidad.getUbicacion().setRegion(request.ubicacion().region());
-        entidad.getUbicacion().setPais(request.ubicacion().pais());
+        // Trae la ubicacion del request
+        Ubicacion ubicacion = ubicacionMapper.aEntidad(request.getUbicacion());
+        entidad.setUbicacion(ubicacion);
 
         return entidad; // retorna la entidad actualizada
     }
