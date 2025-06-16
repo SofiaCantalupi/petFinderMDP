@@ -16,7 +16,7 @@ import pet_finder.services.MascotaService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/mascotas")
+@RequestMapping("/mascotas")
 public class MascotaController {
 
     public final MascotaService service;
