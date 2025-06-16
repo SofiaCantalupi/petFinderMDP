@@ -5,7 +5,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import pet_finder.dtos.UbicacionRequestDTO;
+import pet_finder.exceptions.MiembroInactivoException;
 import pet_finder.exceptions.UbicacionInvalidaException;
+import pet_finder.models.Ubicacion;
 
 /**
  * @author Daniel Herrera
@@ -15,16 +17,23 @@ public class UbicacionValidation {
 
     public UbicacionValidation() {}
 
+    public void esInactivo(Ubicacion ubicacion){
+        if (!ubicacion.getActivo()){
+            throw new MiembroInactivoException("La Ubicacion con ID : "+ubicacion.getId()+" esta inactiva.");
+        }
+    }
+
+    // todo: Comprobar funcionamiento de esta FUNCION
     // FUNCION AUXILIAR VALIDA QUE LA UBICACION ENVIADA EXISTA REALMENTE
     public void validarGeocodificacion(UbicacionRequestDTO ubicacionDTO) {
 
         // Arma una cadena (ej: "Rivadavia 3470, Mar del Plata, Buenos Aires, Argentina")
         String query = String.format("%s %s, %s, %s, %s",
-                ubicacionDTO.direccion(),
-                ubicacionDTO.altura(),
-                ubicacionDTO.ciudad(),
-                ubicacionDTO.region(),
-                ubicacionDTO.pais()
+                ubicacionDTO.getDireccion(),
+                ubicacionDTO.getAltura(),
+                ubicacionDTO.getCiudad(),
+                ubicacionDTO.getRegion(),
+                ubicacionDTO.getPais()
         );
 
         // Construye la URL para consultar al servicio Nominatim (OpenStreetMap)

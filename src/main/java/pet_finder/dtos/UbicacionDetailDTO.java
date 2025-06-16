@@ -1,10 +1,13 @@
 package pet_finder.dtos;
 
+import pet_finder.models.Ubicacion;
+
 /**
  * @author Daniel Herrera
  */
 
 public record UbicacionDetailDTO(
+        Long id,
         String direccion,
         Integer altura,
         String ciudad,
@@ -12,4 +15,15 @@ public record UbicacionDetailDTO(
         String pais,
         Boolean activo
 ) {
+    public UbicacionDetailDTO(Ubicacion ubicacion){
+        this(
+                ubicacion.getId(),
+                ubicacion.getDireccion(),
+                ubicacion.getAltura(),
+                ubicacion.getCiudad(),
+                ubicacion.getRegion(),
+                ubicacion.getPais(),
+                ubicacion.getActivo()
+        );
+    }
 }

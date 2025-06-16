@@ -1,5 +1,6 @@
 package pet_finder.services;
 
+import pet_finder.models.Comentario;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.PublicacionRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,11 +17,21 @@ public class PublicacionService {
 
     private final PublicacionRepository publicacionRepository;
 
+    private final UbicacionService ubicacionService;
+    private final MascotaService mascotaService;
+    private final ComentarioServices comentarioService;
+
     private final PublicacionValidation publicacionValidation;
 
     public PublicacionService(PublicacionRepository publicacionRepository,
+                              UbicacionService ubicacionService,
+                              MascotaService mascotaService,
+                              ComentarioServices comentarioService,
                               PublicacionValidation publicacionValidation) {
         this.publicacionRepository = publicacionRepository;
+        this.ubicacionService = ubicacionService;
+        this.mascotaService = mascotaService;
+        this.comentarioService = comentarioService;
         this.publicacionValidation = publicacionValidation;
     }
 
@@ -59,14 +70,23 @@ public class PublicacionService {
         Publicacion p = publicacionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
 
-        // Valida si la Publicacion ya estaba inactiva
+        // Valida si la Publicacion ya estaba activa
         publicacionValidation.esInactivo(p);
 
-        // Elimina logicamente la Publicacion
-        p.setActivo(false);
+        // Eliminar mascota por service
+        mascotaService.eliminar(p.getMascota().getId());
 
-        // Valida que su Ubicacion sea eliminada logicamente tambien
-        p.getUbicacion().setActivo(false);
+        // Eliminar ubicacion por service
+        ubicacionService.eliminar(p.getUbicacion().getId());
+
+        // Eliminar comentarios por service
+        List<Comentario> comentarios = comentarioService.listarPorPublicacion(p.getId());
+        for(Comentario c: comentarios) {
+            comentarioService.eliminarComentarioPorId(c.getId());
+        }
+
+        // BAJA LOGICA
+        p.setActivo(false);
 
         // SE ACTUALIZA REALIZANDO SU BAJA LOGICA
         publicacionRepository.save(p);
