@@ -1,8 +1,8 @@
 package pet_finder.controllers;
-
+import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pet_finder.dtos.ComentarioDetailDTO;
 import pet_finder.dtos.ComentarioRequestDTO;
@@ -12,10 +12,9 @@ import pet_finder.services.ComentarioServices;
 
 import java.util.List;
 
-@Controller
-@RestController("/comentarios")
+@RestController
+@RequestMapping("/comentarios")
 public class ComentarioController {
-
 
     private final ComentarioServices comentarioService;
     private final ComentarioMapper comentarioMapper;
@@ -27,43 +26,42 @@ public class ComentarioController {
     }
 
 
-
     @PostMapping
-    public ResponseEntity<ComentarioDetailDTO> crearComentario(@RequestBody @Valid ComentarioRequestDTO requestDTO) {
+    public ResponseEntity<ComentarioDetailDTO> crearComentario(@Valid @RequestBody ComentarioRequestDTO request) {
 
-        //convierte el dto de request a entidad Comentario
-        Comentario comentarioEntidad = comentarioMapper.aEntidad(requestDTO);
+        Comentario comentario = comentarioMapper.aEntidad(request);
+        Comentario creado = comentarioService.crearComentario(comentario, request.getIdPublicacion(), request.getIdUsuario());
 
-
-        Comentario comentarioGuardado = comentarioService.crearComentario(comentarioEntidad);
-
-        // Convertir la entidad guardada a DTO detail para el retorno
-        ComentarioDetailDTO detalleDTO = comentarioMapper.aDetail(comentarioGuardado);
-
-        return ResponseEntity.ok(detalleDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ComentarioDetailDTO(creado));
     }
 
-
-
     @GetMapping("/publicacion/{idPublicacion}")
-    public ResponseEntity<List<ComentarioDetailDTO>> listarPorPublicacion(@PathVariable Long idPublicacion) {
+    public ResponseEntity<?> listarPorPublicacion(@PathVariable Long idPublicacion) {
         List<Comentario> comentarios = comentarioService.listarPorPublicacion(idPublicacion);
-        List<ComentarioDetailDTO> dtos = comentarioMapper.deEntidadesAdetails(comentarios);
+        if (comentarios.isEmpty()) {
+            return ResponseEntity.ok("Sé el primero en comentar.");
+        }
 
+        List<ComentarioDetailDTO> dtos = comentarioMapper.deEntidadesAdetails(comentarios);
 
         return ResponseEntity.ok(dtos);
     }
 
-
-
+    //esto hay que arreglarlo para que SOLO EL ADMIN pueda dar de baja los comentarios
     @DeleteMapping("/id/{id}")
-    public ResponseEntity<Void> eliminarComentario(@PathVariable Long id) {
-        comentarioService.eliminarComentarioPorId(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> eliminarComentario(@PathVariable Long id) {
+            comentarioService.eliminarComentarioPorId(id);
+            return ResponseEntity.ok("Se elimino correctamente");
     }
 
+    @DeleteMapping("/propio/{id}")
+    public ResponseEntity<String> eliminarComentarioPropio(@PathVariable Long id) {
+        // Obtener el email del usuario autenticado desde el SecurityContext
+        String emailMiembro = SecurityContextHolder.getContext().getAuthentication().getName();
 
+        // Ejecutar eliminación delegando al servicio
+        comentarioService.eliminarComentarioPropio(id, emailMiembro);
 
-
-
+        return ResponseEntity.ok("Comentario eliminado correctamente.");
+    }
 }

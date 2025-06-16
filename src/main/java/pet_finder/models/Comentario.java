@@ -55,7 +55,7 @@ public class Comentario {
 
 
     public void setActivo(Boolean activo) {
-        this.activo = true;
+        this.activo = activo;
     }
 
 
