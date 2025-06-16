@@ -17,11 +17,6 @@ public class MascotaRequestDTO {
     @NotNull(message = "El campo \"Tipo de mascota\" es obligatorio.")
     private TipoMascota tipoMascota;
 
-    @Size(max = 255, message = "La descripción no debe superar los 255 caracteres.")
-    @NotBlank(message = "El campo \"Descripción\" es obligatorio.")
-    private String descripcion;
-
-
     @URL(message = "La foto debe ser una URL válida")
     private String fotoUrl;
 
@@ -53,14 +48,6 @@ public class MascotaRequestDTO {
 
     public void setEstadoMascota(@NotNull(message = "El campo \"Estado de la mascota\" es obligatorio.") EstadoMascota estadoMascota) {
         this.estadoMascota = estadoMascota;
-    }
-
-    public @Size(max = 255, message = "La descripción no debe superar los 255 caracteres.") @NotBlank(message = "El campo \"Descripción\" es obligatorio.") String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(@Size(max = 255, message = "La descripción no debe superar los 255 caracteres.") @NotBlank(message = "El campo \"Descripción\" es obligatorio.") String descripcion) {
-        this.descripcion = descripcion;
     }
 
     public @URL(message = "La foto debe ser una URL válida") String getFotoUrl() {
