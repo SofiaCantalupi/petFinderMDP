@@ -2,10 +2,16 @@ package pet_finder.config;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pet_finder.config.dtos.AuthResponseDTO;
+import pet_finder.config.dtos.CambiarContraseniaDTO;
+import pet_finder.config.dtos.LoginRequestDTO;
+import pet_finder.config.dtos.RegistroRequestDTO;
 import pet_finder.dtos.MiembroDetailDTO;
 
 @RestController
@@ -29,6 +35,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         return ResponseEntity.ok(authService.logIn(request));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
+    @PostMapping("/cambiar-contrasenia")
+    public ResponseEntity<String> cambiarContrasenia(@Valid @RequestBody CambiarContraseniaDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails) {
+        return ResponseEntity.ok(authService.cambiarContrasenia(request, userDetails.getId()));
     }
 
 

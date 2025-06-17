@@ -50,6 +50,7 @@ public class MiembroController {
         return ResponseEntity.status(HttpStatus.CREATED).body(miembroMapper.aDetail(miembroCreado));
     }
 
+    //Sin uso. Cambiaria el miembro entero, hasta su contraseña y obliga a cambiar todo.
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @PutMapping("/{id}")
     public ResponseEntity<MiembroDetailDTO> modificarPorId(@PathVariable Long id, @Valid @RequestBody MiembroRequestDTO request){
@@ -61,7 +62,7 @@ public class MiembroController {
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @PutMapping("/modificar-nombre")
     public ResponseEntity<MiembroDetailDTO> modificarNombre(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
-        Miembro miembro = miembroService.modificarApellido(request.getNuevoCampo(),userDetails.getId());
+        Miembro miembro = miembroService.modificarNombre(request.getNuevoCampo(),userDetails.getId());
         MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
         return ResponseEntity.ok(nuevoMiembro);
     }
@@ -96,6 +97,7 @@ public class MiembroController {
         miembroService.eliminarPorEmail(email);
         return ResponseEntity.ok("Miembro eliminado éxitosamente");
     }
+
 
 
 }

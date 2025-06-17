@@ -3,6 +3,10 @@ package pet_finder.config;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pet_finder.config.dtos.AuthResponseDTO;
+import pet_finder.config.dtos.CambiarContraseniaDTO;
+import pet_finder.config.dtos.LoginRequestDTO;
+import pet_finder.config.dtos.RegistroRequestDTO;
 import pet_finder.dtos.MiembroDetailDTO;
 import pet_finder.exceptions.FormatoInvalidoException;
 import pet_finder.exceptions.MiembroInactivoException;
@@ -79,6 +83,31 @@ public class AuthService {
         String token = jwtService.generateToken(miembroUserDetails); // JWT firmado
 
         return new AuthResponseDTO(token,miembro.getNombre(),miembro.getRol().name());
+    }
+
+    public String cambiarContrasenia(CambiarContraseniaDTO request, Long id){
+
+        //Primero me traigo al miembro autenticado a traves del token
+        Miembro miembro = miembroRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró al miembro."));
+
+        //Primero verifico que la contraseña actual ingresada por el usuario sea correcta.
+        //Uso el passwordEncoder porque la contraseña esta cifrada.
+        if (!passwordEncoder.matches(request.getContraseniaVieja(), miembro.getContrasenia())) {
+            throw new FormatoInvalidoException("La contraseña actual no coincide con la ingresada.");
+        }
+
+        //Si es así, le pongo la contraseña del request al miembro y despues la verifico.
+        miembro.setContrasenia(request.getNuevaContrasenia());
+        miembroValidation.validarContrasenia(miembro);
+
+        //Una vez validada, la cifro.
+        miembro.setContrasenia(passwordEncoder.encode(request.getNuevaContrasenia()));
+
+        //guardo el miembro con la contraseña actualizada en el repositorio
+        miembroRepository.save(miembro);
+
+            return "La contraseña se ha cambiado con éxito.";
     }
 
     }

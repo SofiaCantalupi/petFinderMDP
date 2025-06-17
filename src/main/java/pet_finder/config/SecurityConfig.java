@@ -32,7 +32,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{     //Acá voy a especificar a que rutas se va a poder acceder y a cuales con auth.
         return http.authorizeHttpRequests(
-                auth -> auth.requestMatchers("/auth/**").permitAll()
+                auth -> auth.requestMatchers("/auth/login", "/auth/register").permitAll()
                 //Con este metodo pongo que voy a permitir el acceso a todas las rutas que comiencen con
                 // /auth. Ya que van a ser el registro y el log in, y estas rutas tienen que ser publicas.
                         .anyRequest().authenticated()
