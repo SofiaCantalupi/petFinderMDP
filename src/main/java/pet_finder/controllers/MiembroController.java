@@ -3,6 +3,7 @@ package pet_finder.controllers;
 import org.springframework.security.access.prepost.PreAuthorize;
 import pet_finder.dtos.MiembroDetailDTO;
 import pet_finder.dtos.MiembroRequestDTO;
+import pet_finder.mappers.MiembroMapper;
 import pet_finder.models.Miembro;
 import pet_finder.services.MiembroService;
 import jakarta.validation.Valid;
@@ -17,36 +18,40 @@ import java.util.List;
 public class MiembroController {
 
     public final MiembroService miembroService;
+    public final MiembroMapper miembroMapper;
 
-    public MiembroController(MiembroService miembroService) {
+    public MiembroController(MiembroService miembroService,MiembroMapper miembroMapper) {
         this.miembroService = miembroService;
+        this.miembroMapper = miembroMapper;
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<List<MiembroDetailDTO>> listar(){
-        return ResponseEntity.ok(miembroService.listar());
+        List<MiembroDetailDTO> details = miembroMapper.deEntidadesAdetails(miembroService.listar());
+        return ResponseEntity.ok(details);
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("{id}")
     public ResponseEntity<MiembroDetailDTO> obtenerPorId(@PathVariable Long id){
-        MiembroDetailDTO miembroDetailDTO = new MiembroDetailDTO(miembroService.obtenerPorId(id));
+        MiembroDetailDTO miembroDetailDTO = miembroMapper.aDetail(miembroService.obtenerPorId(id));
         return ResponseEntity.ok(miembroDetailDTO);
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @PostMapping
     public ResponseEntity<MiembroDetailDTO> crear(@Valid @RequestBody MiembroRequestDTO request){
-        MiembroDetailDTO nuevoMiembro = new MiembroDetailDTO(miembroService.crear(request));
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoMiembro);
+        Miembro miembro = miembroMapper.aEntidad(request);
+        Miembro miembroCreado = miembroService.crear(miembro);
+        return ResponseEntity.status(HttpStatus.CREATED).body(miembroMapper.aDetail(miembroCreado));
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @PutMapping("/{id}")
     public ResponseEntity<MiembroDetailDTO> modificarPorId(@PathVariable Long id, @Valid @RequestBody MiembroRequestDTO request){
-        Miembro miembro = miembroService.modificarPorId(id,request);
-        MiembroDetailDTO nuevoMiembro = new MiembroDetailDTO(miembro);
+        Miembro miembro = miembroService.modificarPorId(id,miembroMapper.aEntidad(request));
+        MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
         return ResponseEntity.ok(nuevoMiembro);
     }
 

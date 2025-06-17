@@ -44,10 +44,9 @@ public class MiembroValidation {
                 });
     }
 
-    public void validarExistenciaPorId(Long Id){
-            if(miembroRepository.findById(Id).isEmpty()){
-                throw new UsuarioNoEncontradoException("No se encontró un usuario con el ID: " + Id);
-            }
+    public Miembro validarExistenciaPorId(Long Id){
+            return miembroRepository.findById(Id)
+                    .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró un usuario con el ID: " + Id));
     }
 
     public void validarExistenciaPorEmail(String email){

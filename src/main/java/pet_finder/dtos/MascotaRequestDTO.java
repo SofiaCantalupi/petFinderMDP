@@ -34,7 +34,6 @@ public class MascotaRequestDTO {
     public @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres.") String getNombre() {
         return nombre;
     }
-
     public void setNombre(@Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres.") String nombre) {
         this.nombre = nombre;
     }
