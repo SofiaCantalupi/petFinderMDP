@@ -44,14 +44,13 @@ public class PublicacionService {
 
     // LISTAR POR ID
     public Publicacion obtenerPorId (Long id) {
-        // Valida si existe la Publicacion con ese id
-        Publicacion p = publicacionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
+        // Valida si existe la Publicacion con ese id, si existe la retorna
+        Publicacion existente = publicacionValidation.existePorId(id);
 
         // Valida si la Publicacion esta activa
-        publicacionValidation.esInactivo(p);
+        publicacionValidation.esInactivo(existente);
 
-        return p;
+        return existente;
     }
 
     // LISTAR TODAS LAS PUBLICACIONES
@@ -69,8 +68,7 @@ public class PublicacionService {
     // BAJA LOGICA
     public void eliminar(Long id) {
         // Valida si existe la Publicacion por id
-        Publicacion p = publicacionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
+        Publicacion p = publicacionValidation.existePorId(id);
 
         // Valida si la Publicacion ya estaba activa
         publicacionValidation.esInactivo(p);
