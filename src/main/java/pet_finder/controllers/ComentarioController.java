@@ -3,8 +3,10 @@ import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.ComentarioDetailDTO;
 import pet_finder.dtos.ComentarioRequestDTO;
 import pet_finder.mappers.ComentarioMapper;
@@ -27,10 +29,13 @@ public class ComentarioController {
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @PostMapping
-    public ResponseEntity<ComentarioDetailDTO> crearComentario(@Valid @RequestBody ComentarioRequestDTO request) {
+    public ResponseEntity<ComentarioDetailDTO> crearComentario(@Valid @RequestBody ComentarioRequestDTO request,
+                                                               @AuthenticationPrincipal MiembroUserDetails userDetails) {
+        Long idMiembro = userDetails.getId();
 
         Comentario comentario = comentarioMapper.aEntidad(request);
-        Comentario creado = comentarioService.crearComentario(comentario, request.getIdPublicacion(), request.getIdUsuario());
+
+        Comentario creado = comentarioService.crearComentario(comentario, request.getIdPublicacion(), idMiembro);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new ComentarioDetailDTO(creado));
     }

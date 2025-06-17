@@ -19,8 +19,6 @@ public class ComentarioRequestDTO {
     @NotNull(message = "Debe estar asociado a una publicacion")
     private Long idPublicacion;
 
-    @NotNull(message = "Debe estar asociado a un Usuario")
-    private Long idUsuario;
 
     public ComentarioRequestDTO() {
     }
@@ -40,14 +38,6 @@ public class ComentarioRequestDTO {
 
     public void setFechaPublicacion(LocalDate fechaPublicacion) {
         this.fechaPublicacion = fechaPublicacion;
-    }
-
-    public Long getIdUsuario() {
-        return idUsuario;
-    }
-
-    public void setIdUsuario(Long idUsuario) {
-        this.idUsuario = idUsuario;
     }
 
     public Long getIdPublicacion() {
