@@ -22,9 +22,6 @@ public class Mascota {
     @Enumerated(EnumType.STRING)
     private TipoMascota tipoMascota;
 
-    @Column(length = 1000, nullable = false)
-    private String descripcion;
-
     @Column(nullable = false)
     private Boolean esActivo;
 
@@ -70,14 +67,6 @@ public class Mascota {
 
     public void setTipoMascota(TipoMascota tipoMascota) {
         this.tipoMascota = tipoMascota;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
     }
 
     public Boolean getEsActivo() {

@@ -92,5 +92,10 @@ public class GlobalHandlerException {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> manejarIllegalArgument(IllegalArgumentException exc){
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, exc.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 
 }

@@ -1,5 +1,7 @@
 package pet_finder.services;
 
+import pet_finder.enums.EstadoMascota;
+import pet_finder.enums.TipoMascota;
 import pet_finder.models.Comentario;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.PublicacionRepository;
@@ -42,14 +44,13 @@ public class PublicacionService {
 
     // LISTAR POR ID
     public Publicacion obtenerPorId (Long id) {
-        // Valida si existe la Publicacion con ese id
-        Publicacion p = publicacionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
+        // Valida si existe la Publicacion con ese id, si existe la retorna
+        Publicacion existente = publicacionValidation.existePorId(id);
 
         // Valida si la Publicacion esta activa
-        publicacionValidation.esInactivo(p);
+        publicacionValidation.esInactivo(existente);
 
-        return p;
+        return existente;
     }
 
     // LISTAR TODAS LAS PUBLICACIONES
@@ -67,8 +68,7 @@ public class PublicacionService {
     // BAJA LOGICA
     public void eliminar(Long id) {
         // Valida si existe la Publicacion por id
-        Publicacion p = publicacionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("No se encontro la Publicacion con el ID = "+id));
+        Publicacion p = publicacionValidation.existePorId(id);
 
         // Valida si la Publicacion ya estaba activa
         publicacionValidation.esInactivo(p);
@@ -90,6 +90,31 @@ public class PublicacionService {
 
         // SE ACTUALIZA REALIZANDO SU BAJA LOGICA
         publicacionRepository.save(p);
+    }
+
+    // FILTRAR POR TipoMascota
+    public List<Publicacion> filtrarPorTipoMascota(String tipoString){
+        // El controller recibe un String, por lo tanto debe convertirse a un dato tipo Enum (TipoMascota)
+        // Se valida que el string sea valido ("gato" o "perro") y se convierte a su respectivo Enum (TipoMascota)
+        TipoMascota tipoEnum = publicacionValidation.validarYConvertirTipoMascota(tipoString);
+
+        // Se buscan las publicaciones cuyas mascotas son del tipo ingresado por parametro, y se filtran las publicaciones activas
+        return publicacionRepository.findAllByMascotaTipoMascota(tipoEnum)
+                .stream()
+                .filter(Publicacion::getActivo)
+                .toList();
+    }
+
+    // FILTRAR POR EstadoMascota
+    public List<Publicacion> filtrarPorEstadoMascota(String estadoString){
+        // Se valida que el string sea valido ("perdido" o "encontrado") y se convierte a su respectivo Enum (EstadoMascota)
+        EstadoMascota estadoEnum = publicacionValidation.validarYConvertirEstadoMascota(estadoString);
+
+        // El metodo encuentra todas las publicaciones con ese estado y filtra las publicaciones activas.
+        return publicacionRepository.findAllByMascotaEstadoMascota(estadoEnum)
+                .stream()
+                .filter(Publicacion::getActivo)
+                .toList();
     }
 
 }
