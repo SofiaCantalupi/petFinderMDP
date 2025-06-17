@@ -1,8 +1,11 @@
 package pet_finder.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.MiembroDetailDTO;
 import pet_finder.dtos.MiembroRequestDTO;
+import pet_finder.dtos.MiembroRequestUpdateDTO;
 import pet_finder.mappers.MiembroMapper;
 import pet_finder.models.Miembro;
 import pet_finder.services.MiembroService;
@@ -47,6 +50,7 @@ public class MiembroController {
         return ResponseEntity.status(HttpStatus.CREATED).body(miembroMapper.aDetail(miembroCreado));
     }
 
+    //Sin uso. Cambiaria el miembro entero, hasta su contraseña y obliga a cambiar todo.
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @PutMapping("/{id}")
     public ResponseEntity<MiembroDetailDTO> modificarPorId(@PathVariable Long id, @Valid @RequestBody MiembroRequestDTO request){
@@ -55,7 +59,23 @@ public class MiembroController {
         return ResponseEntity.ok(nuevoMiembro);
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
+    @PutMapping("/modificar-nombre")
+    public ResponseEntity<MiembroDetailDTO> modificarNombre(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
+        Miembro miembro = miembroService.modificarNombre(request.getNuevoCampo(),userDetails.getId());
+        MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
+        return ResponseEntity.ok(nuevoMiembro);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
+    @PutMapping("/modificar-apellido")
+    public ResponseEntity<MiembroDetailDTO> modificarApellido(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
+        Miembro miembro = miembroService.modificarApellido(request.getNuevoCampo(),userDetails.getId());
+        MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
+        return ResponseEntity.ok(nuevoMiembro);
+    }
+
+    @PreAuthorize("hasRole('MIEMBRO')")
     @PutMapping("/hacer-administrador/{id}")
     public ResponseEntity<String> hacerAdministradorPorId(@PathVariable Long id){
         MiembroDetailDTO nuevoAdmin = new MiembroDetailDTO(miembroService.hacerAdministrador(id));
@@ -77,6 +97,7 @@ public class MiembroController {
         miembroService.eliminarPorEmail(email);
         return ResponseEntity.ok("Miembro eliminado éxitosamente");
     }
+
 
 
 }

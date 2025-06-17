@@ -1,5 +1,7 @@
 package pet_finder.services;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.MiembroDetailDTO;
 import pet_finder.dtos.MiembroRequestDTO;
 import pet_finder.exceptions.UsuarioNoEncontradoException;
@@ -75,6 +77,32 @@ public class MiembroService {
         return miembroModificado;
     }
 
+
+    public Miembro modificarNombre(String nombre,Long id){
+
+        Miembro miembroAModificar = miembroRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
+
+        miembroAModificar.setNombre(nombre);
+        miembroValidation.validarNombre(miembroAModificar);
+
+        Miembro miembroModificado = miembroRepository.save(miembroAModificar);
+        return miembroModificado;
+    }
+
+    public Miembro modificarApellido(String apellido, Long id){
+
+        Miembro miembroAModificar = miembroRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
+
+        miembroAModificar.setApellido(apellido);
+        miembroValidation.validarApellido(miembroAModificar);
+
+        Miembro miembroModificado = miembroRepository.save(miembroAModificar);
+        return miembroModificado;
+    }
+
+
     public Miembro hacerAdministrador(Long id){
         Miembro miembroAHacerAdmin = miembroRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
@@ -86,7 +114,6 @@ public class MiembroService {
         Miembro miembroModificado = miembroRepository.save(miembroAHacerAdmin);
         return miembroModificado;
     }
-
 
     public String eliminarPorId(Long id){
         Miembro miembroAEliminar = miembroRepository.findById(id)
