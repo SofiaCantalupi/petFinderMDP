@@ -28,13 +28,14 @@ public class MiembroController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<List<MiembroDetailDTO>> listar(){
-        return ResponseEntity.ok(miembroService.listar());
+        List<MiembroDetailDTO> details = miembroMapper.deEntidadesAdetails(miembroService.listar());
+        return ResponseEntity.ok(details);
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("{id}")
     public ResponseEntity<MiembroDetailDTO> obtenerPorId(@PathVariable Long id){
-        MiembroDetailDTO miembroDetailDTO = new MiembroDetailDTO(miembroService.obtenerPorId(id));
+        MiembroDetailDTO miembroDetailDTO = miembroMapper.aDetail(miembroService.obtenerPorId(id));
         return ResponseEntity.ok(miembroDetailDTO);
     }
 
@@ -49,8 +50,8 @@ public class MiembroController {
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @PutMapping("/{id}")
     public ResponseEntity<MiembroDetailDTO> modificarPorId(@PathVariable Long id, @Valid @RequestBody MiembroRequestDTO request){
-        Miembro miembro = miembroService.modificarPorId(id,request);
-        MiembroDetailDTO nuevoMiembro = new MiembroDetailDTO(miembro);
+        Miembro miembro = miembroService.modificarPorId(id,miembroMapper.aEntidad(request));
+        MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
         return ResponseEntity.ok(nuevoMiembro);
     }
 
