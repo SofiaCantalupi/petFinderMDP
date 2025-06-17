@@ -10,6 +10,8 @@ import pet_finder.repositories.ComentarioRepositories;
 import pet_finder.repositories.MiembroRepository;
 import pet_finder.repositories.PublicacionRepository;
 import pet_finder.exceptions.OperacionNoPermitidaException;
+import pet_finder.validations.ComentarioValidation;
+
 import java.util.List;
 
 @Service
@@ -18,16 +20,15 @@ public class ComentarioServices {
     private final ComentarioRepositories comentarioRepository;
     private final PublicacionRepository publicacionRepository;
     private final MiembroRepository miembroRepository;
+    private final ComentarioValidation comentarioValidation;
+    //agregar los validator de miembro y publicacion una vez arreglados.
 
-
-    public ComentarioServices(ComentarioRepositories comentarioRepository, PublicacionRepository publicacionRepository, MiembroRepository miembroRepository) {
+    public ComentarioServices(ComentarioRepositories comentarioRepository, PublicacionRepository publicacionRepository, MiembroRepository miembroRepository, ComentarioValidation comentarioValidation) {
         this.comentarioRepository = comentarioRepository;
         this.publicacionRepository = publicacionRepository;
         this.miembroRepository = miembroRepository;
+        this.comentarioValidation = comentarioValidation;
     }
-
-
-
 
     public Comentario crearComentario(Comentario comentario, Long idPublicacion, Long idMiembro){
 
@@ -45,10 +46,7 @@ public class ComentarioServices {
     }
 
 
-
-
     public List<Comentario> listarPorPublicacion(Long idPublicacion) {
-
         return comentarioRepository.findByPublicacionIdAndActivoTrue(idPublicacion);
     }
 
@@ -56,8 +54,7 @@ public class ComentarioServices {
 
     public void eliminarComentarioPorId(Long id){
 
-        Comentario comentario = comentarioRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("No existe un comentario con esa id"));
+        Comentario comentario = comentarioValidation.existePorId(id);
 
         comentario.setActivo(false);
         comentarioRepository.save(comentario);
@@ -65,8 +62,7 @@ public class ComentarioServices {
 
     public void eliminarComentarioPropio(Long idComentario, String emailMiembro) {
 
-        Comentario comentario = comentarioRepository.findById(idComentario)
-                .orElseThrow(() -> new EntityNotFoundException("No existe un comentario con esa id"));
+        Comentario comentario = comentarioValidation.existePorId(idComentario);
 
         Miembro miembro = miembroRepository.findByEmail(emailMiembro)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró un usuario con el email: " + emailMiembro));
