@@ -2,6 +2,7 @@ package pet_finder.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +38,7 @@ public class Publicacion {
     private Boolean activo;
 
     @OneToMany(mappedBy = "publicacion")
-    private List<Comentario> comentarios;
+    private List<Comentario> comentarios = new ArrayList<>();
 
     public Publicacion() {
         this.activo = true; // Activo default
@@ -114,4 +115,8 @@ public class Publicacion {
         this.comentarios = comentarios;
     }
 
+    //Metodo helper para guardar un comentario en la lista de comentarios
+    public void agregarComentario(Comentario comentario) {
+    this.comentarios.add(comentario);
+    }
 }

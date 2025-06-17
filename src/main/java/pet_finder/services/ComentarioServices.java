@@ -1,6 +1,5 @@
 package pet_finder.services;
 
-
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import pet_finder.models.Comentario;
@@ -42,8 +41,13 @@ public class ComentarioServices {
         comentario.setPublicacion(publicacion);
         comentario.setMiembro(miembro);
 
+        // Agregaria el comentario en la lista de la Publicacion
+        publicacion.agregarComentario(comentario);
+        publicacionRepository.save(publicacion);
+
         return comentarioRepository.save(comentario);
     }
+
 
 
     public List<Comentario> listarPorPublicacion(Long idPublicacion) {
@@ -67,7 +71,6 @@ public class ComentarioServices {
         Miembro miembro = miembroRepository.findByEmail(emailMiembro)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró un usuario con el email: " + emailMiembro));
 
-        // valida que el comentario sea propio
         if (!comentario.getMiembro().getId().equals(miembro.getId())) {
             throw new OperacionNoPermitidaException("No puedes eliminar un comentario que no es tuyo.");
         }

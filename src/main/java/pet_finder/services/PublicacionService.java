@@ -2,8 +2,11 @@ package pet_finder.services;
 
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
+import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.models.Comentario;
+import pet_finder.models.Miembro;
 import pet_finder.models.Publicacion;
+import pet_finder.repositories.MiembroRepository;
 import pet_finder.repositories.PublicacionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -22,18 +25,20 @@ public class PublicacionService {
     private final UbicacionService ubicacionService;
     private final MascotaService mascotaService;
     private final ComentarioServices comentarioService;
+    private final MiembroRepository miembroRepository;
 
     private final PublicacionValidation publicacionValidation;
 
     public PublicacionService(PublicacionRepository publicacionRepository,
                               UbicacionService ubicacionService,
                               MascotaService mascotaService,
-                              ComentarioServices comentarioService,
+                              ComentarioServices comentarioService, MiembroRepository miembroRepository,
                               PublicacionValidation publicacionValidation) {
         this.publicacionRepository = publicacionRepository;
         this.ubicacionService = ubicacionService;
         this.mascotaService = mascotaService;
         this.comentarioService = comentarioService;
+        this.miembroRepository = miembroRepository;
         this.publicacionValidation = publicacionValidation;
     }
 
@@ -117,4 +122,17 @@ public class PublicacionService {
                 .toList();
     }
 
+    public void eliminarPublicacionPropia(Long idPublicacion, String emailMiembro){
+
+       Publicacion publicacion = publicacionValidation.existePorId(idPublicacion);
+
+        Miembro miembro = miembroRepository.findByEmail(emailMiembro)
+                .orElseThrow(() -> new EntityNotFoundException("No se encontró un usuario con el email: " + emailMiembro));
+
+        if(!publicacion.getIdMiembro().equals(miembro.getId())){
+            throw new OperacionNoPermitidaException("No puedes eliminar una publicación que no es tuya.");
+        }
+
+        this.eliminar(idPublicacion);
+    }
 }
