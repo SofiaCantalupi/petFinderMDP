@@ -1,5 +1,7 @@
 package pet_finder.services;
 
+import pet_finder.enums.EstadoMascota;
+import pet_finder.enums.TipoMascota;
 import pet_finder.models.Comentario;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.PublicacionRepository;
@@ -90,6 +92,31 @@ public class PublicacionService {
 
         // SE ACTUALIZA REALIZANDO SU BAJA LOGICA
         publicacionRepository.save(p);
+    }
+
+    // FILTRAR POR TipoMascota
+    public List<Publicacion> filtrarPorTipoMascota(String tipoString){
+        // El controller recibe un String, por lo tanto debe convertirse a un dato tipo Enum (TipoMascota)
+        // Se valida que el string sea valido ("gato" o "perro") y se convierte a su respectivo Enum (TipoMascota)
+        TipoMascota tipoEnum = publicacionValidation.validarYConvertirTipoMascota(tipoString);
+
+        // Se buscan las publicaciones cuyas mascotas son del tipo ingresado por parametro, y se filtran las publicaciones activas
+        return publicacionRepository.findAllByMascotaTipoMascota(tipoEnum)
+                .stream()
+                .filter(Publicacion::getActivo)
+                .toList();
+    }
+
+    // FILTRAR POR EstadoMascota
+    public List<Publicacion> filtrarPorEstadoMascota(String estadoString){
+        // Se valida que el string sea valido ("perdido" o "encontrado") y se convierte a su respectivo Enum (EstadoMascota)
+        EstadoMascota estadoEnum = publicacionValidation.validarYConvertirEstadoMascota(estadoString);
+
+        // El metodo encuentra todas las publicaciones con ese estado y filtra las publicaciones activas.
+        return publicacionRepository.findAllByMascotaEstadoMascota(estadoEnum)
+                .stream()
+                .filter(Publicacion::getActivo)
+                .toList();
     }
 
 }
