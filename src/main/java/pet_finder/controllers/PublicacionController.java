@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.PublicacionDetailDTO;
@@ -78,13 +79,6 @@ public class PublicacionController {
     }
 
     @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar (@PathVariable Long id) {
-        publicacionService.eliminar(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
     @GetMapping("/tipoMascota/{tipoMascota}")
     public ResponseEntity<List<PublicacionDetailDTO>> filtrarPorTipoMascota(@PathVariable String tipoMascota){
         List<Publicacion> publicaciones = publicacionService.filtrarPorTipoMascota(tipoMascota);
@@ -109,5 +103,24 @@ public class PublicacionController {
 
         // Se mappean las publicaciones enontradas a detailsDTO
         return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
+    }
+
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @DeleteMapping("/admin/{id}")
+    public ResponseEntity<String> eliminarPublicacionAdmin(@PathVariable Long id) {
+        publicacionService.eliminar(id);
+        return ResponseEntity.ok("Se elimino correctamente");
+    }
+
+    @PreAuthorize("hasRole('MIEMBRO')")
+    @DeleteMapping("/propia/{id}")
+    public  ResponseEntity<String> eliminarPublicacionPropia(@PathVariable Long id){
+
+        String emailMiembro = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        publicacionService.eliminarPublicacionPropia(id, emailMiembro);
+
+        return ResponseEntity.ok("Publicacion eliminada con exito");
     }
 }

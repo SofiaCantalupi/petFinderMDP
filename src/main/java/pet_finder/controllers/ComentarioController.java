@@ -62,7 +62,6 @@ public class ComentarioController {
         // Obtener el email del usuario autenticado desde el SecurityContext
         String emailMiembro = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // Ejecutar eliminación delegando al servicio
         comentarioService.eliminarComentarioPropio(id, emailMiembro);
 
         return ResponseEntity.ok("Comentario eliminado correctamente.");
