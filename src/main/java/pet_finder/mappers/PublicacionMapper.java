@@ -60,12 +60,11 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
 
     @Override
     public PublicacionDetailDTO aDetail(Publicacion publicacion) {
-        MascotaDetailDTO mascotaDetailDTO = mascotaMapper.aDetail(publicacion.getMascota());
+        // Se mappean los comentarios de entidad a detail
         List<ComentarioDetailDTO> comentarioDetailDTOS = comentarioMapper.deEntidadesAdetails(publicacion.getComentarios());
-        UbicacionDetailDTO ubicacionDetailDTO = ubicacionMapper.aDetail(publicacion.getUbicacion());
 
-        // Se utiliza constructor del record DetailDTO
-        return new PublicacionDetailDTO(publicacion, mascotaDetailDTO, publicacion.getIdMiembro(), ubicacionDetailDTO, comentarioDetailDTOS);
+        // Se utiliza constructor del record DetailDTO, se pasan los details de comentarios
+        return new PublicacionDetailDTO(publicacion, comentarioDetailDTOS);
     }
 
     @Override
