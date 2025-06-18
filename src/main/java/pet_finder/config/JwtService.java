@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,14 @@ public class JwtService {
     //Esta es una KEY secreta que tenemos que guardar. Con esta key se generan todos los Tokens y al tenerla secreta nos aseguramos
     //que los tokens no puedan ser trucados. Solo con esta key se pueden generar y validar tokens LEGITIMOS.
 
-    private static final String SECRET_KEY = "mi-clave-secreta-super-segura-para-jwt-1234567890abcd";
+    private final String SECRET_KEY;
+
+    //Lee desde el properties el valor de la key, que esta vinculada a una variable de entorno
+    //definida en el IDE de cada uno (JWT_SECRET)
+    //El metodo de abajo hace que se guarde en el string secretKey la variable de entorno del IDE y se guarde en SECRET_KEY
+    public JwtService(@Value("${jwt.secret}") String secretKey) {
+        this.SECRET_KEY = secretKey;
+    }
 
     //Este metodo convierte la constante SECRET_KEY en un objeto de clase Key que se usa para "crear y validar" (firmar y verificar) los tokens
     private Key getSignInKey() {

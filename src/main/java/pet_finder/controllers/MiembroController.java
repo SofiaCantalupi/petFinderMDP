@@ -42,7 +42,7 @@ public class MiembroController {
         return ResponseEntity.ok(miembroDetailDTO);
     }
 
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping
     public ResponseEntity<MiembroDetailDTO> crear(@Valid @RequestBody MiembroRequestDTO request){
         Miembro miembro = miembroMapper.aEntidad(request);
@@ -51,7 +51,7 @@ public class MiembroController {
     }
 
     //Sin uso. Cambiaria el miembro entero, hasta su contraseña y obliga a cambiar todo.
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/{id}")
     public ResponseEntity<MiembroDetailDTO> modificarPorId(@PathVariable Long id, @Valid @RequestBody MiembroRequestDTO request){
         Miembro miembro = miembroService.modificarPorId(id,miembroMapper.aEntidad(request));
@@ -75,7 +75,7 @@ public class MiembroController {
         return ResponseEntity.ok(nuevoMiembro);
     }
 
-    @PreAuthorize("hasRole('MIEMBRO')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/hacer-administrador/{id}")
     public ResponseEntity<String> hacerAdministradorPorId(@PathVariable Long id){
         MiembroDetailDTO nuevoAdmin = new MiembroDetailDTO(miembroService.hacerAdministrador(id));
