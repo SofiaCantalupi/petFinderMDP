@@ -6,6 +6,8 @@ import pet_finder.enums.RolUsuario;
 import pet_finder.repositories.MiembroRepository;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.AccessDeniedException;
+
 @Component
 public class MiembroValidation {
 
@@ -70,6 +72,12 @@ public class MiembroValidation {
     public void esInactivo(Miembro miembro){
         if (!miembro.isActivo()){
             throw new MiembroInactivoException("El miembro es un usuario inactivo.");
+        }
+    }
+
+    public void estaLogeado(Long id,Long idLogeado){
+        if(!id.equals(idLogeado)){
+            throw new OperacionNoPermitidaException("No tenes permisos para realizar esta operacion");
         }
     }
 

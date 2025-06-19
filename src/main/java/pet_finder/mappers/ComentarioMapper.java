@@ -45,12 +45,9 @@ public class ComentarioMapper implements Mapper <ComentarioRequestDTO, Comentari
 
 
 
-
-
-    @Override
-    public Comentario modificar(Comentario existente, ComentarioRequestDTO request) {
-        existente.setTexto(request.getTexto());
-
-        return existente;
-    }
+//    public Comentario modificar(Comentario existente, ComentarioRequestDTO request) {
+//        existente.setTexto(request.getTexto());
+//
+//        return existente;
+//    }
 }

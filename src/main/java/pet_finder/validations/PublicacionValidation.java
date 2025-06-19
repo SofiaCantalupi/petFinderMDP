@@ -6,7 +6,10 @@ import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
 import pet_finder.exceptions.MiembroInactivoException;
 import pet_finder.models.Publicacion;
+import pet_finder.models.Ubicacion;
 import pet_finder.repositories.PublicacionRepository;
+
+import java.util.Objects;
 
 /**
  * @author Daniel Herrera
@@ -57,4 +60,5 @@ public class PublicacionValidation {
             throw new IllegalArgumentException("Estado de mascota inválido.");
         }
     }
+
 }

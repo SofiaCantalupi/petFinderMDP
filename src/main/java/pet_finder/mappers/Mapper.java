@@ -16,6 +16,6 @@ public interface Mapper<R,D,E> {
 
     List<D> deEntidadesAdetails(List<E> entidades);
 
-    E modificar(E entidad, R request); // modificar entidades que ya existen con los datos nuevos del request
+    //E modificar(E entidad, R request); // modificar entidades que ya existen con los datos nuevos del request
 
 }

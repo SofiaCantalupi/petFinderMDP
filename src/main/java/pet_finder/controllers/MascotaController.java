@@ -53,9 +53,9 @@ public class MascotaController {
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @PutMapping("/mascota/{id}")
-    public ResponseEntity<MascotaDetailDTO> modificar(@Valid @RequestBody MascotaRequestDTO request, @PathVariable Long id) {
+    public ResponseEntity<MascotaDetailDTO> modificar(@Valid @RequestBody MascotaRequestDTO request, @PathVariable Long id, @AuthenticationPrincipal MiembroUserDetails userDetails) {
         Mascota existente = service.obtenerPorId(id);  // este metodo valida tanto existencia como activo
-        Mascota modificada = mapper.modificar(existente, request); // toma la entidad que se quiere modificar y retorna una entidad con los cambios realizados
+        Mascota modificada = mapper.modificar(existente, request, userDetails.getId()); // toma la entidad que se quiere modificar y retorna una entidad con los cambios realizados
         Mascota guardada = service.guardar(modificada); // guarda la entidad con  los respectivos cambios
 
         return ResponseEntity.ok(mapper.aDetail(guardada));

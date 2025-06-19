@@ -66,6 +66,14 @@ public class PublicacionService {
         return publicacionRepository.save(publicacion);
     }
 
+    public Publicacion guardarModificada (Publicacion publicacion) {
+
+        // Se valida que la ubicacion pueda ser geocodificada
+        ubicacionValidation.validarGeocodificacion(publicacion.getUbicacion());
+
+        return publicacionRepository.save(publicacion);
+    }
+
     // LISTAR POR ID
     public Publicacion obtenerPorId (Long id) {
         // Valida si existe la Publicacion con ese id, si existe la retorna

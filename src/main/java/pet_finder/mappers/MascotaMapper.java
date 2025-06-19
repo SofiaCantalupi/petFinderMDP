@@ -4,11 +4,20 @@ import org.springframework.stereotype.Component;
 import pet_finder.dtos.MascotaDetailDTO;
 import pet_finder.dtos.MascotaRequestDTO;
 import pet_finder.models.Mascota;
+import pet_finder.models.Miembro;
+import pet_finder.validations.MiembroValidation;
 
 import java.util.List;
 
 @Component
 public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO, Mascota> {
+
+    private final MiembroValidation miembroValidation;
+
+    public MascotaMapper(MiembroValidation miembroValidation) {
+        this.miembroValidation = miembroValidation;
+    }
+
 
     @Override
     public Mascota aEntidad(MascotaRequestDTO request) {
@@ -41,13 +50,14 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
     }
 
     // este metodo toma el request y la entidad que se quiere modificar, actualiza los datos en la entidad existente y retorna la entidad modificada.
-    @Override
-    public Mascota modificar(Mascota entidad, MascotaRequestDTO request) {
+    public Mascota modificar(Mascota entidad, MascotaRequestDTO request,Long idMiembroLogeado) {
         // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
+
         entidad.setNombre(request.getNombre());
         entidad.setEstadoMascota(request.getEstadoMascota());
         entidad.setTipoMascota(request.getTipoMascota());
-
+        entidad.setFotoUrl(request.getFotoUrl());
+        miembroValidation.estaLogeado(entidad.getMiembroId(),idMiembroLogeado);
         // Como se trabaja con la entidad a modificar, no hace falta settear esActivo como true;
         // Antes de modificarla, se valida que el registro se encuentre activo, sino lanza error
         // entidad.setEsActivo(true); -> No es necesario

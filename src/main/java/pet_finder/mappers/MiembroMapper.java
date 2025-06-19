@@ -38,12 +38,11 @@ public class MiembroMapper implements Mapper<MiembroRequestDTO, MiembroDetailDTO
                 .toList();
     }
 
-    @Override
-    public Miembro modificar(Miembro miembro, MiembroRequestDTO request) {
-
-        miembro.setNombre(request.getNombre());
-        miembro.setApellido(request.getApellido());
-
-        return miembro;
-    }
+//    public Miembro modificar(Miembro miembro, MiembroRequestDTO request) {
+//
+//        miembro.setNombre(request.getNombre());
+//        miembro.setApellido(request.getApellido());
+//
+//        return miembro;
+//    }
 }
