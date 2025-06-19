@@ -72,8 +72,7 @@ public class PublicacionService {
         Publicacion existente = publicacionValidation.existePorId(id);
 
         // Valida si la Publicacion esta activa
-        publicacionValidation.esActivo(existente);
-
+        publicacionValidation.esActivo(existente.getActivo());
         return existente;
     }
 
@@ -95,7 +94,7 @@ public class PublicacionService {
         Publicacion p = publicacionValidation.existePorId(id);
 
         // Valida si la Publicacion ya estaba activa
-        publicacionValidation.esActivo(p);
+        publicacionValidation.esActivo(p.getActivo());
 
         // Eliminar mascota por service
         mascotaService.eliminar(p.getMascota().getId());

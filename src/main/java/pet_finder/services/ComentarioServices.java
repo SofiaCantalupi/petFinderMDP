@@ -51,6 +51,8 @@ public class ComentarioServices {
 
 
     public List<Comentario> listarPorPublicacion(Long idPublicacion) {
+        Publicacion p = publicacionValidation.existePorId(idPublicacion);
+        publicacionValidation.esActivo(p.getActivo());
         return comentarioRepository.findByPublicacionIdAndActivoTrue(idPublicacion);
     }
 
