@@ -36,7 +36,7 @@ public class MiembroController {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<MiembroDetailDTO> obtenerPorId(@PathVariable Long id){
         MiembroDetailDTO miembroDetailDTO = miembroMapper.aDetail(miembroService.obtenerPorId(id));
         return ResponseEntity.ok(miembroDetailDTO);
