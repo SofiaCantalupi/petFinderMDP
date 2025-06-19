@@ -24,8 +24,6 @@ public class UbicacionMapper implements Mapper<UbicacionRequestDTO, UbicacionDet
     public Ubicacion aEntidad(UbicacionRequestDTO request) {
 
         // todo: Comprobar funcionamiento de la peticion a la api externa geocodificadora
-        // Valida si la Ubicacion se puede geocodificar (realmente existe)
-        ubicacionValidation.validarGeocodificacion(request);
 
         // Se crea una nueva Ubicacion, con los datos recibidos del Request
         Ubicacion ubicacion = new Ubicacion();
@@ -58,7 +56,7 @@ public class UbicacionMapper implements Mapper<UbicacionRequestDTO, UbicacionDet
 
         // todo: Comprobar funcionamiento de la peticion a la api externa geocodificadora
         // Valida si la Ubicacion recibida por DTO se puede geocodificar (realmente existe)
-        ubicacionValidation.validarGeocodificacion(request);
+        ubicacionValidation.validarGeocodificacion(this.aEntidad(request));
 
         // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
         entidad.setDireccion(request.getDireccion());

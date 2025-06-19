@@ -10,7 +10,10 @@ import pet_finder.repositories.MiembroRepository;
 import pet_finder.repositories.PublicacionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import pet_finder.validations.MascotaValidation;
+import pet_finder.validations.MiembroValidation;
 import pet_finder.validations.PublicacionValidation;
+import pet_finder.validations.UbicacionValidation;
 
 import java.util.List;
 
@@ -25,25 +28,41 @@ public class PublicacionService {
     private final UbicacionService ubicacionService;
     private final MascotaService mascotaService;
     private final ComentarioServices comentarioService;
-    private final MiembroRepository miembroRepository;
 
     private final PublicacionValidation publicacionValidation;
+    private final MiembroValidation miembroValidation;
+    private final MascotaValidation mascotaValidation;
+    private final UbicacionValidation ubicacionValidation;
 
     public PublicacionService(PublicacionRepository publicacionRepository,
                               UbicacionService ubicacionService,
                               MascotaService mascotaService,
-                              ComentarioServices comentarioService, MiembroRepository miembroRepository,
-                              PublicacionValidation publicacionValidation) {
+                              ComentarioServices comentarioService,
+                              PublicacionValidation publicacionValidation, MiembroValidation miembroValidation, MascotaValidation mascotaValidation, UbicacionValidation ubicacionValidation) {
         this.publicacionRepository = publicacionRepository;
         this.ubicacionService = ubicacionService;
         this.mascotaService = mascotaService;
         this.comentarioService = comentarioService;
-        this.miembroRepository = miembroRepository;
         this.publicacionValidation = publicacionValidation;
+        this.miembroValidation = miembroValidation;
+        this.mascotaValidation = mascotaValidation;
+        this.ubicacionValidation = ubicacionValidation;
     }
 
     // NUEVA PUBLICACION
     public Publicacion guardar (Publicacion publicacion) {
+
+        // Se valida que la mascota exista en publicacionMapper
+
+        // Se valida que la mascota este activa
+        mascotaValidation.esActivo(publicacion.getMascota().getEsActivo());
+
+        // Se valida que la mascota no pertenezca a otra publicacion
+        publicacionValidation.mascotaYaAsignada(publicacion.getMascota().getId());
+
+        // Se valida que la ubicacion pueda ser geocodificada
+        ubicacionValidation.validarGeocodificacion(publicacion.getUbicacion());
+
         return publicacionRepository.save(publicacion);
     }
 
@@ -53,7 +72,7 @@ public class PublicacionService {
         Publicacion existente = publicacionValidation.existePorId(id);
 
         // Valida si la Publicacion esta activa
-        publicacionValidation.esInactivo(existente);
+        publicacionValidation.esActivo(existente);
 
         return existente;
     }
@@ -76,7 +95,7 @@ public class PublicacionService {
         Publicacion p = publicacionValidation.existePorId(id);
 
         // Valida si la Publicacion ya estaba activa
-        publicacionValidation.esInactivo(p);
+        publicacionValidation.esActivo(p);
 
         // Eliminar mascota por service
         mascotaService.eliminar(p.getMascota().getId());
@@ -126,8 +145,7 @@ public class PublicacionService {
 
        Publicacion publicacion = publicacionValidation.existePorId(idPublicacion);
 
-        Miembro miembro = miembroRepository.findByEmail(emailMiembro)
-                .orElseThrow(() -> new EntityNotFoundException("No se encontró un usuario con el email: " + emailMiembro));
+        Miembro miembro = miembroValidation.validarExistenciaPorEmail(emailMiembro);
 
         if(!publicacion.getIdMiembro().equals(miembro.getId())){
             throw new OperacionNoPermitidaException("No puedes eliminar una publicación que no es tuya.");

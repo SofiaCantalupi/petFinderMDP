@@ -10,6 +10,8 @@ import pet_finder.repositories.MiembroRepository;
 import pet_finder.repositories.PublicacionRepository;
 import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.validations.ComentarioValidation;
+import pet_finder.validations.MiembroValidation;
+import pet_finder.validations.PublicacionValidation;
 
 import java.util.List;
 
@@ -18,25 +20,24 @@ public class ComentarioServices {
 
     private final ComentarioRepositories comentarioRepository;
     private final PublicacionRepository publicacionRepository;
-    private final MiembroRepository miembroRepository;
     private final ComentarioValidation comentarioValidation;
-    //agregar los validator de miembro y publicacion una vez arreglados.
+    private final MiembroValidation miembroValidation;
+    private final PublicacionValidation publicacionValidation;
 
-    public ComentarioServices(ComentarioRepositories comentarioRepository, PublicacionRepository publicacionRepository, MiembroRepository miembroRepository, ComentarioValidation comentarioValidation) {
+
+    public ComentarioServices(ComentarioRepositories comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation) {
         this.comentarioRepository = comentarioRepository;
         this.publicacionRepository = publicacionRepository;
-        this.miembroRepository = miembroRepository;
         this.comentarioValidation = comentarioValidation;
+        this.miembroValidation = miembroValidation;
+        this.publicacionValidation = publicacionValidation;
     }
 
     public Comentario crearComentario(Comentario comentario, Long idPublicacion, Long idMiembro){
 
-        Publicacion publicacion = publicacionRepository.findById(idPublicacion)
-                .orElseThrow(() -> new EntityNotFoundException("Publicación no encontrada con esa ID " + idPublicacion));
+        Publicacion publicacion = publicacionValidation.existePorId(idPublicacion);
 
-        Miembro miembro = miembroRepository.findById(idMiembro)
-                .orElseThrow(() -> new EntityNotFoundException("Miembro no encontrado con esa ID " + idMiembro));
-
+        Miembro miembro = miembroValidation.validarExistenciaPorId(idMiembro);
 
         comentario.setPublicacion(publicacion);
         comentario.setMiembro(miembro);
@@ -49,16 +50,16 @@ public class ComentarioServices {
     }
 
 
-
     public List<Comentario> listarPorPublicacion(Long idPublicacion) {
         return comentarioRepository.findByPublicacionIdAndActivoTrue(idPublicacion);
     }
 
 
-
     public void eliminarComentarioPorId(Long id){
 
         Comentario comentario = comentarioValidation.existePorId(id);
+        // Se valida que el comentario no haya sido eliminado anteriormente
+        comentarioValidation.esActivo(comentario.getActivo());
 
         comentario.setActivo(false);
         comentarioRepository.save(comentario);
@@ -68,8 +69,10 @@ public class ComentarioServices {
 
         Comentario comentario = comentarioValidation.existePorId(idComentario);
 
-        Miembro miembro = miembroRepository.findByEmail(emailMiembro)
-                .orElseThrow(() -> new EntityNotFoundException("No se encontró un usuario con el email: " + emailMiembro));
+        // Se valida que el comentario no haya sido eliminado anteriormente
+        comentarioValidation.esActivo(comentario.getActivo());
+
+        Miembro miembro = miembroValidation.validarExistenciaPorEmail(emailMiembro);
 
         if (!comentario.getMiembro().getId().equals(miembro.getId())) {
             throw new OperacionNoPermitidaException("No puedes eliminar un comentario que no es tuyo.");
