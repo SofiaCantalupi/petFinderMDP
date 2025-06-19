@@ -98,4 +98,10 @@ public class GlobalHandlerException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> manejarIllegalArgument(IllegalStateException exc){
+        ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT, exc.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
 }

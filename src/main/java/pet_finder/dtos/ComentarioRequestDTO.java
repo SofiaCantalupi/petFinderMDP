@@ -13,8 +13,6 @@ public class ComentarioRequestDTO {
     @Size(max=150, message="Máximo 150 caracteres")
     private String texto;
 
-    @NotNull(message = "La fecha de publicacion es obligatoria")
-    private LocalDate fechaPublicacion;
 
     @NotNull(message = "Debe estar asociado a una publicacion")
     private Long idPublicacion;
@@ -30,14 +28,6 @@ public class ComentarioRequestDTO {
 
     public void setTexto(String texto) {
         this.texto = texto;
-    }
-
-    public LocalDate getFechaPublicacion() {
-        return fechaPublicacion;
-    }
-
-    public void setFechaPublicacion(LocalDate fechaPublicacion) {
-        this.fechaPublicacion = fechaPublicacion;
     }
 
     public Long getIdPublicacion() {

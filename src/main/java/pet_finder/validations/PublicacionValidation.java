@@ -19,9 +19,15 @@ public class PublicacionValidation {
         this.repository = repository;
     }
 
-    public void esInactivo(Publicacion publicacion){
+    public void esActivo(Publicacion publicacion){
         if (!publicacion.getActivo()){
-            throw new MiembroInactivoException("La Publicacion con ID : "+publicacion.getId()+" esta inactiva.");
+            throw new IllegalArgumentException("La Publicacion con ID : "+publicacion.getId()+" esta inactiva.");
+        }
+    }
+
+    public void mascotaYaAsignada(Long mascotaId){
+        if(repository.existsByMascotaId(mascotaId)){
+            throw new IllegalArgumentException("La mascota se encuentra asociada a otra publicación.");
         }
     }
 
