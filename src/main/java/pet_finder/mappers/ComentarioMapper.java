@@ -42,11 +42,6 @@ public class ComentarioMapper implements Mapper <ComentarioRequestDTO, Comentari
     public List<ComentarioDetailDTO> deEntidadesAdetails(List<Comentario> comentarios) {
         List<ComentarioDetailDTO> detalles = new ArrayList<>();
 
-        for (Comentario comentario : comentarios) {
-            ComentarioDetailDTO detalle = aDetail(comentario);
-            detalles.add(detalle);
-        }
-
         return comentarios.stream()
                 .map(this::aDetail)
                 .toList();
