@@ -19,4 +19,9 @@ public class ComentarioValidation {
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro un comentario con esa id"));
     }
 
+    public void esActivo(Boolean activo) {
+        if (Boolean.FALSE.equals(activo)) {
+            throw new IllegalStateException("El comentario ya fue dado de baja.");
+        }
+    }
 }
