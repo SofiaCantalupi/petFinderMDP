@@ -42,30 +42,25 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
         Publicacion publicacion = new Publicacion();
         publicacion.setDescripcion(request.getDescripcion());
 
-        // todo: Añadir imagen
-
-        // Trae la Mascota vinculada
         Mascota mascota = mascotaService.obtenerPorId(request.getMascotaId());
         publicacion.setMascota(mascota);
 
-        // El set miembroID ocurre en el controller
-
-        // Genera una nueva Ubicacion y la valida
-        Ubicacion ubicacion = ubicacionMapper.aEntidad(request.getUbicacion());
-
-        publicacion.setUbicacion(ubicacion);
+        publicacion.setUbicacion(ubicacionMapper.aEntidad(request.getUbicacion()));
 
         return publicacion;
     }
 
     @Override
     public PublicacionDetailDTO aDetail(Publicacion publicacion) {
-        MascotaDetailDTO mascotaDetailDTO = mascotaMapper.aDetail(publicacion.getMascota());
-        List<ComentarioDetailDTO> comentarioDetailDTOS = comentarioMapper.deEntidadesAdetails(publicacion.getComentarios());
-        UbicacionDetailDTO ubicacionDetailDTO = ubicacionMapper.aDetail(publicacion.getUbicacion());
+
+        List<ComentarioDetailDTO> comentarioDetailDTOS = publicacion.getComentarios()// obtengo los comentarios asociados a la publicacion
+                .stream()
+                .filter(Comentario::getActivo) // primero filtro los comentarios activos
+                .map(comentarioMapper::aDetail)  // luego los convierto a DTO
+                .toList();
 
         // Se utiliza constructor del record DetailDTO
-        return new PublicacionDetailDTO(publicacion, mascotaDetailDTO, publicacion.getIdMiembro(), ubicacionDetailDTO, comentarioDetailDTOS);
+        return new PublicacionDetailDTO(publicacion, comentarioDetailDTOS);
     }
 
     @Override

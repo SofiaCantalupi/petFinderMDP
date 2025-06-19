@@ -19,21 +19,22 @@ public class UbicacionValidation {
 
     public void esInactivo(Ubicacion ubicacion){
         if (!ubicacion.getActivo()){
-            throw new MiembroInactivoException("La Ubicacion con ID : "+ubicacion.getId()+" esta inactiva.");
+            throw new IllegalStateException("La Ubicacion con ID : "+ubicacion.getId()+" esta inactiva.");
         }
     }
 
     // todo: Comprobar funcionamiento de esta FUNCION
     // FUNCION AUXILIAR VALIDA QUE LA UBICACION ENVIADA EXISTA REALMENTE
-    public void validarGeocodificacion(UbicacionRequestDTO ubicacionDTO) {
+    public void validarGeocodificacion(Ubicacion ubicacion) {
+
 
         // Arma una cadena (ej: "Rivadavia 3470, Mar del Plata, Buenos Aires, Argentina")
         String query = String.format("%s %s, %s, %s, %s",
-                ubicacionDTO.getDireccion(),
-                ubicacionDTO.getAltura(),
-                ubicacionDTO.getCiudad(),
-                ubicacionDTO.getRegion(),
-                ubicacionDTO.getPais()
+                ubicacion.getDireccion(),
+                ubicacion.getAltura(),
+                ubicacion.getCiudad(),
+                ubicacion.getRegion(),
+                ubicacion.getPais()
         );
 
         // Construye la URL para consultar al servicio Nominatim (OpenStreetMap)

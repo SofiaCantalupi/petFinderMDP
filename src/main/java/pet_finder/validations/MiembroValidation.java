@@ -49,10 +49,9 @@ public class MiembroValidation {
                     .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró un usuario con el ID: " + Id));
     }
 
-    public void validarExistenciaPorEmail(String email){
-        if(miembroRepository.findByEmail(email).isEmpty()){
-            throw new UsuarioNoEncontradoException("No se encontró un usuario con el email: " + email);
-        }
+    public Miembro validarExistenciaPorEmail(String email){
+        return miembroRepository.findByEmail(email)
+                .orElseThrow(()-> new UsuarioNoEncontradoException("No se encontró un usuario con el email: " + email));
     }
 
     public void validarEmailUpdates(Miembro miembro){       //Testear

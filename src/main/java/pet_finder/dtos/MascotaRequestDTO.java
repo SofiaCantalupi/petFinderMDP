@@ -8,7 +8,6 @@ import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
 
 public class MascotaRequestDTO {
-    @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres.")
     private String nombre;
 
     @NotNull(message = "El campo \"Estado de la mascota\" es obligatorio.")
@@ -26,10 +25,10 @@ public class MascotaRequestDTO {
 
     // Setters and Getters
 
-    public @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres.") String getNombre() {
+    public String getNombre() {
         return nombre;
     }
-    public void setNombre(@Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres.") String nombre) {
+    public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 

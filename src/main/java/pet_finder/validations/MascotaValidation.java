@@ -21,7 +21,7 @@ public class MascotaValidation {
 
     public void esActivo(Boolean activo) {
         if (Boolean.FALSE.equals(activo)) {
-            throw new IllegalStateException("No se puede modificar o eliminar una mascota que fue dada de baja.");
+            throw new IllegalStateException("La mascota ya fue dada de baja.");
         }
     }
 }
