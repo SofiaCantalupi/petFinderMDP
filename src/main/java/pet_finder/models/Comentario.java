@@ -16,20 +16,17 @@ public class Comentario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El comentario tiene que tener texto")
-    @Size(max=150, message="Máximo 150 caracteres")
+    @Column(nullable = false)
     private String texto;
 
-    @NotNull(message = "La fecha de publicacion es obligatoria")
+    @Column(nullable = false)
     private LocalDate fechaPublicacion;
-
 
     private Boolean activo;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "id_publicacion", nullable = false)
     private Publicacion publicacion;
-
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "id_miembro", nullable = false)
@@ -38,49 +35,47 @@ public class Comentario {
 
     public Comentario() {
         this.activo = true;
+        this.fechaPublicacion = LocalDate.now();
+    }
+
+    public Comentario(String texto, Publicacion publicacion, Miembro miembro) {
+        this.activo = true;
+        this.texto = texto;
+        this.fechaPublicacion = LocalDate.now();
+        this.publicacion = publicacion;
+        this.miembro = miembro;
     }
 
     public Long getId() {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTexto() {
+        return texto;
+    }
+
+    public void setTexto(String texto) {
+        this.texto = texto;
+    }
+
+    public LocalDate getFechaPublicacion() {
+        return fechaPublicacion;
+    }
+
+    public void setFechaPublicacion(LocalDate fechaPublicacion) {
+        this.fechaPublicacion = fechaPublicacion;
+    }
 
     public Boolean getActivo() {
         return activo;
     }
 
-
-
-
-
-
     public void setActivo(Boolean activo) {
         this.activo = activo;
-    }
-
-
-    public Comentario(String texto, LocalDate fechaPublicacion, Publicacion publicacion, Miembro miembro) {
-        this.activo = true;
-        this.texto = texto;
-        this.fechaPublicacion = fechaPublicacion;
-        this.publicacion = publicacion;
-        this.miembro = miembro;
-    }
-
-    public @NotBlank(message = "El comentario tiene que tener texto") @Size(max = 150, message = "Máximo 150 caracteres") String getTexto() {
-        return texto;
-    }
-
-    public void setTexto(@NotBlank(message = "El comentario tiene que tener texto") @Size(max = 150, message = "Máximo 150 caracteres") String texto) {
-        this.texto = texto;
-    }
-
-    public @NotNull(message = "La fecha de publicacion es obligatoria") LocalDate getFechaPublicacion() {
-        return fechaPublicacion;
-    }
-
-    public void setFechaPublicacion(@NotNull(message = "La fecha de publicacion es obligatoria") LocalDate fechaPublicacion) {
-        this.fechaPublicacion = fechaPublicacion;
     }
 
     public Publicacion getPublicacion() {
