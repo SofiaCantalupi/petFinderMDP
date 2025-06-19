@@ -6,7 +6,10 @@ import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
 import pet_finder.exceptions.MiembroInactivoException;
 import pet_finder.models.Publicacion;
+import pet_finder.models.Ubicacion;
 import pet_finder.repositories.PublicacionRepository;
+
+import java.util.Objects;
 
 /**
  * @author Daniel Herrera
@@ -19,11 +22,12 @@ public class PublicacionValidation {
         this.repository = repository;
     }
 
-    public void esActivo(Publicacion publicacion){
-        if (!publicacion.getActivo()){
-            throw new IllegalArgumentException("La Publicacion con ID : "+publicacion.getId()+" esta inactiva.");
+    public void esActivo(Boolean activo){
+        if (Boolean.FALSE.equals(activo)){
+            throw new IllegalArgumentException("La publicacion se encuentra inactiva.");
         }
     }
+
 
     public void mascotaYaAsignada(Long mascotaId){
         if(repository.existsByMascotaId(mascotaId)){
@@ -56,4 +60,5 @@ public class PublicacionValidation {
             throw new IllegalArgumentException("Estado de mascota inválido.");
         }
     }
+
 }

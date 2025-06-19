@@ -31,7 +31,6 @@ public class Miembro {
     @Column(nullable = false)
     private boolean activo;
 
-    //Habria que poner la relación con publicaciones. OneToMany. Miembro seria el lado propietario (preguntar mañana)
 
     public Miembro() {
     }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.PublicacionDetailDTO;
 import pet_finder.dtos.PublicacionRequestDTO;
+import pet_finder.dtos.PublicacionRequestUpdateDTO;
 import pet_finder.mappers.PublicacionMapper;
 import pet_finder.models.Publicacion;
 import pet_finder.services.PublicacionService;
@@ -70,10 +71,12 @@ public class PublicacionController {
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @PutMapping("/{id}")
-    public ResponseEntity<PublicacionDetailDTO> modificar (@PathVariable Long id, @Valid @RequestBody PublicacionRequestDTO req) {
+    public ResponseEntity<PublicacionDetailDTO> modificar (@PathVariable Long id, @Valid @RequestBody PublicacionRequestUpdateDTO req,@AuthenticationPrincipal MiembroUserDetails miembroUserDetails) {
+
         Publicacion publicacion = publicacionService.obtenerPorId(id);
-        Publicacion modificado = publicacionMapper.modificar(publicacion,req);
-        Publicacion actualizado = publicacionService.guardar(modificado);
+        Publicacion modificado = publicacionMapper.modificar(publicacion,req,miembroUserDetails.getId());
+        Publicacion actualizado = publicacionService.guardarModificada(modificado);
+
         // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
         return ResponseEntity.ok(publicacionMapper.aDetail(actualizado));
     }

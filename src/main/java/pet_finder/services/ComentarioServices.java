@@ -51,6 +51,8 @@ public class ComentarioServices {
 
 
     public List<Comentario> listarPorPublicacion(Long idPublicacion) {
+        Publicacion p = publicacionValidation.existePorId(idPublicacion);
+        publicacionValidation.esActivo(p.getActivo());
         return comentarioRepository.findByPublicacionIdAndActivoTrue(idPublicacion);
     }
 
@@ -65,18 +67,14 @@ public class ComentarioServices {
         comentarioRepository.save(comentario);
     }
 
-    public void eliminarComentarioPropio(Long idComentario, String emailMiembro) {
+    public void eliminarComentarioPropio(Long idComentario, Long idMiembroLogeado) {
 
         Comentario comentario = comentarioValidation.existePorId(idComentario);
 
         // Se valida que el comentario no haya sido eliminado anteriormente
         comentarioValidation.esActivo(comentario.getActivo());
 
-        Miembro miembro = miembroValidation.validarExistenciaPorEmail(emailMiembro);
-
-        if (!comentario.getMiembro().getId().equals(miembro.getId())) {
-            throw new OperacionNoPermitidaException("No puedes eliminar un comentario que no es tuyo.");
-        }
+        miembroValidation.estaLogeado(comentario.getMiembro().getId(),idMiembroLogeado);
 
         comentario.setActivo(false);
         comentarioRepository.save(comentario);

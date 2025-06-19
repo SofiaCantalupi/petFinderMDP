@@ -51,21 +51,20 @@ public class UbicacionMapper implements Mapper<UbicacionRequestDTO, UbicacionDet
     }
 
     // este metodo toma el request y la entidad que se quiere modificar, actualiza los datos en la entidad existente y retorna la entidad modificada.
-    @Override
-    public Ubicacion modificar (Ubicacion entidad, UbicacionRequestDTO request) {
-
-        // todo: Comprobar funcionamiento de la peticion a la api externa geocodificadora
-        // Valida si la Ubicacion recibida por DTO se puede geocodificar (realmente existe)
-        ubicacionValidation.validarGeocodificacion(this.aEntidad(request));
-
-        // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
-        entidad.setDireccion(request.getDireccion());
-        entidad.setAltura(request.getAltura());
-        entidad.setCiudad(request.getCiudad());
-        entidad.setRegion(request.getRegion());
-        entidad.setPais(request.getPais());
-
-        return entidad; // retorna la entidad actualizada
-    }
+//    public Ubicacion modificar (Ubicacion entidad, UbicacionRequestDTO request) {
+//
+//        // todo: Comprobar funcionamiento de la peticion a la api externa geocodificadora
+//        // Valida si la Ubicacion recibida por DTO se puede geocodificar (realmente existe)
+//        ubicacionValidation.validarGeocodificacion(this.aEntidad(request));
+//
+//        // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
+//        entidad.setDireccion(request.getDireccion());
+//        entidad.setAltura(request.getAltura());
+//        entidad.setCiudad(request.getCiudad());
+//        entidad.setRegion(request.getRegion());
+//        entidad.setPais(request.getPais());
+//
+//        return entidad; // retorna la entidad actualizada
+//    }
 
 }

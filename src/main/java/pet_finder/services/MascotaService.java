@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import pet_finder.models.Mascota;
 import pet_finder.repositories.MascotaRepository;
 import pet_finder.validations.MascotaValidation;
+import pet_finder.validations.MiembroValidation;
 
 import java.util.List;
 
@@ -12,10 +13,12 @@ import java.util.List;
 public class MascotaService {
     private final MascotaRepository mascotaRepository;
     private final MascotaValidation mascotaValidation;
+    private final MiembroValidation miembroValidation;
 
-    public MascotaService(MascotaRepository mascotaRepository, MascotaValidation mascotaValidation) {
+    public MascotaService(MascotaRepository mascotaRepository, MascotaValidation mascotaValidation, MiembroValidation miembroValidation) {
         this.mascotaRepository = mascotaRepository;
         this.mascotaValidation = mascotaValidation;
+        this.miembroValidation = miembroValidation;
     }
 
     /* ---------Aclaracion sobre los metodos CRUD de esta clase --------------

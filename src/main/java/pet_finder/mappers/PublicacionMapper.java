@@ -6,6 +6,8 @@ import pet_finder.models.*;
 import pet_finder.services.ComentarioServices;
 import pet_finder.services.MascotaService;
 import pet_finder.services.MiembroService;
+import pet_finder.validations.MiembroValidation;
+import pet_finder.validations.UbicacionValidation;
 
 import java.util.List;
 
@@ -16,23 +18,18 @@ import java.util.List;
 public class PublicacionMapper implements Mapper<PublicacionRequestDTO, PublicacionDetailDTO, Publicacion> {
 
     private final MascotaService mascotaService;
-    private final MiembroService miembroService;
-    private final ComentarioServices comentarioService;
-
     private final UbicacionMapper ubicacionMapper;
-    private final MascotaMapper mascotaMapper;
     private final ComentarioMapper comentarioMapper;
+    private final MiembroValidation miembroValidation;
+    private final UbicacionValidation ubicacionValidation;
 
     public PublicacionMapper (MascotaService mascotaService,
-                              MiembroService miembroService,
-                              ComentarioServices comentarioService,
-                              UbicacionMapper ubicacionMapper, MascotaMapper mascotaMapper, ComentarioMapper comentarioMapper) {
+                              UbicacionMapper ubicacionMapper, ComentarioMapper comentarioMapper, MiembroValidation miembroValidation, UbicacionValidation ubicacionValidation) {
         this.mascotaService = mascotaService;
-        this.miembroService = miembroService;
-        this.comentarioService = comentarioService;
         this.ubicacionMapper = ubicacionMapper;
-        this.mascotaMapper = mascotaMapper;
         this.comentarioMapper = comentarioMapper;
+        this.miembroValidation = miembroValidation;
+        this.ubicacionValidation = ubicacionValidation;
     }
 
     @Override
@@ -71,22 +68,45 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
                 .toList();
     }
 
-    // este metodo toma el request y la entidad que se quiere modificar, actualiza los datos en la entidad existente y retorna la entidad modificada.
-    @Override
-    public Publicacion modificar (Publicacion entidad, PublicacionRequestDTO request) {
+    public Publicacion modificar(Publicacion entidad, PublicacionRequestUpdateDTO request, Long idMiembroLogeado) {
 
-        // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
-        entidad.setDescripcion(request.getDescripcion());
+        // Validación de que el miembro logueado sea el dueño de la publicación
+        miembroValidation.estaLogeado(entidad.getIdMiembro(), idMiembroLogeado);
 
-        // todo: Añadir imagen
+        if (request.getDescripcion() == null && request.getUbicacion() == null) {
+            throw new IllegalArgumentException("Debe proporcionar al menos una descripción o una ubicación para modificar la publicación.");
+        }
 
-        Mascota mascota = mascotaService.obtenerPorId(request.getMascotaId());
-        entidad.setMascota(mascota);
 
-        // Trae la ubicacion del request
-        Ubicacion ubicacion = ubicacionMapper.aEntidad(request.getUbicacion());
-        entidad.setUbicacion(ubicacion);
+        // Si se envió una nueva descripción, y es distinta de la actual se actualiza
+        if (request.getDescripcion() != null && !request.getDescripcion().trim().isEmpty()) {
+            if (!request.getDescripcion().equals(entidad.getDescripcion())) {
+                entidad.setDescripcion(request.getDescripcion());
+            }
+        }
 
-        return entidad; // retorna la entidad actualizada
+        // Si se envió una nueva ubicación  se compara con la actual y se actualiza si son diferentes
+        if (request.getUbicacion() != null) {
+            if (!ubicacionValidation.contenidoIgualA(entidad.getUbicacion(), request.getUbicacion())) {
+                entidad.setUbicacion(ubicacionMapper.aEntidad(request.getUbicacion()));
+            }
+        }
+
+        return entidad;
     }
+
+//    // este metodo toma el request y la entidad que se quiere modificar, actualiza los datos en la entidad existente y retorna la entidad modificada.
+//    public Publicacion modificar (Publicacion entidad, PublicacionRequestUpdateDTO request,Long idMiembroLogeado) {
+//
+//        miembroValidation.estaLogeado(entidad.getIdMiembro(),idMiembroLogeado);
+//
+//        if(!entidad.getDescripcion().equals(request.getDescription())){
+//            entidad.setDescripcion(request.getDescription());
+//        }
+//        if(!ubicacionValidation.contenidoIgualA(entidad.getUbicacion(),request.getUbicacion())){
+//            entidad.setUbicacion(ubicacionMapper.aEntidad(request.getUbicacion()));
+//        }
+//
+//        return entidad; // retorna la entidad actualizada
+//    }
 }

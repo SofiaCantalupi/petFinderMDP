@@ -62,12 +62,9 @@ public class ComentarioController {
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @DeleteMapping("/propio/{id}")
-    public ResponseEntity<String> eliminarComentarioPropio(@PathVariable Long id) {
+    public ResponseEntity<String> eliminarComentarioPropio(@PathVariable Long id,@AuthenticationPrincipal MiembroUserDetails miembroUserDetails) {
 
-        // Obtener el email del usuario autenticado desde el SecurityContext
-        String emailMiembro = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        comentarioService.eliminarComentarioPropio(id, emailMiembro);
+        comentarioService.eliminarComentarioPropio(id, miembroUserDetails.getId());
 
         return ResponseEntity.ok("Comentario eliminado correctamente.");
     }
