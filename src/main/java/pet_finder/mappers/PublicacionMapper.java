@@ -3,6 +3,7 @@ package pet_finder.mappers;
 import org.springframework.stereotype.Component;
 import pet_finder.dtos.*;
 import pet_finder.models.*;
+import pet_finder.repositories.MiembroRepository;
 import pet_finder.services.MascotaService;
 import pet_finder.validations.MiembroValidation;
 import pet_finder.validations.UbicacionValidation;
@@ -54,8 +55,17 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
                 .map(comentarioMapper::aDetail)  // luego los convierto a DTO
                 .toList();
 
+        //Obtengo el miembro para obtener su nombre completo:
+        Miembro miembro = miembroValidation.validarExistenciaPorId(publicacion.getIdMiembro());
+
+        //Obtengo el nombre completo del miembro para mostrarlo:
+        String nombreCompleto = miembro.getNombre() + " " + miembro.getApellido();
+
+        //Obtengo la mascota entera para mostrarla en el detail.
+        Mascota mascota = publicacion.getMascota();
+
         // Se utiliza constructor del record DetailDTO
-        return new PublicacionDetailDTO(publicacion, comentarioDetailDTOS);
+        return new PublicacionDetailDTO(nombreCompleto,publicacion,mascota,comentarioDetailDTOS);
     }
 
     @Override
