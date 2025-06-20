@@ -18,9 +18,9 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
         this.miembroValidation = miembroValidation;
     }
 
-
     @Override
     public Mascota aEntidad(MascotaRequestDTO request) {
+
         // Se crea una nueva Mascota, con los datos recibidos del Request
         Mascota mascota = new Mascota();
 
@@ -37,12 +37,14 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
 
     @Override
     public MascotaDetailDTO aDetail(Mascota entidad) {
+
         // Se utiliza constructor del record DetailDTO para retornar un nuevo DetailDTO con los valores de la Mascota recibida
         return new MascotaDetailDTO(entidad);
     }
 
     @Override
     public List<MascotaDetailDTO> deEntidadesAdetails(List<Mascota> entidades) {
+
         // Cada Mascota de la lista se mappea a Detail
         return entidades.stream()
                 .map(this::aDetail)
@@ -51,13 +53,16 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
 
     // este metodo toma el request y la entidad que se quiere modificar, actualiza los datos en la entidad existente y retorna la entidad modificada.
     public Mascota modificar(Mascota entidad, MascotaRequestDTO request,Long idMiembroLogeado) {
+
         // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
 
         entidad.setNombre(request.getNombre());
         entidad.setEstadoMascota(request.getEstadoMascota());
         entidad.setTipoMascota(request.getTipoMascota());
         entidad.setFotoUrl(request.getFotoUrl());
+
         miembroValidation.estaLogeado(entidad.getMiembroId(),idMiembroLogeado);
+
         // Como se trabaja con la entidad a modificar, no hace falta settear esActivo como true;
         // Antes de modificarla, se valida que el registro se encuentre activo, sino lanza error
         // entidad.setEsActivo(true); -> No es necesario

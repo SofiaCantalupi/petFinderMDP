@@ -1,7 +1,5 @@
 package pet_finder.dtos;
 
-
-
 public class PublicacionRequestUpdateDTO {
 
     public PublicacionRequestUpdateDTO() {
@@ -13,6 +11,7 @@ public class PublicacionRequestUpdateDTO {
     public String getDescripcion() {
         return descripcion;
     }
+
     public UbicacionRequestDTO getUbicacion() {
         return ubicacion;
     }

@@ -3,9 +3,7 @@ package pet_finder.mappers;
 import org.springframework.stereotype.Component;
 import pet_finder.dtos.*;
 import pet_finder.models.*;
-import pet_finder.services.ComentarioServices;
 import pet_finder.services.MascotaService;
-import pet_finder.services.MiembroService;
 import pet_finder.validations.MiembroValidation;
 import pet_finder.validations.UbicacionValidation;
 
@@ -68,45 +66,36 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
                 .toList();
     }
 
+    //Se le pasa la publicación original, los campos con la información que se quiere actualizar
+    //dentro de un DTO y el miembro del miembro autenticado.
     public Publicacion modificar(Publicacion entidad, PublicacionRequestUpdateDTO request, Long idMiembroLogeado) {
 
         // Validación de que el miembro logueado sea el dueño de la publicación
         miembroValidation.estaLogeado(entidad.getIdMiembro(), idMiembroLogeado);
 
-        if (request.getDescripcion() == null && request.getUbicacion() == null) {
+        //Verifican si los campos vienen vacios o solo con espacios blancos (isBlank)
+        boolean descripcionVacia = request.getDescripcion() == null  || request.getDescripcion().isBlank();
+        boolean ubicacionVacia = request.getUbicacion() == null;
+
+        //Si ambos estan vacios no tiene sentido el update, así que se lanza una excepción.
+        if (descripcionVacia && ubicacionVacia) {
             throw new IllegalArgumentException("Debe proporcionar al menos una descripción o una ubicación para modificar la publicación.");
         }
 
-
-        // Si se envió una nueva descripción, y es distinta de la actual se actualiza
-        if (request.getDescripcion() != null && !request.getDescripcion().trim().isEmpty()) {
-            if (!request.getDescripcion().equals(entidad.getDescripcion())) {
+        // Si la descripción nueva contiene contenido que no sea la descripción actual
+        //se actualiza la publicación con la nueva descripción.
+        if (!descripcionVacia && !request.getDescripcion().equals(entidad.getDescripcion())) {
                 entidad.setDescripcion(request.getDescripcion());
-            }
         }
 
-        // Si se envió una nueva ubicación  se compara con la actual y se actualiza si son diferentes
-        if (request.getUbicacion() != null) {
-            if (!ubicacionValidation.contenidoIgualA(entidad.getUbicacion(), request.getUbicacion())) {
+        // Si la ubicación nueva contiene contenido que no sea la ubicación actual
+        //se actualiza la publicación con la nueva ubicación.
+        if (!ubicacionVacia && !ubicacionValidation.contenidoIgualA(entidad.getUbicacion(), request.getUbicacion())) {
                 entidad.setUbicacion(ubicacionMapper.aEntidad(request.getUbicacion()));
-            }
         }
 
+        //Se retorna la publicación con los cambios hechos.
         return entidad;
     }
 
-//    // este metodo toma el request y la entidad que se quiere modificar, actualiza los datos en la entidad existente y retorna la entidad modificada.
-//    public Publicacion modificar (Publicacion entidad, PublicacionRequestUpdateDTO request,Long idMiembroLogeado) {
-//
-//        miembroValidation.estaLogeado(entidad.getIdMiembro(),idMiembroLogeado);
-//
-//        if(!entidad.getDescripcion().equals(request.getDescription())){
-//            entidad.setDescripcion(request.getDescription());
-//        }
-//        if(!ubicacionValidation.contenidoIgualA(entidad.getUbicacion(),request.getUbicacion())){
-//            entidad.setUbicacion(ubicacionMapper.aEntidad(request.getUbicacion()));
-//        }
-//
-//        return entidad; // retorna la entidad actualizada
-//    }
 }

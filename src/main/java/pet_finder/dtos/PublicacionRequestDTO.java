@@ -25,16 +25,8 @@ public class PublicacionRequestDTO {
                 return descripcion;
         }
 
-        public void setDescripcion(String descripcion) {
-                this.descripcion = descripcion;
-        }
-
         public Long getMascotaId() {
                 return mascotaId;
-        }
-
-        public void setMascotaId(Long mascotaId) {
-                this.mascotaId = mascotaId;
         }
 
         public UbicacionRequestDTO getUbicacion() {
