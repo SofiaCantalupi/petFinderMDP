@@ -31,22 +31,28 @@ public class MiembroController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<List<MiembroDetailDTO>> listar(){
+
         List<MiembroDetailDTO> details = miembroMapper.deEntidadesAdetails(miembroService.listar());
+
         return ResponseEntity.ok(details);
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/{id}")
     public ResponseEntity<MiembroDetailDTO> obtenerPorId(@PathVariable Long id){
+
         MiembroDetailDTO miembroDetailDTO = miembroMapper.aDetail(miembroService.obtenerPorId(id));
+
         return ResponseEntity.ok(miembroDetailDTO);
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping
     public ResponseEntity<MiembroDetailDTO> crear(@Valid @RequestBody MiembroRequestDTO request){
+
         Miembro miembro = miembroMapper.aEntidad(request);
         Miembro miembroCreado = miembroService.crear(miembro);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(miembroMapper.aDetail(miembroCreado));
     }
 
@@ -54,22 +60,29 @@ public class MiembroController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/{id}")
     public ResponseEntity<MiembroDetailDTO> modificarPorId(@PathVariable Long id, @Valid @RequestBody MiembroRequestDTO request){
+
         Miembro miembro = miembroService.modificarPorId(id,miembroMapper.aEntidad(request));
         MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
+
         return ResponseEntity.ok(nuevoMiembro);
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @PutMapping("/modificar-nombre")
     public ResponseEntity<MiembroDetailDTO> modificarNombre(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
+
+        //Se asegura de que el miembro que se va a modificar el nombre sea el autenticado por su ID.
         Miembro miembro = miembroService.modificarNombre(request.getNuevoCampo(),userDetails.getId());
         MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
+
         return ResponseEntity.ok(nuevoMiembro);
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @PutMapping("/modificar-apellido")
     public ResponseEntity<MiembroDetailDTO> modificarApellido(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
+
+        //Se asegura de que el miembro que se va a modificar el apellido sea el autenticado por su ID.
         Miembro miembro = miembroService.modificarApellido(request.getNuevoCampo(),userDetails.getId());
         MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
         return ResponseEntity.ok(nuevoMiembro);
@@ -78,7 +91,9 @@ public class MiembroController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/hacer-administrador/{id}")
     public ResponseEntity<String> hacerAdministradorPorId(@PathVariable Long id){
+
         MiembroDetailDTO nuevoAdmin = new MiembroDetailDTO(miembroService.hacerAdministrador(id));
+
         return ResponseEntity.ok("El miembro " + nuevoAdmin.nombre() + " " + nuevoAdmin.apellido() + " es ahora administrador en el sistema.");
     }
 
@@ -86,7 +101,9 @@ public class MiembroController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarPorId(@PathVariable Long id){
+
         miembroService.eliminarPorId(id);
+
         return ResponseEntity.ok("Miembro eliminado éxitosamente");
     }
 
@@ -94,7 +111,12 @@ public class MiembroController {
     @PreAuthorize("hasRole('MIEMBRO')")
     @DeleteMapping("/borrarPorEmail/{email}")
     public ResponseEntity<String> eliminarPorEmail(@PathVariable String email){
+
+        //No se realiza leyendo el email del usuario para agregar un paso extra
+        //al usuario de ingresar por escrito su email para evitar
+        //que borre su cuenta por accidente.
         miembroService.eliminarPorEmail(email);
+
         return ResponseEntity.ok("Miembro eliminado éxitosamente");
     }
 

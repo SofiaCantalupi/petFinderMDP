@@ -11,7 +11,4 @@ public class MiembroRequestUpdateDTO {
         return nuevoCampo;
     }
 
-    public void setNuevoCampo(@NotBlank(message = "Este campo es obligatorio") String nuevoCampo) {
-        this.nuevoCampo = nuevoCampo;
-    }
 }

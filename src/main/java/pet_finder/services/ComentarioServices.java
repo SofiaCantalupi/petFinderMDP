@@ -1,14 +1,11 @@
 package pet_finder.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import pet_finder.models.Comentario;
 import pet_finder.models.Miembro;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.ComentarioRepositories;
-import pet_finder.repositories.MiembroRepository;
 import pet_finder.repositories.PublicacionRepository;
-import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.validations.ComentarioValidation;
 import pet_finder.validations.MiembroValidation;
 import pet_finder.validations.PublicacionValidation;
@@ -49,10 +46,12 @@ public class ComentarioServices {
         return comentarioRepository.save(comentario);
     }
 
-
+    //Muestra los comentarios de una publicación por su ID.
     public List<Comentario> listarPorPublicacion(Long idPublicacion) {
+
         Publicacion p = publicacionValidation.existePorId(idPublicacion);
         publicacionValidation.esActivo(p.getActivo());
+
         return comentarioRepository.findByPublicacionIdAndActivoTrue(idPublicacion);
     }
 
@@ -74,6 +73,7 @@ public class ComentarioServices {
         // Se valida que el comentario no haya sido eliminado anteriormente
         comentarioValidation.esActivo(comentario.getActivo());
 
+        //Valida que el usuario autenticado coincida con el autor del comentario que se va a borrar.
         miembroValidation.estaLogeado(comentario.getMiembro().getId(),idMiembroLogeado);
 
         comentario.setActivo(false);

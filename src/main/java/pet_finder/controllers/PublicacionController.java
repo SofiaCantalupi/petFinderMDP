@@ -25,7 +25,6 @@ import java.util.List;
 public class PublicacionController {
 
     private final PublicacionService publicacionService;
-
     private final PublicacionMapper publicacionMapper;
 
     public PublicacionController (PublicacionService publicacionService,
@@ -53,10 +52,13 @@ public class PublicacionController {
     @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<List<PublicacionDetailDTO>> listarActivas() {
+
         List<Publicacion> publicaciones = publicacionService.listarActivas();
+
         if (publicaciones.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
+
         // Transforma la List<Publicacion> en un ResponseEntity de List<PublicacionDetailDTO>
         return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
     }
@@ -64,6 +66,7 @@ public class PublicacionController {
     @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
     @GetMapping("/{id}")
     public ResponseEntity<PublicacionDetailDTO> obtenerPorId(@PathVariable Long id) {
+
         Publicacion publicacion = publicacionService.obtenerPorId(id);
         // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
         return ResponseEntity.ok(publicacionMapper.aDetail(publicacion));
@@ -74,6 +77,7 @@ public class PublicacionController {
     public ResponseEntity<PublicacionDetailDTO> modificar (@PathVariable Long id, @Valid @RequestBody PublicacionRequestUpdateDTO req,@AuthenticationPrincipal MiembroUserDetails miembroUserDetails) {
 
         Publicacion publicacion = publicacionService.obtenerPorId(id);
+        //Asegura de que solo se pueda modificar si el ID autenticado coincide con el ID del autor de la publicación
         Publicacion modificado = publicacionMapper.modificar(publicacion,req,miembroUserDetails.getId());
         Publicacion actualizado = publicacionService.guardarModificada(modificado);
 
@@ -84,6 +88,7 @@ public class PublicacionController {
     @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
     @GetMapping("/tipoMascota/{tipoMascota}")
     public ResponseEntity<List<PublicacionDetailDTO>> filtrarPorTipoMascota(@PathVariable String tipoMascota){
+
         List<Publicacion> publicaciones = publicacionService.filtrarPorTipoMascota(tipoMascota);
 
         if(publicaciones.isEmpty()){
@@ -97,6 +102,7 @@ public class PublicacionController {
     @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
     @GetMapping("/estadoMascota/{estadoMascota}")
     public ResponseEntity<List<PublicacionDetailDTO>> filtrarPorEstadoMascota(@PathVariable String estadoMascota){
+
         // FiltrarPorEstadoMascota se encarga de validar el parametro recibido y retornar una lista segun el enum
         List<Publicacion> publicaciones = publicacionService.filtrarPorEstadoMascota(estadoMascota);
 
@@ -108,21 +114,20 @@ public class PublicacionController {
         return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
     }
 
-
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<String> eliminarPublicacionAdmin(@PathVariable Long id) {
+
         publicacionService.eliminar(id);
+
         return ResponseEntity.ok("Se elimino correctamente");
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @DeleteMapping("/propia/{id}")
-    public  ResponseEntity<String> eliminarPublicacionPropia(@PathVariable Long id){
+    public  ResponseEntity<String> eliminarPublicacionPropia(@PathVariable Long id,@AuthenticationPrincipal MiembroUserDetails miembroUserDetails){
 
-        String emailMiembro = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        publicacionService.eliminarPublicacionPropia(id, emailMiembro);
+        publicacionService.eliminarPublicacionPropia(id, miembroUserDetails.getId());
 
         return ResponseEntity.ok("Publicacion eliminada con exito");
     }

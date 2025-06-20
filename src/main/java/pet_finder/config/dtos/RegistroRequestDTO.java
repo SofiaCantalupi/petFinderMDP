@@ -32,10 +32,6 @@ public class RegistroRequestDTO {
     public String getApellido() {
         return apellido;
     }
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
-    }
-
 
     public String getEmail() {
         return email;
@@ -44,12 +40,8 @@ public class RegistroRequestDTO {
         this.email = email;
     }
 
-
     public String getContrasenia() {
         return contrasenia;
-    }
-    public void setContrasenia(String contrasenia) {
-        this.contrasenia = contrasenia;
     }
 
 }

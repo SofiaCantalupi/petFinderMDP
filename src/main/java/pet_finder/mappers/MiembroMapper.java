@@ -38,11 +38,4 @@ public class MiembroMapper implements Mapper<MiembroRequestDTO, MiembroDetailDTO
                 .toList();
     }
 
-//    public Miembro modificar(Miembro miembro, MiembroRequestDTO request) {
-//
-//        miembro.setNombre(request.getNombre());
-//        miembro.setApellido(request.getApellido());
-//
-//        return miembro;
-//    }
 }

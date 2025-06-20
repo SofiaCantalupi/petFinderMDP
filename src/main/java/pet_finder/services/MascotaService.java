@@ -1,6 +1,5 @@
 package pet_finder.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import pet_finder.models.Mascota;
 import pet_finder.repositories.MascotaRepository;
@@ -31,11 +30,11 @@ public class MascotaService {
     1.No se hace un metodo modificar como tal -> al modificar una mascota, se obtiene por id, validando que exista y este activa, se modifica a traves del mappeo y se guarda la mascota
     modificada en el controller, a traves del metodo guardar de este service.
 
-    2. obtenerPorId y listar devuelven solo registros activos, es decir, sin baja logica
+    2. obtenerPorId y listar devuelven solo registros activos, es decir, sin baja logica*/
 
-     */
 
     public Mascota obtenerPorId(Long id){
+
         // el metodo existePorId retorna la mascota encontrada por el id, de lo contrario lanza una excepcion
         Mascota existente = mascotaValidation.existePorId(id);
 

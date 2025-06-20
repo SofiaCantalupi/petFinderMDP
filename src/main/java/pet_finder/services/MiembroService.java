@@ -1,9 +1,6 @@
 package pet_finder.services;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import pet_finder.config.MiembroUserDetails;
-import pet_finder.dtos.MiembroDetailDTO;
-import pet_finder.dtos.MiembroRequestDTO;
+
 import pet_finder.exceptions.UsuarioNoEncontradoException;
 import pet_finder.mappers.MiembroMapper;
 import pet_finder.models.Miembro;
@@ -32,7 +29,7 @@ public class MiembroService {
 
         miembroValidation.validarNombre(miembro);
         miembroValidation.validarApellido(miembro);
-        miembroValidation.validarContrasenia(miembro);       //Probablemente acá tenga que hacer el traslado con SpringSecurity de la password.
+        miembroValidation.validarContrasenia(miembro);
         miembroValidation.validarEmailRegistrado(miembro);
 
         Miembro miembroGuardado = miembroRepository.save(miembro);
@@ -41,6 +38,7 @@ public class MiembroService {
     }
 
     public List<Miembro> listar(){
+
         return miembroRepository.findAll()
                 .stream()
                 .filter(Miembro::isActivo)      //Muestro solo los activos
@@ -48,20 +46,25 @@ public class MiembroService {
     }
 
     public Miembro obtenerPorId(Long Id){
+
         Miembro miembro = miembroRepository.findById(Id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
-        miembroValidation.esInactivo(miembro);
+        miembroValidation.esInactivo(miembro);  //Valido de que el miembro sea activo.
 
         return miembro;
     }
 
     public Miembro obtenerPorEmail(String email){
+
         return (miembroRepository.findByEmail(email))
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró un miembro con ese mail."));
     }
 
+    //La logica de este metodo es para cambiar el miembro entero, inclusive el email.
+    //Por el momento no se usa.
     public Miembro modificarPorId(Long id,Miembro miembro){
+
         Miembro miembroAModificar = miembroRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
@@ -76,7 +79,6 @@ public class MiembroService {
         Miembro miembroModificado = miembroRepository.save(miembroAModificar);
         return miembroModificado;
     }
-
 
     public Miembro modificarNombre(String nombre,Long id){
 
@@ -102,8 +104,9 @@ public class MiembroService {
         return miembroModificado;
     }
 
-
+    //Metodo para hacer administrador a un miembro por su ID.
     public Miembro hacerAdministrador(Long id){
+
         Miembro miembroAHacerAdmin = miembroRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
@@ -115,18 +118,20 @@ public class MiembroService {
         return miembroModificado;
     }
 
+    //Metodo para que los administradores den la baja pasiva a cuentas.
     public String eliminarPorId(Long id){
         Miembro miembroAEliminar = miembroRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
         miembroValidation.esInactivo(miembroAEliminar);
-        miembroAEliminar.setActivo(false);
+        miembroAEliminar.setActivo(false);  //Baja pasiva.
 
         miembroRepository.save(miembroAEliminar);
 
             return "Se ha dado de baja con éxito al miembro con ID: " + id;
     }
 
+    //Metodo para que los usuarios den de baja pasiva su propia cuenta.
     public String eliminarPorEmail(String email){
 
         Miembro miembroAEliminar = miembroRepository.findByEmail(email)
@@ -137,7 +142,7 @@ public class MiembroService {
 
         miembroRepository.save(miembroAEliminar);
 
-        return "Se ha dado de baja con éxito al miembro con el correo: " + email;
+        return "Diste de baja con éxito tu cuenta con el correo: " + email;
     }
 
 }

@@ -6,8 +6,6 @@ import pet_finder.enums.RolUsuario;
 import pet_finder.repositories.MiembroRepository;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.AccessDeniedException;
-
 @Component
 public class MiembroValidation {
 
@@ -39,6 +37,8 @@ public class MiembroValidation {
                     " una letra miniscula, un numero, un caracter especial(Por ejemplo: !$%&_#) y su longitud debe ser de 6 a 15 caracteres.");
         }
     }
+
+    //Metodo para validar que el email ingresado no este ya registrado en la base de datos.
     public void validarEmailRegistrado(Miembro miembro) {
         miembroRepository.findByEmail(miembro.getEmail())
                 .ifPresent(miembroExistente -> {
@@ -56,7 +56,10 @@ public class MiembroValidation {
                 .orElseThrow(()-> new UsuarioNoEncontradoException("No se encontró un usuario con el email: " + email));
     }
 
-    public void validarEmailUpdates(Miembro miembro){       //Testear
+    //Metodo para validar un Email donde se este actualizando el email del miembro.
+    //Sin implementar esto, un miembro podria cambiar su email por el de otro miembro que ya
+    //lo este usando en la aplicación. Este metodo no se usa en la aplicación.
+    public void validarEmailUpdates(Miembro miembro){
         boolean existe = miembroRepository.existsByEmailAndIdNot(miembro.getEmail(),miembro.getId());
         if(existe){
             throw new EmailYaRegistradoException("El correo electronico actualizado ya esta registrado por otro usuario.");
@@ -75,6 +78,8 @@ public class MiembroValidation {
         }
     }
 
+    //Este metodo verifica que los dos ids que se le pasen por parametro sean iguales
+    //para así verificar que el primer ID que se ingrese corresponda al ID del Miembro autenticado.
     public void estaLogeado(Long id,Long idLogeado){
         if(!id.equals(idLogeado)){
             throw new OperacionNoPermitidaException("No tenes permisos para realizar esta operacion");

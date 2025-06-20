@@ -27,6 +27,7 @@ public class AuthController {
     // Registro de usuario
     @PostMapping("/registro")
     public ResponseEntity<MiembroDetailDTO> registrar(@Valid @RequestBody RegistroRequestDTO request) {
+
         MiembroDetailDTO nuevoMiembro = authService.registrar(request);     //Le paso el registro y devuelvo el miembro Creado (Un DetailDTO)
         return ResponseEntity.ok(nuevoMiembro);
     }
@@ -34,6 +35,9 @@ public class AuthController {
     // Login de usuario
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
+
+        //El login devuelve un AuthResponseDTO donde se encuentra el token valido para
+        //estar autenticado.
         return ResponseEntity.ok(authService.logIn(request));
     }
 

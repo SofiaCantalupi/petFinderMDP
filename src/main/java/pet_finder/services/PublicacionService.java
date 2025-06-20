@@ -2,13 +2,9 @@ package pet_finder.services;
 
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
-import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.models.Comentario;
-import pet_finder.models.Miembro;
 import pet_finder.models.Publicacion;
-import pet_finder.repositories.MiembroRepository;
 import pet_finder.repositories.PublicacionRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import pet_finder.validations.MascotaValidation;
 import pet_finder.validations.MiembroValidation;
@@ -49,10 +45,8 @@ public class PublicacionService {
         this.ubicacionValidation = ubicacionValidation;
     }
 
-    // NUEVA PUBLICACION
+    //Nueva publicacion.
     public Publicacion guardar (Publicacion publicacion) {
-
-        // Se valida que la mascota exista en publicacionMapper
 
         // Se valida que la mascota este activa
         mascotaValidation.esActivo(publicacion.getMascota().getEsActivo());
@@ -74,8 +68,8 @@ public class PublicacionService {
         return publicacionRepository.save(publicacion);
     }
 
-    // LISTAR POR ID
     public Publicacion obtenerPorId (Long id) {
+
         // Valida si existe la Publicacion con ese id, si existe la retorna
         Publicacion existente = publicacionValidation.existePorId(id);
 
@@ -94,10 +88,9 @@ public class PublicacionService {
         return publicacionRepository.findAllByActivoTrue();
     }
 
-    // MODIFICAR SE REALIZA MEDIANTE MAPPER
-
-    // BAJA LOGICA
+    //Eliminar publicación como administrador
     public void eliminar(Long id) {
+
         // Valida si existe la Publicacion por id
         Publicacion p = publicacionValidation.existePorId(id);
 
@@ -125,6 +118,7 @@ public class PublicacionService {
 
     // FILTRAR POR TipoMascota
     public List<Publicacion> filtrarPorTipoMascota(String tipoString){
+
         // El controller recibe un String, por lo tanto debe convertirse a un dato tipo Enum (TipoMascota)
         // Se valida que el string sea valido ("gato" o "perro") y se convierte a su respectivo Enum (TipoMascota)
         TipoMascota tipoEnum = publicacionValidation.validarYConvertirTipoMascota(tipoString);
@@ -138,6 +132,7 @@ public class PublicacionService {
 
     // FILTRAR POR EstadoMascota
     public List<Publicacion> filtrarPorEstadoMascota(String estadoString){
+
         // Se valida que el string sea valido ("perdido" o "encontrado") y se convierte a su respectivo Enum (EstadoMascota)
         EstadoMascota estadoEnum = publicacionValidation.validarYConvertirEstadoMascota(estadoString);
 
@@ -148,15 +143,15 @@ public class PublicacionService {
                 .toList();
     }
 
-    public void eliminarPublicacionPropia(Long idPublicacion, String emailMiembro){
+    //Eliminar publicación como miembro.
+    public void eliminarPublicacionPropia(Long idPublicacion,Long idMiembroLogeado){
 
        Publicacion publicacion = publicacionValidation.existePorId(idPublicacion);
 
-        Miembro miembro = miembroValidation.validarExistenciaPorEmail(emailMiembro);
-
-        if(!publicacion.getIdMiembro().equals(miembro.getId())){
-            throw new OperacionNoPermitidaException("No puedes eliminar una publicación que no es tuya.");
-        }
+       //Si el ID del miembro autenticado y el del miembro no coinciden
+        //se lanza una excepción ya que se estaria tratando de borrar una publicación
+        //que no es del usuario autenticado.
+        miembroValidation.estaLogeado(publicacion.getIdMiembro(),idMiembroLogeado);
 
         this.eliminar(idPublicacion);
     }
