@@ -4,12 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
-import pet_finder.exceptions.MiembroInactivoException;
 import pet_finder.models.Publicacion;
-import pet_finder.models.Ubicacion;
 import pet_finder.repositories.PublicacionRepository;
-
-import java.util.Objects;
 
 /**
  * @author Daniel Herrera
@@ -28,7 +24,7 @@ public class PublicacionValidation {
         }
     }
 
-
+    //Valida que la mascota que se quiera asignar no este asociada a otra publicación.
     public void mascotaYaAsignada(Long mascotaId){
         if(repository.existsByMascotaId(mascotaId)){
             throw new IllegalArgumentException("La mascota se encuentra asociada a otra publicación.");

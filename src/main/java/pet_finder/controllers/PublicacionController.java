@@ -118,11 +118,9 @@ public class PublicacionController {
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @DeleteMapping("/propia/{id}")
-    public  ResponseEntity<String> eliminarPublicacionPropia(@PathVariable Long id){
+    public  ResponseEntity<String> eliminarPublicacionPropia(@PathVariable Long id,@AuthenticationPrincipal MiembroUserDetails miembroUserDetails){
 
-        String emailMiembro = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        publicacionService.eliminarPublicacionPropia(id, emailMiembro);
+        publicacionService.eliminarPublicacionPropia(id, miembroUserDetails.getId());
 
         return ResponseEntity.ok("Publicacion eliminada con exito");
     }

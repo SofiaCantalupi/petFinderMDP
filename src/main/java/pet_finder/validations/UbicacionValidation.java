@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import pet_finder.dtos.UbicacionRequestDTO;
-import pet_finder.exceptions.MiembroInactivoException;
 import pet_finder.exceptions.UbicacionInvalidaException;
 import pet_finder.models.Ubicacion;
 
@@ -76,6 +75,8 @@ public class UbicacionValidation {
         }
     }
 
+    //Este metodo se usa para indicar si dos ubicaciones son iguales para ser implementadas
+    //en una actualización.
     public boolean contenidoIgualA(Ubicacion original, UbicacionRequestDTO nueva) {
         if (nueva == null) return false;
 
