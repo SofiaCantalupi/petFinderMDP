@@ -18,7 +18,7 @@ public class JwtService {
 
     //Esta es una KEY secreta que tenemos que guardar. Con esta key se generan todos los Tokens y al tenerla secreta nos aseguramos
     //que los tokens no puedan ser trucados. Solo con esta key se pueden generar y validar tokens LEGITIMOS.
-
+    //Por seguridad se guarda en una variable de entorno para no exponerla.
     private final String SECRET_KEY;
 
     //Lee desde el properties el valor de la key, que esta vinculada a una variable de entorno
@@ -43,11 +43,10 @@ public class JwtService {
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))  // Fecha de expiración del token, 1 hora.(+1 segundo * 60 segundos * 60 minutos)
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)  // Firmar con clave secreta usando HS256
                 .compact();    // Compacta el JWT en String
-
     }
 
-    //Generación del token (con claim), el cual contendria el rol, para que el administrador lo use.
-    public String generarTokenParaAdmin(Map<String, Object> claims, UserDetails userDetails) {
+    //Generación del token (con claim), el cual contendria datos adicionales
+    public String generarTokenConClaims(Map<String, Object> claims, UserDetails userDetails) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
@@ -81,8 +80,6 @@ public class JwtService {
         final String email = extraerEmail(token);
         return (email.equals(userDetails.getUsername()) && !esTokenExpirado(token));
     }
-
-
 
 
 }

@@ -14,15 +14,9 @@ public class CambiarContraseniaDTO{
     public String getContraseniaVieja() {
         return contraseniaVieja;
     }
-    public void setContraseniaVieja(String contraseniaVieja) {
-        this.contraseniaVieja = contraseniaVieja;
-    }
 
     public String getNuevaContrasenia() {
         return nuevaContrasenia;
-    }
-    public void setNuevaContrasenia(String nuevaContrasenia) {
-        this.nuevaContrasenia = nuevaContrasenia;
     }
 
 }
