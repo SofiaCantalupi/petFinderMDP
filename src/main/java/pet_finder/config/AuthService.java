@@ -23,17 +23,15 @@ public class AuthService {
     private final MiembroValidation miembroValidation;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final MiembroMapper miembroMapper;
 
     public AuthService(MiembroRepository miembroRepository,
                        MiembroValidation miembroValidation,
                        PasswordEncoder passwordEncoder,
-                       JwtService jwtService, MiembroMapper miembroMapper) {
+                       JwtService jwtService) {
         this.miembroRepository = miembroRepository;
         this.miembroValidation = miembroValidation;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
-        this.miembroMapper = miembroMapper;
     }
 
     public MiembroDetailDTO registrar(RegistroRequestDTO request){
