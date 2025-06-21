@@ -1,8 +1,8 @@
 package pet_finder.mappers;
 
 import org.springframework.stereotype.Component;
-import pet_finder.dtos.MiembroDetailDTO;
-import pet_finder.dtos.MiembroRequestDTO;
+import pet_finder.dtos.miembro.MiembroDetailDTO;
+import pet_finder.dtos.miembro.MiembroRequestDTO;
 import pet_finder.enums.RolUsuario;
 import pet_finder.models.Miembro;
 

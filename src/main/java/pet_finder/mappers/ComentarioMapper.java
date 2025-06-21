@@ -1,8 +1,8 @@
 package pet_finder.mappers;
 
 import org.springframework.stereotype.Component;
-import pet_finder.dtos.ComentarioDetailDTO;
-import pet_finder.dtos.ComentarioRequestDTO;
+import pet_finder.dtos.comentario.ComentarioDetailDTO;
+import pet_finder.dtos.comentario.ComentarioRequestDTO;
 import pet_finder.models.Comentario;
 
 import java.util.ArrayList;

@@ -16,12 +16,10 @@ public class MiembroService {
 
     public final MiembroRepository miembroRepository;
     public final MiembroValidation miembroValidation;
-    public final MiembroMapper miembroMapper;
 
-    public MiembroService(MiembroRepository miembroRepository, MiembroValidation miembroValidation,MiembroMapper miembroMapper) {
+    public MiembroService(MiembroRepository miembroRepository, MiembroValidation miembroValidation) {
         this.miembroRepository = miembroRepository;
         this.miembroValidation = miembroValidation;
-        this.miembroMapper = miembroMapper;
     }
 
 

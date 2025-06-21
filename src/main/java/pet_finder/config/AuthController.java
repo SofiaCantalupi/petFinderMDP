@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pet_finder.config.dtos.AuthResponseDTO;
-import pet_finder.config.dtos.CambiarContraseniaDTO;
-import pet_finder.config.dtos.LoginRequestDTO;
-import pet_finder.config.dtos.RegistroRequestDTO;
-import pet_finder.dtos.MiembroDetailDTO;
+import pet_finder.dtos.auth.AuthResponseDTO;
+import pet_finder.dtos.auth.CambiarContraseniaDTO;
+import pet_finder.dtos.auth.LoginRequestDTO;
+import pet_finder.dtos.auth.RegistroRequestDTO;
+import pet_finder.dtos.miembro.MiembroDetailDTO;
 
 @RestController
 @RequestMapping("/auth")

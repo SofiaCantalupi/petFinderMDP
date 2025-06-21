@@ -4,7 +4,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import pet_finder.dtos.UbicacionRequestDTO;
+import pet_finder.dtos.ubicacion.UbicacionRequestDTO;
 import pet_finder.exceptions.UbicacionInvalidaException;
 import pet_finder.models.Ubicacion;
 
