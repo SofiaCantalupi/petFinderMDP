@@ -1,6 +1,7 @@
 package pet_finder.services;
 
 import org.springframework.stereotype.Service;
+import pet_finder.dtos.mascota.MascotaRequestUpdateDTO;
 import pet_finder.models.Mascota;
 import pet_finder.repositories.MascotaRepository;
 import pet_finder.validations.MascotaValidation;
@@ -10,7 +11,9 @@ import java.util.List;
 
 @Service
 public class MascotaService {
+
     private final MascotaRepository mascotaRepository;
+
     private final MascotaValidation mascotaValidation;
     private final MiembroValidation miembroValidation;
 
@@ -20,17 +23,7 @@ public class MascotaService {
         this.miembroValidation = miembroValidation;
     }
 
-    /* ---------Aclaracion sobre los metodos CRUD de esta clase --------------
-    Con el objetivo de que los mappeos entre entidad y dto queden unicamente en el Controller, se crearon unicamente los metodos
-    - obtenerPorId
-    - guardar : no se llama crear, ya que el metodo guardar tambien es usado en el controller para modificar
-    - eliminar
-    - listar
-
-    1.No se hace un metodo modificar como tal -> al modificar una mascota, se obtiene por id, validando que exista y este activa, se modifica a traves del mappeo y se guarda la mascota
-    modificada en el controller, a traves del metodo guardar de este service.
-
-    2. obtenerPorId y listar devuelven solo registros activos, es decir, sin baja logica*/
+    /*  obtenerPorId y listar devuelven solo registros activos, es decir, sin baja logica*/
 
 
     public Mascota obtenerPorId(Long id){
@@ -59,6 +52,41 @@ public class MascotaService {
         mascota.setEsActivo(false);
 
         mascotaRepository.save(mascota);
+    }
+
+    public Mascota modificar(Long mascotaId, Long miembroId, MascotaRequestUpdateDTO request){
+        // Se obtiene la mascota que se quiere modificar, ademas se valida que la mascota exista y este activa
+        Mascota existente = obtenerPorId(mascotaId);
+
+        // Se valida que la mascota pertenezca al miembro que esta logeado y tratando de modificar el registro
+        miembroValidation.estaLogeado(existente.getMiembroId(), miembroId);
+
+        // Se valida que al menos haya un campo para modificar
+        if (request.getNombre() == null &&
+                request.getEstadoMascota() == null &&
+                request.getTipoMascota() == null &&
+                request.getFotoUrl() == null) {
+            throw new IllegalArgumentException("Debe proporcionar al menos un campo para modificar.");
+        }
+
+        // Actualiza el campo solo si no es null
+        if(request.getNombre() != null){
+            existente.setNombre(request.getNombre());
+        }
+
+        if(request.getEstadoMascota() != null){
+            existente.setEstadoMascota(request.getEstadoMascota());
+        }
+
+        if(request.getTipoMascota() != null){
+            existente.setTipoMascota(request.getTipoMascota());
+        }
+
+        if(request.getFotoUrl() != null){
+            existente.setFotoUrl(request.getFotoUrl());
+        }
+
+        return mascotaRepository.save(existente);
     }
 
     // Solo retorna las mascotas con esActivo = true
