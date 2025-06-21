@@ -1,4 +1,4 @@
-package pet_finder.exceptions;
+package pet_finder.exceptions.handler;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -7,6 +7,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import pet_finder.exceptions.*;
+import pet_finder.exceptions.model.ErrorResponse;
 
 import java.util.Map;
 import java.util.stream.Collectors;

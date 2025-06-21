@@ -1,5 +1,7 @@
-package pet_finder.dtos;
+package pet_finder.dtos.publicacion;
 
+import pet_finder.dtos.ubicacion.UbicacionDetailDTO;
+import pet_finder.dtos.comentario.ComentarioDetailDTO;
 import pet_finder.models.Mascota;
 import pet_finder.models.Publicacion;
 
@@ -20,7 +22,7 @@ public record PublicacionDetailDTO(
                    publicacion.getDescripcion(),
                    publicacion.getFecha(),
                    mascota,
-                   new UbicacionDetailDTO(publicacion.getUbicacion()),
+                   publicacion.getUbicacion() != null ? new UbicacionDetailDTO(publicacion.getUbicacion()) : null,
                    comentarios
            );
        }

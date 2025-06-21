@@ -1,4 +1,4 @@
-package pet_finder.config.dtos;
+package pet_finder.dtos.auth;
 
 import jakarta.validation.constraints.NotBlank;
 

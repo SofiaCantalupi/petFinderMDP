@@ -1,4 +1,4 @@
-package pet_finder.dtos;
+package pet_finder.dtos.mascota;
 
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.URL;

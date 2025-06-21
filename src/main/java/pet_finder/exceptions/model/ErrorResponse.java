@@ -1,4 +1,4 @@
-package pet_finder.exceptions;
+package pet_finder.exceptions.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,6 @@
-package pet_finder.dtos;
+package pet_finder.dtos.publicacion;
+
+import pet_finder.dtos.ubicacion.UbicacionRequestDTO;
 
 public class PublicacionRequestUpdateDTO {
 

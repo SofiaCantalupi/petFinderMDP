@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import pet_finder.models.Comentario;
 import pet_finder.models.Miembro;
 import pet_finder.models.Publicacion;
-import pet_finder.repositories.ComentarioRepositories;
+import pet_finder.repositories.ComentarioRepository;
 import pet_finder.repositories.PublicacionRepository;
 import pet_finder.validations.ComentarioValidation;
 import pet_finder.validations.MiembroValidation;
@@ -13,16 +13,17 @@ import pet_finder.validations.PublicacionValidation;
 import java.util.List;
 
 @Service
-public class ComentarioServices {
+public class ComentarioService {
 
-    private final ComentarioRepositories comentarioRepository;
+    private final ComentarioRepository comentarioRepository;
     private final PublicacionRepository publicacionRepository;
+
     private final ComentarioValidation comentarioValidation;
     private final MiembroValidation miembroValidation;
     private final PublicacionValidation publicacionValidation;
 
 
-    public ComentarioServices(ComentarioRepositories comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation) {
+    public ComentarioService(ComentarioRepository comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation) {
         this.comentarioRepository = comentarioRepository;
         this.publicacionRepository = publicacionRepository;
         this.comentarioValidation = comentarioValidation;

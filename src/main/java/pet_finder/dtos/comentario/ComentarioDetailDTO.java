@@ -1,4 +1,4 @@
-package pet_finder.dtos;
+package pet_finder.dtos.comentario;
 
 
 import pet_finder.models.Comentario;
