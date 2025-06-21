@@ -5,21 +5,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pet_finder.config.MiembroUserDetails;
-import pet_finder.dtos.PublicacionDetailDTO;
-import pet_finder.dtos.PublicacionRequestDTO;
-import pet_finder.dtos.PublicacionRequestUpdateDTO;
+import pet_finder.dtos.publicacion.PublicacionDetailDTO;
+import pet_finder.dtos.publicacion.PublicacionRequestDTO;
+import pet_finder.dtos.publicacion.PublicacionRequestUpdateDTO;
 import pet_finder.mappers.PublicacionMapper;
 import pet_finder.models.Publicacion;
 import pet_finder.services.PublicacionService;
 
 import java.util.List;
 
-/**
- * @author Daniel Herrera
- */
+
 @RestController
 @RequestMapping("/publicaciones")
 public class PublicacionController {
@@ -49,6 +46,28 @@ public class PublicacionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(publicacionMapper.aDetail(guardada));
     }
 
+    @PreAuthorize("hasRole('MIEMBRO')")
+    @PutMapping("/{id}")
+    public ResponseEntity<PublicacionDetailDTO> modificar(@PathVariable Long id,
+                                                          @RequestBody PublicacionRequestUpdateDTO request,
+                                                          @AuthenticationPrincipal MiembroUserDetails miembroUserDetails){
+
+        Publicacion actualizado = publicacionService.modificar(id, miembroUserDetails.getId(), request);
+
+        // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
+        return ResponseEntity.ok(publicacionMapper.aDetail(actualizado));
+    }
+
+    @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
+    @GetMapping("/{id}")
+    public ResponseEntity<PublicacionDetailDTO> obtenerPorId(@PathVariable Long id) {
+
+        Publicacion publicacion = publicacionService.obtenerPorId(id);
+        // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
+        return ResponseEntity.ok(publicacionMapper.aDetail(publicacion));
+    }
+
+
     @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<List<PublicacionDetailDTO>> listarActivas() {
@@ -63,27 +82,6 @@ public class PublicacionController {
         return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
     }
 
-    @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
-    @GetMapping("/{id}")
-    public ResponseEntity<PublicacionDetailDTO> obtenerPorId(@PathVariable Long id) {
-
-        Publicacion publicacion = publicacionService.obtenerPorId(id);
-        // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
-        return ResponseEntity.ok(publicacionMapper.aDetail(publicacion));
-    }
-
-    @PreAuthorize("hasRole('MIEMBRO')")
-    @PutMapping("/{id}")
-    public ResponseEntity<PublicacionDetailDTO> modificar (@PathVariable Long id, @Valid @RequestBody PublicacionRequestUpdateDTO req,@AuthenticationPrincipal MiembroUserDetails miembroUserDetails) {
-
-        Publicacion publicacion = publicacionService.obtenerPorId(id);
-        //Asegura de que solo se pueda modificar si el ID autenticado coincide con el ID del autor de la publicación
-        Publicacion modificado = publicacionMapper.modificar(publicacion,req,miembroUserDetails.getId());
-        Publicacion actualizado = publicacionService.guardarModificada(modificado);
-
-        // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
-        return ResponseEntity.ok(publicacionMapper.aDetail(actualizado));
-    }
 
     @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
     @GetMapping("/tipoMascota/{tipoMascota}")
@@ -98,6 +96,7 @@ public class PublicacionController {
         // Se mappean las publicaciones enontradas a detailsDTO
         return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
     }
+
 
     @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
     @GetMapping("/estadoMascota/{estadoMascota}")
@@ -114,6 +113,7 @@ public class PublicacionController {
         return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
     }
 
+
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<String> eliminarPublicacionAdmin(@PathVariable Long id) {
@@ -122,6 +122,7 @@ public class PublicacionController {
 
         return ResponseEntity.ok("Se elimino correctamente");
     }
+
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @DeleteMapping("/propia/{id}")
