@@ -146,9 +146,7 @@ public class PublicacionService {
     }
 
     // Eliminar una publicacion
-    public void eliminar(Long id) {
-        // Valida si existe una publicacion por id y si esta activa
-        Publicacion publicacion = obtenerPorId(id);
+    public void eliminar(Publicacion publicacion) {
 
         // Baja logica de la mascota asociada
         mascotaService.eliminar(publicacion.getMascota().getId());
@@ -166,16 +164,14 @@ public class PublicacionService {
     }
 
     //Eliminar publicación como miembro.
-    public void eliminarPublicacionPropia(Long idPublicacion,Long idMiembroLogeado){
-
-        Publicacion publicacion = publicacionValidation.existePorId(idPublicacion);
+    public void eliminarPublicacionPropia(Publicacion publicacion,Long idMiembroLogeado){
 
         //Si el ID del miembro autenticado y el del miembro no coinciden
         //se lanza una excepción ya que se estaria tratando de borrar una publicación
         //que no es del usuario autenticado.
         miembroValidation.estaLogeado(publicacion.getIdMiembro(),idMiembroLogeado);
 
-        this.eliminar(idPublicacion);
+        this.eliminar(publicacion);
     }
 
 }

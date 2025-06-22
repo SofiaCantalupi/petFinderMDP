@@ -118,9 +118,10 @@ public class PublicacionController {
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<String> eliminarPublicacionAdmin(@PathVariable Long id) {
 
-        publicacionService.eliminar(id);
+        Publicacion publicacion = publicacionService.obtenerPorId(id);
+        publicacionService.eliminar(publicacion);
 
-        return ResponseEntity.ok("Se elimino correctamente");
+        return ResponseEntity.ok("Publicación eliminada con éxito");
     }
 
 
@@ -128,8 +129,9 @@ public class PublicacionController {
     @DeleteMapping("/propia/{id}")
     public  ResponseEntity<String> eliminarPublicacionPropia(@PathVariable Long id,@AuthenticationPrincipal MiembroUserDetails miembroUserDetails){
 
-        publicacionService.eliminarPublicacionPropia(id, miembroUserDetails.getId());
+        Publicacion publicacion = publicacionService.obtenerPorId(id);
+        publicacionService.eliminarPublicacionPropia(publicacion, miembroUserDetails.getId());
 
-        return ResponseEntity.ok("Publicacion eliminada con exito");
+        return ResponseEntity.ok("Publicación eliminada con éxito");
     }
 }
