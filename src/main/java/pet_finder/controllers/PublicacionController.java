@@ -113,6 +113,23 @@ public class PublicacionController {
         return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
     }
 
+    // Ejemplo: GET http://localhost:8080/publicaciones/filtro?tipoMascota=PERRO&estadoMascota=PERDIDA
+    @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
+    @GetMapping("/filtro")
+    public ResponseEntity<List<PublicacionDetailDTO>> filtrarPorTipoYEstado(
+            @RequestParam String tipoMascota,
+            @RequestParam String estadoMascota
+    ) {
+        List<Publicacion> filtradas = publicacionService.filtrarPorTipoYEstado(tipoMascota, estadoMascota);
+
+        if (filtradas.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+
+        // Se mappean las publicaciones enontradas a detailsDTO
+        return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(filtradas));
+    }
+
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/admin/{id}")

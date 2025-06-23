@@ -19,5 +19,8 @@ public interface PublicacionRepository extends JpaRepository<Publicacion, Long> 
     // Busca todas las publicaciones donde la mascota coincida con el estado recibido por parametro
     List<Publicacion> findAllByMascotaEstadoMascota(EstadoMascota estadoMascota);
 
+    // Busca todas las publicaciones donde la mascota coincida con el tipo y estado recibido por parametro
+    List<Publicacion> findAllByMascotaTipoMascotaAndMascotaEstadoMascota(TipoMascota tipo, EstadoMascota estado);
+
     boolean existsByMascotaId(Long mascotaId);
 }

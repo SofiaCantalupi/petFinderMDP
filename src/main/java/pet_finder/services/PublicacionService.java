@@ -107,6 +107,19 @@ public class PublicacionService {
                 .toList();
     }
 
+    // FILTRAR POR TipoMascota y EstadoMascota
+    public List<Publicacion> filtrarPorTipoYEstado(String tipo, String estado) {
+        // Validar y convertir ambos strings a Enum
+        TipoMascota tipoEnum = mascotaValidation.validarYConvertirTipoMascota(tipo);
+        EstadoMascota estadoEnum = mascotaValidation.validarYConvertirEstadoMascota(estado);
+
+        // Buscar publicaciones con ese tipo y estado
+        return publicacionRepository
+                .findAllByMascotaTipoMascotaAndMascotaEstadoMascota(tipoEnum, estadoEnum)
+                .stream()
+                .filter(Publicacion::getActivo)
+                .toList();
+    }
 
     // Modifcar una publicacion
     public Publicacion modificar(Long publicacionId, Long miembroLogeadoId, PublicacionRequestUpdateDTO request) {
