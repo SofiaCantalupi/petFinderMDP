@@ -1,34 +1,31 @@
 package pet_finder.mappers;
 
 import org.springframework.stereotype.Component;
-import pet_finder.dtos.*;
+import pet_finder.dtos.comentario.ComentarioDetailDTO;
+import pet_finder.dtos.publicacion.PublicacionDetailDTO;
+import pet_finder.dtos.publicacion.PublicacionRequestDTO;
 import pet_finder.models.*;
-import pet_finder.repositories.MiembroRepository;
 import pet_finder.services.MascotaService;
-import pet_finder.validations.MiembroValidation;
-import pet_finder.validations.UbicacionValidation;
+import pet_finder.services.MiembroService;
 
 import java.util.List;
 
-/**
- * @author Daniel Herrera
- */
 @Component
 public class PublicacionMapper implements Mapper<PublicacionRequestDTO, PublicacionDetailDTO, Publicacion> {
 
     private final MascotaService mascotaService;
+    private final MiembroService miembroService;
+
     private final UbicacionMapper ubicacionMapper;
     private final ComentarioMapper comentarioMapper;
-    private final MiembroValidation miembroValidation;
-    private final UbicacionValidation ubicacionValidation;
+
 
     public PublicacionMapper (MascotaService mascotaService,
-                              UbicacionMapper ubicacionMapper, ComentarioMapper comentarioMapper, MiembroValidation miembroValidation, UbicacionValidation ubicacionValidation) {
+                              UbicacionMapper ubicacionMapper, ComentarioMapper comentarioMapper, MiembroService miembroService) {
         this.mascotaService = mascotaService;
         this.ubicacionMapper = ubicacionMapper;
         this.comentarioMapper = comentarioMapper;
-        this.miembroValidation = miembroValidation;
-        this.ubicacionValidation = ubicacionValidation;
+        this.miembroService = miembroService;
     }
 
     @Override
@@ -56,7 +53,7 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
                 .toList();
 
         //Obtengo el miembro para obtener su nombre completo:
-        Miembro miembro = miembroValidation.validarExistenciaPorId(publicacion.getIdMiembro());
+        Miembro miembro = miembroService.obtenerPorId(publicacion.getIdMiembro());
 
         //Obtengo el nombre completo del miembro para mostrarlo:
         String nombreCompleto = miembro.getNombre() + " " + miembro.getApellido();
@@ -75,37 +72,4 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
                 .map(this::aDetail)
                 .toList();
     }
-
-    //Se le pasa la publicación original, los campos con la información que se quiere actualizar
-    //dentro de un DTO y el miembro del miembro autenticado.
-    public Publicacion modificar(Publicacion entidad, PublicacionRequestUpdateDTO request, Long idMiembroLogeado) {
-
-        // Validación de que el miembro logueado sea el dueño de la publicación
-        miembroValidation.estaLogeado(entidad.getIdMiembro(), idMiembroLogeado);
-
-        //Verifican si los campos vienen vacios o solo con espacios blancos (isBlank)
-        boolean descripcionVacia = request.getDescripcion() == null  || request.getDescripcion().isBlank();
-        boolean ubicacionVacia = request.getUbicacion() == null;
-
-        //Si ambos estan vacios no tiene sentido el update, así que se lanza una excepción.
-        if (descripcionVacia && ubicacionVacia) {
-            throw new IllegalArgumentException("Debe proporcionar al menos una descripción o una ubicación para modificar la publicación.");
-        }
-
-        // Si la descripción nueva contiene contenido que no sea la descripción actual
-        //se actualiza la publicación con la nueva descripción.
-        if (!descripcionVacia && !request.getDescripcion().equals(entidad.getDescripcion())) {
-                entidad.setDescripcion(request.getDescripcion());
-        }
-
-        // Si la ubicación nueva contiene contenido que no sea la ubicación actual
-        //se actualiza la publicación con la nueva ubicación.
-        if (!ubicacionVacia && !ubicacionValidation.contenidoIgualA(entidad.getUbicacion(), request.getUbicacion())) {
-                entidad.setUbicacion(ubicacionMapper.aEntidad(request.getUbicacion()));
-        }
-
-        //Se retorna la publicación con los cambios hechos.
-        return entidad;
-    }
-
 }

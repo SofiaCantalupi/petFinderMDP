@@ -1,4 +1,4 @@
-package pet_finder.dtos;
+package pet_finder.dtos.ubicacion;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

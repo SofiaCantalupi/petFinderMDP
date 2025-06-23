@@ -8,6 +8,7 @@ import java.util.List;
 
 @Service
 public class NormaComunidadService {
+
     private final NormaComunidadRepository repository;
 
     public NormaComunidadService(NormaComunidadRepository repository) {

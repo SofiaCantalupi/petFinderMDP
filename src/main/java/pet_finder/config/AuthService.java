@@ -3,13 +3,12 @@ package pet_finder.config;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pet_finder.config.dtos.AuthResponseDTO;
-import pet_finder.config.dtos.CambiarContraseniaDTO;
-import pet_finder.config.dtos.LoginRequestDTO;
-import pet_finder.config.dtos.RegistroRequestDTO;
-import pet_finder.dtos.MiembroDetailDTO;
+import pet_finder.dtos.auth.AuthResponseDTO;
+import pet_finder.dtos.auth.CambiarContraseniaDTO;
+import pet_finder.dtos.auth.LoginRequestDTO;
+import pet_finder.dtos.auth.RegistroRequestDTO;
+import pet_finder.dtos.miembro.MiembroDetailDTO;
 import pet_finder.exceptions.FormatoInvalidoException;
-import pet_finder.exceptions.MiembroInactivoException;
 import pet_finder.exceptions.UsuarioNoEncontradoException;
 import pet_finder.mappers.MiembroMapper;
 import pet_finder.models.Miembro;
@@ -24,17 +23,15 @@ public class AuthService {
     private final MiembroValidation miembroValidation;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final MiembroMapper miembroMapper;
 
     public AuthService(MiembroRepository miembroRepository,
                        MiembroValidation miembroValidation,
                        PasswordEncoder passwordEncoder,
-                       JwtService jwtService, MiembroMapper miembroMapper) {
+                       JwtService jwtService) {
         this.miembroRepository = miembroRepository;
         this.miembroValidation = miembroValidation;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
-        this.miembroMapper = miembroMapper;
     }
 
     public MiembroDetailDTO registrar(RegistroRequestDTO request){

@@ -1,9 +1,9 @@
 package pet_finder.mappers;
 
 import org.springframework.stereotype.Component;
-import pet_finder.dtos.*;
+import pet_finder.dtos.ubicacion.UbicacionDetailDTO;
+import pet_finder.dtos.ubicacion.UbicacionRequestDTO;
 import pet_finder.models.*;
-import pet_finder.validations.UbicacionValidation;
 
 import java.util.List;
 
@@ -12,13 +12,6 @@ import java.util.List;
  */
 @Component
 public class UbicacionMapper implements Mapper<UbicacionRequestDTO, UbicacionDetailDTO, Ubicacion> {
-
-    // Es necesario tener el validation aca
-    private final UbicacionValidation ubicacionValidation;
-
-    public UbicacionMapper (UbicacionValidation ubicacionValidation) {
-        this.ubicacionValidation = ubicacionValidation;
-    }
 
     @Override
     public Ubicacion aEntidad(UbicacionRequestDTO request) {
@@ -49,22 +42,4 @@ public class UbicacionMapper implements Mapper<UbicacionRequestDTO, UbicacionDet
                 .map(this::aDetail)
                 .toList();
     }
-
-    // este metodo toma el request y la entidad que se quiere modificar, actualiza los datos en la entidad existente y retorna la entidad modificada.
-//    public Ubicacion modificar (Ubicacion entidad, UbicacionRequestDTO request) {
-//
-//        // todo: Comprobar funcionamiento de la peticion a la api externa geocodificadora
-//        // Valida si la Ubicacion recibida por DTO se puede geocodificar (realmente existe)
-//        ubicacionValidation.validarGeocodificacion(this.aEntidad(request));
-//
-//        // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
-//        entidad.setDireccion(request.getDireccion());
-//        entidad.setAltura(request.getAltura());
-//        entidad.setCiudad(request.getCiudad());
-//        entidad.setRegion(request.getRegion());
-//        entidad.setPais(request.getPais());
-//
-//        return entidad; // retorna la entidad actualizada
-//    }
-
 }

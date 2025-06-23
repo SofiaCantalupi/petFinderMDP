@@ -6,11 +6,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pet_finder.config.MiembroUserDetails;
-import pet_finder.dtos.ComentarioDetailDTO;
-import pet_finder.dtos.ComentarioRequestDTO;
+import pet_finder.dtos.comentario.ComentarioDetailDTO;
+import pet_finder.dtos.comentario.ComentarioRequestDTO;
 import pet_finder.mappers.ComentarioMapper;
 import pet_finder.models.Comentario;
-import pet_finder.services.ComentarioServices;
+import pet_finder.services.ComentarioService;
 
 import java.util.List;
 
@@ -18,10 +18,10 @@ import java.util.List;
 @RequestMapping("/comentarios")
 public class ComentarioController {
 
-    private final ComentarioServices comentarioService;
+    private final ComentarioService comentarioService;
     private final ComentarioMapper comentarioMapper;
 
-    public ComentarioController(ComentarioServices comentarioService, ComentarioMapper comentarioMapper) {
+    public ComentarioController(ComentarioService comentarioService, ComentarioMapper comentarioMapper) {
         this.comentarioService = comentarioService;
         this.comentarioMapper = comentarioMapper;
     }

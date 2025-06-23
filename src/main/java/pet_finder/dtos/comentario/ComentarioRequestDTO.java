@@ -1,10 +1,8 @@
-package pet_finder.dtos;
+package pet_finder.dtos.comentario;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import java.time.LocalDate;
 
 public class ComentarioRequestDTO {
 

@@ -7,8 +7,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pet_finder.config.MiembroUserDetails;
-import pet_finder.dtos.MascotaDetailDTO;
-import pet_finder.dtos.MascotaRequestDTO;
+import pet_finder.dtos.mascota.MascotaDetailDTO;
+import pet_finder.dtos.mascota.MascotaRequestDTO;
+import pet_finder.dtos.mascota.MascotaRequestUpdateDTO;
 import pet_finder.mappers.MascotaMapper;
 import pet_finder.models.Mascota;
 import pet_finder.services.MascotaService;
@@ -53,14 +54,15 @@ public class MascotaController {
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")
-    @PutMapping("/mascota/{id}")
-    public ResponseEntity<MascotaDetailDTO> modificar(@Valid @RequestBody MascotaRequestDTO request, @PathVariable Long id, @AuthenticationPrincipal MiembroUserDetails userDetails) {
+    @PutMapping("/{id}")
+    public ResponseEntity<MascotaDetailDTO> modificar(@Valid @RequestBody MascotaRequestUpdateDTO request,
+                                                      @PathVariable Long id,
+                                                      @AuthenticationPrincipal MiembroUserDetails userDetails) {
 
-        Mascota existente = service.obtenerPorId(id);  // este metodo valida tanto existencia como activo
-        Mascota modificada = mapper.modificar(existente, request, userDetails.getId()); // toma la entidad que se quiere modificar y retorna una entidad con los cambios realizados
-        Mascota guardada = service.guardar(modificada); // guarda la entidad con  los respectivos cambios
 
-        return ResponseEntity.ok(mapper.aDetail(guardada));
+        Mascota modificada = service.modificar(id, userDetails.getId(), request);
+
+        return ResponseEntity.ok(mapper.aDetail(modificada));
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")

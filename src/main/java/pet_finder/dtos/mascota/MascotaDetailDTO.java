@@ -1,4 +1,4 @@
-package pet_finder.dtos;
+package pet_finder.dtos.mascota;
 
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
