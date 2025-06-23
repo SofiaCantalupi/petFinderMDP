@@ -46,7 +46,7 @@ public class PublicacionService {
 
 
     //Nueva publicacion.
-    public Publicacion guardar(Publicacion publicacion) {
+    public Publicacion guardar(Publicacion publicacion,Long idMiembro) {
 
         // Se valida que la mascota este activa
         mascotaValidation.esActivo(publicacion.getMascota().getEsActivo());
@@ -56,6 +56,9 @@ public class PublicacionService {
 
         // Se valida que la ubicacion pueda ser geocodificada
         ubicacionValidation.validarGeocodificacion(publicacion.getUbicacion());
+
+        //Se valida que el miembro exista y se lo asocia a la publicación.
+        publicacion.setMiembro(miembroValidation.validarExistenciaPorId(idMiembro));
 
         return publicacionRepository.save(publicacion);
     }
@@ -115,7 +118,7 @@ public class PublicacionService {
         Publicacion existente = obtenerPorId(publicacionId);
 
         // Validación de que el miembro logueado sea el dueño de la publicación
-        miembroValidation.estaLogeado(existente.getIdMiembro(), miembroLogeadoId);
+        miembroValidation.estaLogeado(existente.getMiembro().getId(), miembroLogeadoId);
 
         //Verifican si los campos vienen vacios o solo con espacios blancos (isBlank)
         boolean descripcionVacia = request.getDescripcion() == null  || request.getDescripcion().isBlank();
@@ -169,9 +172,11 @@ public class PublicacionService {
         //Si el ID del miembro autenticado y el del miembro no coinciden
         //se lanza una excepción ya que se estaria tratando de borrar una publicación
         //que no es del usuario autenticado.
-        miembroValidation.estaLogeado(publicacion.getIdMiembro(),idMiembroLogeado);
+        miembroValidation.estaLogeado(publicacion.getMiembro().getId(),idMiembroLogeado);
 
         this.eliminar(publicacion);
     }
+
+
 
 }
