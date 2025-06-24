@@ -1,4 +1,4 @@
-package pet_finder.config.dtos;
+package pet_finder.dtos.auth;
 
 import jakarta.validation.constraints.NotBlank;
 
@@ -14,15 +14,9 @@ public class CambiarContraseniaDTO{
     public String getContraseniaVieja() {
         return contraseniaVieja;
     }
-    public void setContraseniaVieja(String contraseniaVieja) {
-        this.contraseniaVieja = contraseniaVieja;
-    }
 
     public String getNuevaContrasenia() {
         return nuevaContrasenia;
-    }
-    public void setNuevaContrasenia(String nuevaContrasenia) {
-        this.nuevaContrasenia = nuevaContrasenia;
     }
 
 }

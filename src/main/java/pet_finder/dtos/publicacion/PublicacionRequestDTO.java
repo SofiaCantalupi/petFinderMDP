@@ -1,8 +1,9 @@
-package pet_finder.dtos;
+package pet_finder.dtos.publicacion;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import pet_finder.dtos.ubicacion.UbicacionRequestDTO;
 
 /**
  * @author Daniel Herrera
@@ -10,10 +11,10 @@ import jakarta.validation.constraints.NotNull;
 
 public class PublicacionRequestDTO {
 
-        @NotBlank(message = "Ingrese alguna información descriptiva de la mascota.")
+        @NotBlank(message = "debe ingresar una descripción con información relevante.")
         private String descripcion;
 
-        @NotNull(message="Debe indicar la mascota")
+        @NotNull(message="Debe indicar la mascota.")
         private Long mascotaId;
 
         @Valid
@@ -25,16 +26,8 @@ public class PublicacionRequestDTO {
                 return descripcion;
         }
 
-        public void setDescripcion(String descripcion) {
-                this.descripcion = descripcion;
-        }
-
         public Long getMascotaId() {
                 return mascotaId;
-        }
-
-        public void setMascotaId(Long mascotaId) {
-                this.mascotaId = mascotaId;
         }
 
         public UbicacionRequestDTO getUbicacion() {

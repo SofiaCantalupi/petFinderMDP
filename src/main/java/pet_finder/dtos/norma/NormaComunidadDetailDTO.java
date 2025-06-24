@@ -1,4 +1,4 @@
-package pet_finder.dtos;
+package pet_finder.dtos.norma;
 
 import pet_finder.models.NormaComunidad;
 

@@ -3,14 +3,14 @@ package pet_finder.config;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pet_finder.config.dtos.AuthResponseDTO;
-import pet_finder.config.dtos.CambiarContraseniaDTO;
-import pet_finder.config.dtos.LoginRequestDTO;
-import pet_finder.config.dtos.RegistroRequestDTO;
-import pet_finder.dtos.MiembroDetailDTO;
+import pet_finder.dtos.auth.AuthResponseDTO;
+import pet_finder.dtos.auth.CambiarContraseniaDTO;
+import pet_finder.dtos.auth.LoginRequestDTO;
+import pet_finder.dtos.auth.RegistroRequestDTO;
+import pet_finder.dtos.miembro.MiembroDetailDTO;
 import pet_finder.exceptions.FormatoInvalidoException;
-import pet_finder.exceptions.MiembroInactivoException;
 import pet_finder.exceptions.UsuarioNoEncontradoException;
+import pet_finder.mappers.MiembroMapper;
 import pet_finder.models.Miembro;
 import pet_finder.enums.RolUsuario;
 import pet_finder.repositories.MiembroRepository;
@@ -34,14 +34,18 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-
     public MiembroDetailDTO registrar(RegistroRequestDTO request){
+
         Miembro miembro = new Miembro();
+
+        //No se puede usar el mapper porque es un RegistroRequestDTO, no un MiembroRequestDTO.
 
         miembro.setNombre(request.getNombre());
         miembro.setApellido(request.getApellido());
         miembro.setEmail(request.getEmail());
         miembro.setContrasenia(request.getContrasenia());
+        miembro.setRol(RolUsuario.MIEMBRO);
+        miembro.setActivo(true);
 
         // Validaciones personalizadas
         miembroValidation.validarNombre(miembro);
@@ -52,11 +56,7 @@ public class AuthService {
         miembro.setContrasenia(passwordEncoder.encode(miembro.getContrasenia()));
         //Le asigno la nueva contraseña, es la anterior ya validada pero esta vez encriptada.
 
-        miembro.setRol(RolUsuario.MIEMBRO);        //Datos por defecto
-        miembro.setActivo(true);
-
         Miembro guardado = miembroRepository.save(miembro); //Guardo en la base de datos.
-
 
         return new MiembroDetailDTO(guardado);  //Con el miembro guardado genero el MiembroDetailDTO con todos los datos.
     }
@@ -68,9 +68,7 @@ public class AuthService {
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró un miembro con ese email"));
 
         //Si lo hay, verifico que este activo (Que no se le haya dado la baja pasiva)
-        if (!miembro.isActivo()) {
-            throw new MiembroInactivoException("El miembro está inactivo.");
-        }
+        miembroValidation.esInactivo(miembro);
 
         //Recien ahora verifico la contraseña.
         if (!passwordEncoder.matches(request.contrasenia(), miembro.getContrasenia())) {
@@ -79,6 +77,7 @@ public class AuthService {
 
         //Si la contraseña es valida, pasamos el miembro a UserDetails para generar el token
         UserDetails miembroUserDetails = new MiembroUserDetails(miembro);
+
         // se genera el token y se retorna dentro del AuthResponseDTO.
         String token = jwtService.generateToken(miembroUserDetails); // JWT firmado
 

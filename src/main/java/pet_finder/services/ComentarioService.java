@@ -1,14 +1,11 @@
 package pet_finder.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import pet_finder.models.Comentario;
 import pet_finder.models.Miembro;
 import pet_finder.models.Publicacion;
-import pet_finder.repositories.ComentarioRepositories;
-import pet_finder.repositories.MiembroRepository;
+import pet_finder.repositories.ComentarioRepository;
 import pet_finder.repositories.PublicacionRepository;
-import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.validations.ComentarioValidation;
 import pet_finder.validations.MiembroValidation;
 import pet_finder.validations.PublicacionValidation;
@@ -16,16 +13,17 @@ import pet_finder.validations.PublicacionValidation;
 import java.util.List;
 
 @Service
-public class ComentarioServices {
+public class ComentarioService {
 
-    private final ComentarioRepositories comentarioRepository;
+    private final ComentarioRepository comentarioRepository;
     private final PublicacionRepository publicacionRepository;
+
     private final ComentarioValidation comentarioValidation;
     private final MiembroValidation miembroValidation;
     private final PublicacionValidation publicacionValidation;
 
 
-    public ComentarioServices(ComentarioRepositories comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation) {
+    public ComentarioService(ComentarioRepository comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation) {
         this.comentarioRepository = comentarioRepository;
         this.publicacionRepository = publicacionRepository;
         this.comentarioValidation = comentarioValidation;
@@ -49,8 +47,12 @@ public class ComentarioServices {
         return comentarioRepository.save(comentario);
     }
 
-
+    //Muestra los comentarios de una publicación por su ID.
     public List<Comentario> listarPorPublicacion(Long idPublicacion) {
+
+        Publicacion p = publicacionValidation.existePorId(idPublicacion);
+        publicacionValidation.esActivo(p.getActivo());
+
         return comentarioRepository.findByPublicacionIdAndActivoTrue(idPublicacion);
     }
 
@@ -65,18 +67,15 @@ public class ComentarioServices {
         comentarioRepository.save(comentario);
     }
 
-    public void eliminarComentarioPropio(Long idComentario, String emailMiembro) {
+    public void eliminarComentarioPropio(Long idComentario, Long idMiembroLogeado) {
 
         Comentario comentario = comentarioValidation.existePorId(idComentario);
 
         // Se valida que el comentario no haya sido eliminado anteriormente
         comentarioValidation.esActivo(comentario.getActivo());
 
-        Miembro miembro = miembroValidation.validarExistenciaPorEmail(emailMiembro);
-
-        if (!comentario.getMiembro().getId().equals(miembro.getId())) {
-            throw new OperacionNoPermitidaException("No puedes eliminar un comentario que no es tuyo.");
-        }
+        //Valida que el usuario autenticado coincida con el autor del comentario que se va a borrar.
+        miembroValidation.estaLogeado(comentario.getMiembro().getId(),idMiembroLogeado);
 
         comentario.setActivo(false);
         comentarioRepository.save(comentario);

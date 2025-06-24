@@ -3,7 +3,6 @@ package pet_finder.models;
 import jakarta.persistence.*;
 import pet_finder.enums.RolUsuario;
 
-
 @Entity
 @Table(name = "miembros")
 public class Miembro {
@@ -31,8 +30,6 @@ public class Miembro {
     @Column(nullable = false)
     private boolean activo;
 
-    //Habria que poner la relación con publicaciones. OneToMany. Miembro seria el lado propietario (preguntar mañana)
-
     public Miembro() {
     }
 
@@ -43,7 +40,6 @@ public class Miembro {
         this.contrasenia = contrasenia;
         this.activo = activo;
     }
-
 
     public Long getId() {
         return id;

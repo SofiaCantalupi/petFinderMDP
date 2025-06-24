@@ -1,4 +1,4 @@
-package pet_finder.exceptions;
+package pet_finder.exceptions.handler;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -7,6 +7,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import pet_finder.exceptions.*;
+import pet_finder.exceptions.model.ErrorResponse;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,6 +41,7 @@ public class GlobalHandlerException {
     }
 
     // ------ Handlers para excepciones especificas
+
     // para excepcion EntityNotFound
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> manejarNotFound(EntityNotFoundException ex) {
@@ -66,12 +69,13 @@ public class GlobalHandlerException {
         ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, exc.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    // MiembroInactivoException
     @ExceptionHandler(MiembroInactivoException.class)
     public ResponseEntity<ErrorResponse> manejarMiembroInactivo(MiembroInactivoException exc){
         ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, exc.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
-
 
     // EntidadInactivaException
     @ExceptionHandler(EntidadInactivaException.class)
@@ -87,21 +91,30 @@ public class GlobalHandlerException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    // Operación no permitida Exception
     @ExceptionHandler(OperacionNoPermitidaException.class)
     public ResponseEntity<String> manejarOperacionNoPermitidaException(OperacionNoPermitidaException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 
+    // IllegalArgumentException
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> manejarIllegalArgument(IllegalArgumentException exc){
         ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, exc.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    // IllegalStateException
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> manejarIllegalArgument(IllegalStateException exc){
         ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT, exc.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    // ErrorEnRolException
+    @ExceptionHandler(ErrorEnRolException.class)
+    public ResponseEntity<ErrorResponse> manejarErrorEnRol(ErrorEnRolException ex){
+        ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }

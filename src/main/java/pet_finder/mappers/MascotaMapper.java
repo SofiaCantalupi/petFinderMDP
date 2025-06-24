@@ -1,8 +1,8 @@
 package pet_finder.mappers;
 
 import org.springframework.stereotype.Component;
-import pet_finder.dtos.MascotaDetailDTO;
-import pet_finder.dtos.MascotaRequestDTO;
+import pet_finder.dtos.mascota.MascotaDetailDTO;
+import pet_finder.dtos.mascota.MascotaRequestDTO;
 import pet_finder.models.Mascota;
 
 import java.util.List;
@@ -12,6 +12,7 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
 
     @Override
     public Mascota aEntidad(MascotaRequestDTO request) {
+
         // Se crea una nueva Mascota, con los datos recibidos del Request
         Mascota mascota = new Mascota();
 
@@ -28,30 +29,17 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
 
     @Override
     public MascotaDetailDTO aDetail(Mascota entidad) {
+
         // Se utiliza constructor del record DetailDTO para retornar un nuevo DetailDTO con los valores de la Mascota recibida
         return new MascotaDetailDTO(entidad);
     }
 
     @Override
     public List<MascotaDetailDTO> deEntidadesAdetails(List<Mascota> entidades) {
+
         // Cada Mascota de la lista se mappea a Detail
         return entidades.stream()
                 .map(this::aDetail)
                 .toList();
-    }
-
-    // este metodo toma el request y la entidad que se quiere modificar, actualiza los datos en la entidad existente y retorna la entidad modificada.
-    @Override
-    public Mascota modificar(Mascota entidad, MascotaRequestDTO request) {
-        // Se toma la entidad que se quiere modificar y se actualiza con los datos del RequestDTO
-        entidad.setNombre(request.getNombre());
-        entidad.setEstadoMascota(request.getEstadoMascota());
-        entidad.setTipoMascota(request.getTipoMascota());
-
-        // Como se trabaja con la entidad a modificar, no hace falta settear esActivo como true;
-        // Antes de modificarla, se valida que el registro se encuentre activo, sino lanza error
-        // entidad.setEsActivo(true); -> No es necesario
-
-        return entidad; // retorna la entidad actualizada
     }
 }

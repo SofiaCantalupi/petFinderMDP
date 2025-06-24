@@ -26,7 +26,9 @@ public class Publicacion {
     @JoinColumn(name = "mascota_id")
     private Mascota mascota;
 
-    private Long idMiembro;
+    @ManyToOne
+    @JoinColumn(name = "id_miembro", nullable = false)
+    private Miembro miembro;
 
     // fetch me permite recibir Ubicacion a la vez que obtengo PublicacionById
     // cascade me permite crear o modificar la Ubicacion mediante la Publicacion
@@ -99,12 +101,11 @@ public class Publicacion {
         this.activo = activo;
     }
 
-    public Long getIdMiembro() {
-        return idMiembro;
+    public Miembro getMiembro() {
+        return miembro;
     }
-
-    public void setIdMiembro(Long idMiembro) {
-        this.idMiembro = idMiembro;
+    public void setMiembro(Miembro miembro) {
+        this.miembro = miembro;
     }
 
     public List<Comentario> getComentarios() {

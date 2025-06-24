@@ -1,4 +1,4 @@
-package pet_finder.dtos;
+package pet_finder.dtos.ubicacion;
 
 import pet_finder.models.Ubicacion;
 

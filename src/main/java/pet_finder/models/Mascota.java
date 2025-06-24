@@ -26,7 +26,7 @@ public class Mascota {
     private Boolean esActivo;
 
     @Column(nullable = false)
-    private long miembroId;
+    private Long miembroId;
 
     private String fotoUrl;
 
@@ -39,10 +39,6 @@ public class Mascota {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getNombre() {
@@ -77,11 +73,11 @@ public class Mascota {
         this.esActivo = esActivo;
     }
 
-    public long getMiembroId() {
+    public Long getMiembroId() {
         return miembroId;
     }
 
-    public void setMiembroId(long miembroId) {
+    public void setMiembroId(Long miembroId) {
         this.miembroId = miembroId;
     }
 

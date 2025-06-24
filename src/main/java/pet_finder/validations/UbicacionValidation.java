@@ -4,10 +4,11 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import pet_finder.dtos.UbicacionRequestDTO;
-import pet_finder.exceptions.MiembroInactivoException;
+import pet_finder.dtos.ubicacion.UbicacionRequestDTO;
 import pet_finder.exceptions.UbicacionInvalidaException;
 import pet_finder.models.Ubicacion;
+
+import java.util.Objects;
 
 /**
  * @author Daniel Herrera
@@ -72,6 +73,18 @@ public class UbicacionValidation {
         if (!ubicacionReal) {
             throw new UbicacionInvalidaException("La Ubicacion '"+query+"' no se pudo localizar.");
         }
+    }
+
+    //Este metodo se usa para indicar si dos ubicaciones son iguales para ser implementadas
+    //en una actualización.
+    public boolean contenidoIgualA(Ubicacion original, UbicacionRequestDTO nueva) {
+        if (nueva == null) return false;
+
+        return Objects.equals(original.getDireccion(), nueva.getDireccion())
+                && Objects.equals(original.getAltura(), nueva.getAltura())
+                && Objects.equals(original.getCiudad(), nueva.getCiudad())
+                && Objects.equals(original.getRegion(), nueva.getRegion())
+                && Objects.equals(original.getPais(), nueva.getPais());
     }
 
 }

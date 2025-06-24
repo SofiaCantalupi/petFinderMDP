@@ -16,6 +16,7 @@ public class MiembroUserDetails implements UserDetails {
         this.miembro = miembro;
     }
 
+    //Trae el rol del miembro autenticado.
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + miembro.getRol().name()));

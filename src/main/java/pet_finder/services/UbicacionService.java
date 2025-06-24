@@ -63,8 +63,6 @@ public class UbicacionService {
         return ubicacionRepository.findAll();
     }
 
-    // MODIFICAR SE REALIZA MEDIANTE MAPPER
-
     // BAJA LOGICA
     public void eliminar(Long id) {
         // Valida si existe la Ubicacion por id

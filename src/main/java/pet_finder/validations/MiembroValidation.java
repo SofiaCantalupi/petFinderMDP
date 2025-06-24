@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class MiembroValidation {
 
-    public final MiembroRepository miembroRepository;
+    public final MiembroRepository repository;
 
-    public MiembroValidation(MiembroRepository miembroRepository) {
-        this.miembroRepository = miembroRepository;
+    public MiembroValidation(MiembroRepository repository) {
+        this.repository = repository;
     }
 
     public void validarNombre(Miembro miembro){
@@ -37,25 +37,30 @@ public class MiembroValidation {
                     " una letra miniscula, un numero, un caracter especial(Por ejemplo: !$%&_#) y su longitud debe ser de 6 a 15 caracteres.");
         }
     }
+
+    //Metodo para validar que el email ingresado no este ya registrado en la base de datos.
     public void validarEmailRegistrado(Miembro miembro) {
-        miembroRepository.findByEmail(miembro.getEmail())
+        repository.findByEmail(miembro.getEmail())
                 .ifPresent(miembroExistente -> {
                     throw new EmailYaRegistradoException("El mail ingresado ya existe en la base de datos.");
                 });
     }
 
     public Miembro validarExistenciaPorId(Long Id){
-            return miembroRepository.findById(Id)
+            return repository.findById(Id)
                     .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró un usuario con el ID: " + Id));
     }
 
     public Miembro validarExistenciaPorEmail(String email){
-        return miembroRepository.findByEmail(email)
+        return repository.findByEmail(email)
                 .orElseThrow(()-> new UsuarioNoEncontradoException("No se encontró un usuario con el email: " + email));
     }
 
-    public void validarEmailUpdates(Miembro miembro){       //Testear
-        boolean existe = miembroRepository.existsByEmailAndIdNot(miembro.getEmail(),miembro.getId());
+    //Metodo para validar un Email donde se este actualizando el email del miembro.
+    //Sin implementar esto, un miembro podria cambiar su email por el de otro miembro que ya
+    //lo este usando en la aplicación. Este metodo no se usa en la aplicación.
+    public void validarEmailUpdates(Miembro miembro){
+        boolean existe = repository.existsByEmailAndIdNot(miembro.getEmail(),miembro.getId());
         if(existe){
             throw new EmailYaRegistradoException("El correo electronico actualizado ya esta registrado por otro usuario.");
         }
@@ -70,6 +75,14 @@ public class MiembroValidation {
     public void esInactivo(Miembro miembro){
         if (!miembro.isActivo()){
             throw new MiembroInactivoException("El miembro es un usuario inactivo.");
+        }
+    }
+
+    //Este metodo verifica que los dos ids que se le pasen por parametro sean iguales
+    //para así verificar que el primer ID que se ingrese corresponda al ID del Miembro autenticado.
+    public void estaLogeado(Long id,Long idLogeado){
+        if(!id.equals(idLogeado)){
+            throw new OperacionNoPermitidaException("No tenes permisos para realizar esta operacion");
         }
     }
 

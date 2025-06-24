@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import pet_finder.dtos.NormaComunidadDetailDTO;
-import pet_finder.dtos.NormaComunidadRequestDTO;
+import pet_finder.dtos.norma.NormaComunidadDetailDTO;
+import pet_finder.dtos.norma.NormaComunidadRequestDTO;
 import pet_finder.models.NormaComunidad;
 import pet_finder.services.NormaComunidadService;
 

@@ -1,4 +1,4 @@
-package pet_finder.dtos;
+package pet_finder.dtos.miembro;
 
 import pet_finder.models.Miembro;
 
