@@ -34,6 +34,7 @@ public class ComentarioService {
     public Comentario crearComentario(Comentario comentario, Long idPublicacion, Long idMiembro){
 
         Publicacion publicacion = publicacionValidation.existePorId(idPublicacion);
+        publicacionValidation.esActivo(publicacion.getActivo());
 
         Miembro miembro = miembroValidation.validarExistenciaPorId(idMiembro);
 
