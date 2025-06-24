@@ -37,11 +37,10 @@ public class PublicacionController {
 
         Publicacion publicacion = publicacionMapper.aEntidad(req);
 
-        // Obtengo el id del miembro loggeado y lo relaciono a la publicacion
+        // Obtengo el id del miembro logeado, lo asocio a la publicación y lo relaciono a la publicacion
         Long miembroId = userDetails.getId();
-        publicacion.setIdMiembro(miembroId);
 
-        Publicacion guardada = publicacionService.guardar(publicacion);
+        Publicacion guardada = publicacionService.guardar(publicacion,miembroId);
         // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
         return ResponseEntity.status(HttpStatus.CREATED).body(publicacionMapper.aDetail(guardada));
     }

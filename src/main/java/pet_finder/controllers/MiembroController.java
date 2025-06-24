@@ -104,7 +104,7 @@ public class MiembroController {
 
         miembroService.eliminarPorId(id);
 
-        return ResponseEntity.ok("Miembro eliminado éxitosamente");
+        return ResponseEntity.ok("Se ha dado de baja con éxito al miembro con ID: " + id + " y a sus publicaciones asociadas.");
     }
 
     //Por mail borraría su cuenta el miembro, ya que el sabría su correo electronico, no su ID.

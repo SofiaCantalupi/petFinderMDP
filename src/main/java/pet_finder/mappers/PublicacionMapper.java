@@ -53,7 +53,7 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
                 .toList();
 
         //Obtengo el miembro para obtener su nombre completo:
-        Miembro miembro = miembroService.obtenerPorId(publicacion.getIdMiembro());
+        Miembro miembro = miembroService.obtenerPorId(publicacion.getMiembro().getId());
 
         //Obtengo el nombre completo del miembro para mostrarlo:
         String nombreCompleto = miembro.getNombre() + " " + miembro.getApellido();

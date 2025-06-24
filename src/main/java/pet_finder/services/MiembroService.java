@@ -1,11 +1,14 @@
 package pet_finder.services;
 
 
+import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import pet_finder.exceptions.UsuarioNoEncontradoException;
-import pet_finder.mappers.MiembroMapper;
 import pet_finder.models.Miembro;
 import pet_finder.enums.RolUsuario;
+import pet_finder.models.Publicacion;
 import pet_finder.repositories.MiembroRepository;
+import pet_finder.repositories.PublicacionRepository;
 import pet_finder.validations.MiembroValidation;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +19,16 @@ public class MiembroService {
 
     public final MiembroRepository miembroRepository;
     public final MiembroValidation miembroValidation;
+    public final PublicacionRepository publicacionRepository;
+    public final PublicacionService publicacionService;
+    public final PasswordEncoder passwordEncoder;
 
-    public MiembroService(MiembroRepository miembroRepository, MiembroValidation miembroValidation) {
+    public MiembroService(MiembroRepository miembroRepository, MiembroValidation miembroValidation, PublicacionRepository publicacionRepository, PublicacionService publicacionService, PasswordEncoder passwordEncoder) {
         this.miembroRepository = miembroRepository;
         this.miembroValidation = miembroValidation;
+        this.publicacionRepository = publicacionRepository;
+        this.publicacionService = publicacionService;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -30,6 +39,8 @@ public class MiembroService {
         miembroValidation.validarContrasenia(miembro);
         miembroValidation.validarEmailRegistrado(miembro);
 
+        //Le asigno la nueva contraseña, es la anterior ya validada pero esta vez encriptada.
+        miembro.setContrasenia(passwordEncoder.encode(miembro.getContrasenia()));
         Miembro miembroGuardado = miembroRepository.save(miembro);
 
         return miembroGuardado;
@@ -117,7 +128,9 @@ public class MiembroService {
     }
 
     //Metodo para que los administradores den la baja pasiva a cuentas.
+    @Transactional
     public String eliminarPorId(Long id){
+
         Miembro miembroAEliminar = miembroRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
@@ -126,10 +139,18 @@ public class MiembroService {
 
         miembroRepository.save(miembroAEliminar);
 
-            return "Se ha dado de baja con éxito al miembro con ID: " + id;
+        //Traigo todas las publicaciones de ese miembro que dimos de baja
+        List<Publicacion> publicaciones = publicacionRepository.findByMiembroAndActivoTrue(miembroAEliminar);
+
+        //Por cada publicacion del miembro dado de baja, se da de baja la publicación
+        //sus mascotas, y los comentarios de la publicación.
+        publicaciones.forEach(publicacionService::eliminar);
+
+        return "Se ha dado de baja con éxito al miembro con ID: " + id + " y a sus publicaciones asociadas.";
     }
 
     //Metodo para que los usuarios den de baja pasiva su propia cuenta.
+    @Transactional
     public String eliminarPorEmail(String email){
 
         Miembro miembroAEliminar = miembroRepository.findByEmail(email)
@@ -139,6 +160,13 @@ public class MiembroService {
         miembroAEliminar.setActivo(false);
 
         miembroRepository.save(miembroAEliminar);
+
+        //Traigo todas las publicaciones de ese miembro que dimos de baja
+        List<Publicacion> publicaciones = publicacionRepository.findByMiembroAndActivoTrue(miembroAEliminar);
+
+        //Por cada publicacion del miembro dado de baja, se da de baja la publicación
+        //sus mascotas, y los comentarios de la publicación.
+        publicaciones.forEach(publicacionService::eliminar);
 
         return "Diste de baja con éxito tu cuenta con el correo: " + email;
     }
