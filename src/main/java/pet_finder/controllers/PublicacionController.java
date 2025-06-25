@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pet_finder.config.MiembroUserDetails;
+import pet_finder.dtos.auth.CambiarContraseniaDTO;
 import pet_finder.dtos.publicacion.PublicacionDetailDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestUpdateDTO;
@@ -72,6 +73,19 @@ public class PublicacionController {
     public ResponseEntity<List<PublicacionDetailDTO>> listarActivas() {
 
         List<Publicacion> publicaciones = publicacionService.listarActivas();
+
+        if (publicaciones.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        // Transforma la List<Publicacion> en un ResponseEntity de List<PublicacionDetailDTO>
+        return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
+    }
+
+    @PreAuthorize("hasAnyRole('MIEMBRO')")
+    @GetMapping("/propias")
+    public ResponseEntity<List<PublicacionDetailDTO>> listarPropias(@AuthenticationPrincipal MiembroUserDetails userDetails) {
+        List<Publicacion> publicaciones = publicacionService.filtrarPorIdMiembro(userDetails.getId());
 
         if (publicaciones.isEmpty()) {
             return ResponseEntity.noContent().build();

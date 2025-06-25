@@ -5,6 +5,7 @@ import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
 import pet_finder.mappers.UbicacionMapper;
 import pet_finder.models.Comentario;
+import pet_finder.models.Miembro;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.PublicacionRepository;
 import org.springframework.stereotype.Service;
@@ -81,6 +82,12 @@ public class PublicacionService {
     // LISTAR LAS PUBLICACIONES ACTIVAS
     public List<Publicacion> listarActivas() {
         return publicacionRepository.findAllByActivoTrue();
+    }
+
+    // LISTAR LAS PUBLICACIONES PROPIAS
+    public List<Publicacion> filtrarPorIdMiembro(Long idMiembro) {
+        //Traigo todas las publicaciones de ese miembro
+        return publicacionRepository.findAllByMiembro_Id(idMiembro);
     }
 
     // FILTRAR POR TipoMascota
