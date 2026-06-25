@@ -7,24 +7,20 @@ import pet_finder.models.*;
 
 import java.util.List;
 
-/**
- * @author Daniel Herrera
- */
+
 @Component
 public class UbicacionMapper implements Mapper<UbicacionRequestDTO, UbicacionDetailDTO, Ubicacion> {
 
     @Override
     public Ubicacion aEntidad(UbicacionRequestDTO request) {
 
-        // todo: Comprobar funcionamiento de la peticion a la api externa geocodificadora
 
         // Se crea una nueva Ubicacion, con los datos recibidos del Request
         Ubicacion ubicacion = new Ubicacion();
         ubicacion.setDireccion(request.getDireccion());
         ubicacion.setAltura(request.getAltura());
-        ubicacion.setCiudad(request.getCiudad());
-        ubicacion.setRegion(request.getRegion());
-        ubicacion.setPais(request.getPais());
+        ubicacion.setLatitud(request.getLatitud());
+        ubicacion.setLongitud(request.getLongitud());
 
         return ubicacion;
     }
