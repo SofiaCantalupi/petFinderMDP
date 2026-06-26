@@ -81,7 +81,7 @@ public class AuthService {
         // se genera el token y se retorna dentro del AuthResponseDTO.
         String token = jwtService.generateToken(miembroUserDetails); // JWT firmado
 
-        return new AuthResponseDTO(token,miembro.getNombre(),miembro.getRol().name());
+        return new AuthResponseDTO(token,miembro.getId(),miembro.getNombre(),miembro.getApellido(),miembro.getRol().name());
     }
 
     public String cambiarContrasenia(CambiarContraseniaDTO request, Long id){
