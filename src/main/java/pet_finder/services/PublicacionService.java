@@ -83,6 +83,13 @@ public class PublicacionService {
         return publicacionRepository.findAllByActivoTrue();
     }
 
+    // Listar publicaciones de un miembro
+    public List<Publicacion> listarPropias(Long miembroId){
+        return publicacionRepository.findByMiembroId(miembroId)
+        .stream()
+        .toList();
+    }
+
     // FILTRAR POR TipoMascota
     public List<Publicacion> filtrarPorTipoMascota(String tipoString){
 
@@ -124,7 +131,7 @@ public class PublicacionService {
                 .toList();
     }
 
-    // Modifcar una publicacion
+    // Modificar una publicacion
     public Publicacion modificar(Long publicacionId, Long miembroLogeadoId, PublicacionRequestUpdateDTO request) {
 
         // Se obtiene la publicacion que se quiere modificar, se valida que exista y este activa

@@ -27,4 +27,6 @@ public interface PublicacionRepository extends JpaRepository<Publicacion, Long> 
 
     List<Publicacion> findByMiembroAndActivoTrue(Miembro miembro);
 
+    List<Publicacion> findByMiembroId(Long miembroId);
+
 }
