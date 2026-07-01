@@ -19,7 +19,7 @@ public class MascotaMapper implements Mapper<MascotaRequestDTO, MascotaDetailDTO
         mascota.setEstadoMascota(request.getEstadoMascota());
         mascota.setTipoMascota(request.getTipoMascota());
         mascota.setNombre(request.getNombre());
-        mascota.setFotoUrl(request.getFotoUrl());
+        mascota.setUrlFoto(request.getUrlFoto());
 
         // La Mascota siempre es creada con Activo = true
         mascota.setEsActivo(true);

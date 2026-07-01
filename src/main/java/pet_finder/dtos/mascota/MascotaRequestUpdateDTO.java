@@ -12,7 +12,7 @@ public class MascotaRequestUpdateDTO {
     private TipoMascota tipoMascota;
 
     @URL(message = "Debe ingresar una URL válida.")
-    private String fotoUrl;
+    private String urlFoto;
 
     public String getNombre() {
         return nombre;
@@ -26,7 +26,7 @@ public class MascotaRequestUpdateDTO {
         return tipoMascota;
     }
 
-    public @URL(message = "Debe ingresar una URL válida.") String getFotoUrl() {
-        return fotoUrl;
+    public @URL(message = "Debe ingresar una URL válida.") String getUrlFoto() {
+        return urlFoto;
     }
 }

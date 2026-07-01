@@ -2,27 +2,55 @@ package pet_finder.dtos.publicacion;
 
 import pet_finder.dtos.ubicacion.UbicacionDetailDTO;
 import pet_finder.dtos.comentario.ComentarioDetailDTO;
-import pet_finder.models.Mascota;
+import pet_finder.dtos.mascota.MascotaDetailDTO;
+import pet_finder.dtos.miembro.MiembroDetailDTO;
 import pet_finder.models.Publicacion;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public record PublicacionDetailDTO(
-        String nombreCompleto,
+        Long id,
+        Boolean activo, 
         String descripcion,
         LocalDate fecha,
-        Mascota mascota,
-        UbicacionDetailDTO ubicacion,
+
+        Long idMiembro,
+        String nombreCompleto,
+
+        String nombreMascota,
+        String tipoMascota,
+        String estadoMascota,
+        String urlFoto,
+
+        String ubicacion,
+        Double latitud,
+        Double longitud,
+
         List<ComentarioDetailDTO> comentarios
 ) {
-       public PublicacionDetailDTO(String nombreCompleto,Publicacion publicacion,Mascota mascota, List<ComentarioDetailDTO> comentarios){
+       public PublicacionDetailDTO(Publicacion publicacion, 
+                                   MiembroDetailDTO miembro, 
+                                   MascotaDetailDTO mascota, 
+                                   UbicacionDetailDTO ubicacion, 
+                                   List<ComentarioDetailDTO> comentarios){
            this(
-                   nombreCompleto,
+                   publicacion.getId(),
+                   publicacion.getActivo(),
                    publicacion.getDescripcion(),
                    publicacion.getFecha(),
-                   mascota,
-                   publicacion.getUbicacion() != null ? new UbicacionDetailDTO(publicacion.getUbicacion()) : null,
+
+                   miembro.id(),
+                   miembro.nombre() + " " + miembro.apellido(),
+
+                   mascota.nombre(),
+                   mascota.tipoMascota(),
+                   mascota.estadoMascota(),
+                   mascota.urlFoto(),
+
+                   ubicacion.ubicacion(),
+                   ubicacion.latitud(),
+                   ubicacion.longitud(),
                    comentarios
            );
        }

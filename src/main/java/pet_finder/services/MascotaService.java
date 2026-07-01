@@ -65,7 +65,7 @@ public class MascotaService {
         if (request.getNombre() == null &&
                 request.getEstadoMascota() == null &&
                 request.getTipoMascota() == null &&
-                request.getFotoUrl() == null) {
+                request.getUrlFoto() == null) {
             throw new IllegalArgumentException("Debe proporcionar al menos un campo para modificar.");
         }
 
@@ -82,8 +82,8 @@ public class MascotaService {
             existente.setTipoMascota(request.getTipoMascota());
         }
 
-        if(request.getFotoUrl() != null){
-            existente.setFotoUrl(request.getFotoUrl());
+        if(request.getUrlFoto() != null){
+            existente.setUrlFoto(request.getUrlFoto());
         }
 
         return mascotaRepository.save(existente);

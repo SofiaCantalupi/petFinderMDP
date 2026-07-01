@@ -15,7 +15,7 @@ public class MascotaRequestDTO {
     private TipoMascota tipoMascota;
 
     @URL(message = "La foto debe ser una URL válida")
-    private String fotoUrl;
+    private String urlFoto;
 
     // Constructor
     public MascotaRequestDTO() {
@@ -39,8 +39,8 @@ public class MascotaRequestDTO {
         return estadoMascota;
     }
 
-    public @URL(message = "La foto debe ser una URL válida") String getFotoUrl() {
-        return fotoUrl;
+    public @URL(message = "La foto debe ser una URL válida") String getUrlFoto() {
+        return urlFoto;
     }
 
 }
