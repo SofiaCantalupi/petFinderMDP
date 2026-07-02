@@ -107,19 +107,4 @@ public class MiembroController {
         return ResponseEntity.ok("Se ha dado de baja con éxito al miembro con ID: " + id + " y a sus publicaciones asociadas.");
     }
 
-    //Por mail borraría su cuenta el miembro, ya que el sabría su correo electronico, no su ID.
-    @PreAuthorize("hasRole('MIEMBRO')")
-    @DeleteMapping("/borrarPorEmail/{email}")
-    public ResponseEntity<String> eliminarPorEmail(@PathVariable String email){
-
-        //No se realiza leyendo el email del usuario para agregar un paso extra
-        //al usuario de ingresar por escrito su email para evitar
-        //que borre su cuenta por accidente.
-        miembroService.eliminarPorEmail(email);
-
-        return ResponseEntity.ok("Miembro eliminado éxitosamente");
-    }
-
-
-
 }

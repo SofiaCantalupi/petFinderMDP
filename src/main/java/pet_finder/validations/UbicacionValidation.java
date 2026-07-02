@@ -10,9 +10,6 @@ import pet_finder.models.Ubicacion;
 
 import java.util.Objects;
 
-/**
- * @author Daniel Herrera
- */
 @Component
 public class UbicacionValidation {
 

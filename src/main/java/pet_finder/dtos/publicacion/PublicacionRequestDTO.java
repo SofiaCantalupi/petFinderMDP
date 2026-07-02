@@ -5,10 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import pet_finder.dtos.ubicacion.UbicacionRequestDTO;
 
-/**
- * @author Daniel Herrera
- */
-
 public class PublicacionRequestDTO {
 
         @NotBlank(message = "debe ingresar una descripción con información relevante.")

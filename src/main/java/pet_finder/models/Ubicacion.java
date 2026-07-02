@@ -2,10 +2,6 @@ package pet_finder.models;
 
 import jakarta.persistence.*;
 
-/**
- * @author Daniel Herrera
- */
-
 @Entity
 @Table(name = "ubicaciones")
 public class Ubicacion {

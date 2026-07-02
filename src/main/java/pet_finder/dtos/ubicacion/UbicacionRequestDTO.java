@@ -4,9 +4,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * @author Daniel Herrera
- */
 public class UbicacionRequestDTO {
 
         @NotBlank(message = "La direccion no puede estar vacia.")

@@ -7,9 +7,6 @@ import pet_finder.models.*;
 
 import java.util.List;
 
-/**
- * @author Daniel Herrera
- */
 @Component
 public class UbicacionMapper implements Mapper<UbicacionRequestDTO, UbicacionDetailDTO, Ubicacion> {
 
