@@ -149,26 +149,4 @@ public class MiembroService {
         return "Se ha dado de baja con éxito al miembro con ID: " + id + " y a sus publicaciones asociadas.";
     }
 
-    //Metodo para que los usuarios den de baja pasiva su propia cuenta.
-    @Transactional
-    public String eliminarPorEmail(String email){
-
-        Miembro miembroAEliminar = miembroRepository.findByEmail(email)
-                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese correo electronico"));
-
-        miembroValidation.esInactivo(miembroAEliminar);
-        miembroAEliminar.setActivo(false);
-
-        miembroRepository.save(miembroAEliminar);
-
-        //Traigo todas las publicaciones de ese miembro que dimos de baja
-        List<Publicacion> publicaciones = publicacionRepository.findByMiembroAndActivoTrue(miembroAEliminar);
-
-        //Por cada publicacion del miembro dado de baja, se da de baja la publicación
-        //sus mascotas, y los comentarios de la publicación.
-        publicaciones.forEach(publicacionService::eliminar);
-
-        return "Diste de baja con éxito tu cuenta con el correo: " + email;
-    }
-
 }
