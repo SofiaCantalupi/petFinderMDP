@@ -3,6 +3,7 @@ package pet_finder.services;
 
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import pet_finder.dtos.miembro.MiembroRequestUpdateDTO;
 import pet_finder.exceptions.UsuarioNoEncontradoException;
 import pet_finder.models.Miembro;
 import pet_finder.enums.RolUsuario;
@@ -35,7 +36,6 @@ public class MiembroService {
     public Miembro crear(Miembro miembro){
 
         miembroValidation.validarNombre(miembro);
-        miembroValidation.validarApellido(miembro);
         miembroValidation.validarContrasenia(miembro);
         miembroValidation.validarEmailRegistrado(miembro);
 
@@ -82,32 +82,21 @@ public class MiembroService {
         miembroAModificar.setEmail(miembro.getEmail());
 
         miembroValidation.validarNombre(miembroAModificar);
-        miembroValidation.validarApellido(miembroAModificar);
         miembroValidation.validarEmailUpdates(miembroAModificar);
 
         Miembro miembroModificado = miembroRepository.save(miembroAModificar);
         return miembroModificado;
     }
 
-    public Miembro modificarNombre(String nombre,Long id){
+
+    public Miembro modificarDatos(MiembroRequestUpdateDTO dto, Long id){
 
         Miembro miembroAModificar = miembroRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
 
-        miembroAModificar.setNombre(nombre);
+        miembroAModificar.setNombre(dto.getNombre());
+        miembroAModificar.setApellido(dto.getApellido());
         miembroValidation.validarNombre(miembroAModificar);
-
-        Miembro miembroModificado = miembroRepository.save(miembroAModificar);
-        return miembroModificado;
-    }
-
-    public Miembro modificarApellido(String apellido, Long id){
-
-        Miembro miembroAModificar = miembroRepository.findById(id)
-                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
-
-        miembroAModificar.setApellido(apellido);
-        miembroValidation.validarApellido(miembroAModificar);
 
         Miembro miembroModificado = miembroRepository.save(miembroAModificar);
         return miembroModificado;

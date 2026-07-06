@@ -5,10 +5,16 @@ import jakarta.validation.constraints.NotBlank;
 public class MiembroRequestUpdateDTO {
 
     @NotBlank(message="Este campo es obligatorio")
-    private String nuevoCampo;
+    private String nombre;
 
-    public @NotBlank(message = "Este campo es obligatorio") String getNuevoCampo() {
-        return nuevoCampo;
+    @NotBlank(message="Este campo es obligatorio")
+    private String apellido;
+
+    public String getNombre() {
+        return nombre;
     }
 
+    public String getApellido() {
+        return apellido;
+    }
 }

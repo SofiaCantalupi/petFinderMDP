@@ -68,25 +68,15 @@ public class MiembroController {
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
-    @PutMapping("/modificar-nombre")
-    public ResponseEntity<MiembroDetailDTO> modificarNombre(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
+    @PutMapping("/modificar-datos")
+    public ResponseEntity<MiembroDetailDTO> modificar(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
 
-        //Se asegura de que el miembro que se va a modificar el nombre sea el autenticado por su ID.
-        Miembro miembro = miembroService.modificarNombre(request.getNuevoCampo(),userDetails.getId());
-        MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
-
-        return ResponseEntity.ok(nuevoMiembro);
-    }
-
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
-    @PutMapping("/modificar-apellido")
-    public ResponseEntity<MiembroDetailDTO> modificarApellido(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
-
-        //Se asegura de que el miembro que se va a modificar el apellido sea el autenticado por su ID.
-        Miembro miembro = miembroService.modificarApellido(request.getNuevoCampo(),userDetails.getId());
+        //Se asegura de que el miembro que se va a modificar sea el autenticado por su ID.
+        Miembro miembro = miembroService.modificarDatos(request,userDetails.getId());
         MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
         return ResponseEntity.ok(nuevoMiembro);
     }
+
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/hacer-administrador/{id}")
