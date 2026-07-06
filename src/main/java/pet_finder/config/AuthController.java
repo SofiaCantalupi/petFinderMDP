@@ -1,13 +1,12 @@
 package pet_finder.config;
 
 import jakarta.validation.Valid;
+import org.hibernate.grammars.hql.HqlParser;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pet_finder.dtos.auth.AuthResponseDTO;
 import pet_finder.dtos.auth.CambiarContraseniaDTO;
 import pet_finder.dtos.auth.LoginRequestDTO;
@@ -29,7 +28,7 @@ public class AuthController {
     public ResponseEntity<MiembroDetailDTO> registrar(@Valid @RequestBody RegistroRequestDTO request) {
 
         MiembroDetailDTO nuevoMiembro = authService.registrar(request);     //Le paso el registro y devuelvo el miembro Creado (Un DetailDTO)
-        return ResponseEntity.ok(nuevoMiembro);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoMiembro);
     }
 
     // Login de usuario
@@ -42,7 +41,7 @@ public class AuthController {
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
-    @PostMapping("/cambiar-contrasenia")
+    @PutMapping("/cambiar-contrasenia")
     public ResponseEntity<String> cambiarContrasenia(@Valid @RequestBody CambiarContraseniaDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails) {
         return ResponseEntity.ok(authService.cambiarContrasenia(request, userDetails.getId()));
     }

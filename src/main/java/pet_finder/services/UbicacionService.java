@@ -10,9 +10,6 @@ import pet_finder.validations.UbicacionValidation;
 
 import java.util.List;
 
-/**
- * @author Daniel Herrera
- */
 @Service
 public class UbicacionService {
 

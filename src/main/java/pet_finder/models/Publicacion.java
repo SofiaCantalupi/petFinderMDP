@@ -5,10 +5,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Daniel Herrera
- */
-
 @Entity
 @Table(name = "publicaciones")
 public class Publicacion {
