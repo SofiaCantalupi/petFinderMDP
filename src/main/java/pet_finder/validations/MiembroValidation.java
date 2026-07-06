@@ -18,18 +18,11 @@ public class MiembroValidation {
     public void validarNombre(Miembro miembro){
         String regex = "^[A-Za-zñÑáéíóúÁÉÍÓÚ ]{3,15}$";
         //Hace que puedan ser mayus o minus, con tildes y ñ, de 3 a 15 caracteres.
-        if(!miembro.getNombre().matches(regex)){
-            throw new FormatoInvalidoException("El nombre no cumple con el formato. Recordá que no debe contener numeros y su longitud debe ser de 3 a 15 caracteres.");
+        if(!miembro.getNombre().matches(regex) || !miembro.getApellido().matches(regex)){
+            throw new FormatoInvalidoException("El nombre o apellido no cumple con el formato. Recordá que no debe contener numeros y su longitud debe ser de 3 a 15 caracteres.");
         }
     }
 
-    public void validarApellido(Miembro miembro){
-        String regex = "^[A-Za-zñÑáéíóúÁÉÍÓÚ ]{3,15}$";
-        //Hace que puedan ser mayus o minus, con tildes y ñ, de 3 a 15 caracteres.
-        if(!miembro.getApellido().matches(regex)){
-            throw new FormatoInvalidoException("El apellido no cumple con el formato. Recordá que no debe contener numeros y su longitud debe ser de 3 a 15 caracteres.");
-        }
-    }
     public void validarContrasenia(Miembro miembro){
         String regexContrasenia = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{6,15}$" ;
         if(!miembro.getContrasenia().matches(regexContrasenia)){

@@ -14,10 +14,10 @@ public class UbicacionRequestDTO {
         @Min(value = 0, message = "La altura no puede ser negativa.")
         private Integer altura;
 
-        @NotNull(message = "La latitud no puede ser null")
+        @NotNull(message = "La latitud no puede ser nula")
         private Double latitud;
 
-        @NotNull(message = "La longitud no puede ser null")
+        @NotNull(message = "La longitud no puede ser nula")
         private Double longitud;
 
         public UbicacionRequestDTO() {}
@@ -30,11 +30,11 @@ public class UbicacionRequestDTO {
                 return altura;
         }
 
-        public @NotNull(message = "La latitud no puede ser null") Double getLatitud() {
+        public @NotNull(message = "La latitud no puede ser nula") Double getLatitud() {
                 return latitud;
         }
 
-        public @NotNull(message = "La longitud no puede ser null") Double getLongitud() {
+        public @NotNull(message = "La longitud no puede ser nula") Double getLongitud() {
                 return longitud;
         }
 }

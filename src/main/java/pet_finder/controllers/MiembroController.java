@@ -68,25 +68,15 @@ public class MiembroController {
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
-    @PutMapping("/modificar-nombre")
-    public ResponseEntity<MiembroDetailDTO> modificarNombre(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
+    @PutMapping("/modificar-datos")
+    public ResponseEntity<MiembroDetailDTO> modificar(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
 
-        //Se asegura de que el miembro que se va a modificar el nombre sea el autenticado por su ID.
-        Miembro miembro = miembroService.modificarNombre(request.getNuevoCampo(),userDetails.getId());
-        MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
-
-        return ResponseEntity.ok(nuevoMiembro);
-    }
-
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
-    @PutMapping("/modificar-apellido")
-    public ResponseEntity<MiembroDetailDTO> modificarApellido(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
-
-        //Se asegura de que el miembro que se va a modificar el apellido sea el autenticado por su ID.
-        Miembro miembro = miembroService.modificarApellido(request.getNuevoCampo(),userDetails.getId());
+        //Se asegura de que el miembro que se va a modificar sea el autenticado por su ID.
+        Miembro miembro = miembroService.modificarDatos(request,userDetails.getId());
         MiembroDetailDTO nuevoMiembro = miembroMapper.aDetail(miembro);
         return ResponseEntity.ok(nuevoMiembro);
     }
+
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/hacer-administrador/{id}")
@@ -106,20 +96,5 @@ public class MiembroController {
 
         return ResponseEntity.ok("Se ha dado de baja con éxito al miembro con ID: " + id + " y a sus publicaciones asociadas.");
     }
-
-    //Por mail borraría su cuenta el miembro, ya que el sabría su correo electronico, no su ID.
-    @PreAuthorize("hasRole('MIEMBRO')")
-    @DeleteMapping("/borrarPorEmail/{email}")
-    public ResponseEntity<String> eliminarPorEmail(@PathVariable String email){
-
-        //No se realiza leyendo el email del usuario para agregar un paso extra
-        //al usuario de ingresar por escrito su email para evitar
-        //que borre su cuenta por accidente.
-        miembroService.eliminarPorEmail(email);
-
-        return ResponseEntity.ok("Miembro eliminado éxitosamente");
-    }
-
-
 
 }
