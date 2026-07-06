@@ -1,23 +1,13 @@
 package pet_finder.mappers;
 
-import pet_finder.dtos.miembro.MiembroDetailDTO;
-import pet_finder.dtos.publicacion.PublicacionDetailDTO;
 import pet_finder.dtos.solicitud.SolicitudAdopcionDetailDTO;
 import pet_finder.dtos.solicitud.SolicitudAdopcionRequestDTO;
-import pet_finder.models.Publicacion;
 import pet_finder.models.SolicitudAdopcion;
 
 import java.util.List;
 
 public class SolicitudAdopcionMapper implements Mapper <SolicitudAdopcionRequestDTO, SolicitudAdopcionDetailDTO, SolicitudAdopcion>{
 
-    private final PublicacionMapper publicacionMapper;
-    private final MiembroMapper miembroMapper;
-
-    public SolicitudAdopcionMapper(PublicacionMapper publicacionMapper, MiembroMapper miembroMapper) {
-        this.publicacionMapper = publicacionMapper;
-        this.miembroMapper = miembroMapper;
-    }
 
     @Override
     public SolicitudAdopcion aEntidad(SolicitudAdopcionRequestDTO request) {
