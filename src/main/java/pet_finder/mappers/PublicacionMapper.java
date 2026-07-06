@@ -2,8 +2,11 @@ package pet_finder.mappers;
 
 import org.springframework.stereotype.Component;
 import pet_finder.dtos.comentario.ComentarioDetailDTO;
+import pet_finder.dtos.mascota.MascotaDetailDTO;
 import pet_finder.dtos.publicacion.PublicacionDetailDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestDTO;
+import pet_finder.dtos.ubicacion.UbicacionDetailDTO;
+import pet_finder.dtos.miembro.MiembroDetailDTO;
 import pet_finder.models.*;
 import pet_finder.services.MascotaService;
 import pet_finder.services.MiembroService;
@@ -18,14 +21,22 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
 
     private final UbicacionMapper ubicacionMapper;
     private final ComentarioMapper comentarioMapper;
+    private final MascotaMapper mascotaMapper;
+    private final MiembroMapper miembroMapper;
 
 
     public PublicacionMapper (MascotaService mascotaService,
-                              UbicacionMapper ubicacionMapper, ComentarioMapper comentarioMapper, MiembroService miembroService) {
+                              UbicacionMapper ubicacionMapper,
+                              ComentarioMapper comentarioMapper,
+                              MiembroService miembroService,
+                              MascotaMapper mascotaMapper,
+                              MiembroMapper miembroMapper) {
         this.mascotaService = mascotaService;
         this.ubicacionMapper = ubicacionMapper;
         this.comentarioMapper = comentarioMapper;
         this.miembroService = miembroService;
+        this.mascotaMapper = mascotaMapper;
+        this.miembroMapper = miembroMapper;
     }
 
     @Override
@@ -52,17 +63,17 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
                 .map(comentarioMapper::aDetail)  // luego los convierto a DTO
                 .toList();
 
-        //Obtengo el miembro para obtener su nombre completo:
+        //Obtengo el miembro 
         Miembro miembro = miembroService.obtenerPorId(publicacion.getMiembro().getId());
 
-        //Obtengo el nombre completo del miembro para mostrarlo:
-        String nombreCompleto = miembro.getNombre() + " " + miembro.getApellido();
+        // Conversion de entidades a DTOs
+        MiembroDetailDTO miembroDTO = miembroMapper.aDetail(miembro);
+        MascotaDetailDTO mascotaDTO = mascotaMapper.aDetail(publicacion.getMascota());
+        UbicacionDetailDTO ubicacionDTO = publicacion.getUbicacion() != null
+            ? ubicacionMapper.aDetail(publicacion.getUbicacion())
+            : null;
 
-        //Obtengo la mascota entera para mostrarla en el detail.
-        Mascota mascota = publicacion.getMascota();
-
-        // Se utiliza constructor del record DetailDTO
-        return new PublicacionDetailDTO(nombreCompleto,publicacion,mascota,comentarioDetailDTOS);
+        return new PublicacionDetailDTO(publicacion, miembroDTO, mascotaDTO, ubicacionDTO, comentarioDetailDTOS);
     }
 
     @Override

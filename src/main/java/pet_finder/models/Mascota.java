@@ -28,7 +28,7 @@ public class Mascota {
     @Column(nullable = false)
     private Long miembroId;
 
-    private String fotoUrl;
+    private String urlFoto;
 
     // Constructor vacio
     public Mascota() {
@@ -81,11 +81,11 @@ public class Mascota {
         this.miembroId = miembroId;
     }
 
-    public String getFotoUrl() {
-        return fotoUrl;
+    public String getUrlFoto() {
+        return urlFoto;
     }
 
-    public void setFotoUrl(String fotoUrl) {
-        this.fotoUrl = fotoUrl;
+    public void setUrlFoto(String urlFoto) {
+        this.urlFoto = urlFoto;
     }
 }

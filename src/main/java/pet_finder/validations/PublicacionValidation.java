@@ -2,8 +2,6 @@ package pet_finder.validations;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
-import pet_finder.enums.EstadoMascota;
-import pet_finder.enums.TipoMascota;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.PublicacionRepository;
 

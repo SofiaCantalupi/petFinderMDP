@@ -1,13 +1,12 @@
 package pet_finder.enums;
 
-public enum TipoMascota {
-    // Se asocia un valor string necesario para el frontend: en miniscula
-    PERRO("perro"),
-    GATO("gato");
+public enum MotivoRechazo {
+    MANUAL("manual"),
+    AUTO_POR_OTRA_APROBADA("auto");
 
     private final String valorFront;
 
-    TipoMascota(String valorFront){
+    MotivoRechazo(String valorFront){
         this.valorFront = valorFront;
     }
 

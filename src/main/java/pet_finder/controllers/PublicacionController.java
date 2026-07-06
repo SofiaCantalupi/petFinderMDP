@@ -10,6 +10,7 @@ import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.publicacion.PublicacionDetailDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestUpdateDTO;
+import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.mappers.PublicacionMapper;
 import pet_finder.models.Publicacion;
 import pet_finder.services.PublicacionService;
@@ -64,6 +65,20 @@ public class PublicacionController {
         Publicacion publicacion = publicacionService.obtenerPorId(id);
         // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
         return ResponseEntity.ok(publicacionMapper.aDetail(publicacion));
+    }
+
+    @PreAuthorize("hasRole('MIEMBRO')")
+    @GetMapping("/propias")
+    public ResponseEntity<List<PublicacionDetailDTO>> listarPropias(@AuthenticationPrincipal MiembroUserDetails userDetail){
+        List<Publicacion> publicaciones = publicacionService.listarPropias(userDetail.getId());
+
+        System.out.println(">>> userDetail = " + userDetail);
+
+        if(publicaciones.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
     }
 
 

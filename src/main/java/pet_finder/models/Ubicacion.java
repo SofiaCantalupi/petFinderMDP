@@ -13,10 +13,6 @@ public class Ubicacion {
     private String direccion;
     private Integer altura;
 
-    private String ciudad;
-    private String region; // Estado, provincia o departamento
-    private String pais;
-
     private Double latitud;
     private Double longitud;
 
@@ -24,28 +20,6 @@ public class Ubicacion {
     private Boolean activo;
 
     public Ubicacion() {
-        this.activo = true; // Activo por default
-    }
-
-    public Ubicacion(String direccion, Integer altura, String ciudad, String region, String pais) {
-        this.direccion = direccion;
-        this.altura = altura;
-        this.ciudad = ciudad;
-        this.region = region;
-        this.pais = pais;
-
-        this.activo = true; // Activo por default
-    }
-
-    public Ubicacion(String direccion, Integer altura, String ciudad, String region, String pais, Double latitud, Double longitud) {
-        this.direccion = direccion;
-        this.altura = altura;
-        this.ciudad = ciudad;
-        this.region = region;
-        this.pais = pais;
-        this.latitud = latitud;
-        this.longitud = longitud;
-
         this.activo = true; // Activo por default
     }
 
@@ -67,30 +41,6 @@ public class Ubicacion {
 
     public void setAltura(Integer altura) {
         this.altura = altura;
-    }
-
-    public String getCiudad() {
-        return ciudad;
-    }
-
-    public void setCiudad(String ciudad) {
-        this.ciudad = ciudad;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    public String getPais() {
-        return pais;
-    }
-
-    public void setPais(String pais) {
-        this.pais = pais;
     }
 
     public Double getLatitud() {

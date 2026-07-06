@@ -10,7 +10,6 @@ import pet_finder.dtos.auth.RegistroRequestDTO;
 import pet_finder.dtos.miembro.MiembroDetailDTO;
 import pet_finder.exceptions.FormatoInvalidoException;
 import pet_finder.exceptions.UsuarioNoEncontradoException;
-import pet_finder.mappers.MiembroMapper;
 import pet_finder.models.Miembro;
 import pet_finder.enums.RolUsuario;
 import pet_finder.repositories.MiembroRepository;

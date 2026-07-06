@@ -5,7 +5,6 @@ import pet_finder.dtos.comentario.ComentarioDetailDTO;
 import pet_finder.dtos.comentario.ComentarioRequestDTO;
 import pet_finder.models.Comentario;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -24,13 +23,20 @@ public class ComentarioMapper implements Mapper <ComentarioRequestDTO, Comentari
     @Override
     public ComentarioDetailDTO aDetail(Comentario comentario) {
 
-        return new ComentarioDetailDTO(comentario);
+        return new ComentarioDetailDTO(
+                comentario.getId(),
+                comentario.getTexto(),
+                comentario.getFechaPublicacion(),
+                comentario.getActivo(),
+                comentario.getPublicacion().getId(),
+                comentario.getMiembro().getId(),
+                comentario.getMiembro().getNombre(),
+                comentario.getMiembro().getApellido()
+        );
     }
 
     @Override
     public List<ComentarioDetailDTO> deEntidadesAdetails(List<Comentario> comentarios) {
-
-        List<ComentarioDetailDTO> detalles = new ArrayList<>();
 
         return comentarios.stream()
                 .map(this::aDetail)
