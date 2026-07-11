@@ -42,14 +42,9 @@ public class ComentarioController {
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @GetMapping("/publicacion/{idPublicacion}")
-    public ResponseEntity<?> listarPorPublicacion(@PathVariable Long idPublicacion) {
+    public ResponseEntity<List<ComentarioDetailDTO>> listarPorPublicacion(@PathVariable Long idPublicacion) {
 
         List<Comentario> comentarios = comentarioService.listarPorPublicacion(idPublicacion);
-
-        if (comentarios.isEmpty()) {
-            return ResponseEntity.ok("Sé el primero en comentar.");
-        }
-
         List<ComentarioDetailDTO> dtos = comentarioMapper.deEntidadesAdetails(comentarios);
 
         return ResponseEntity.ok(dtos);
