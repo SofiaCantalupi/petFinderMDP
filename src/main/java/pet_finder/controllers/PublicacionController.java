@@ -72,8 +72,6 @@ public class PublicacionController {
     public ResponseEntity<List<PublicacionDetailDTO>> listarPropias(@AuthenticationPrincipal MiembroUserDetails userDetail){
         List<Publicacion> publicaciones = publicacionService.listarPropias(userDetail.getId());
 
-        System.out.println(">>> userDetail = " + userDetail);
-
         if(publicaciones.isEmpty()){
             return ResponseEntity.noContent().build();
         }
