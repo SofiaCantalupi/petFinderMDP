@@ -57,4 +57,11 @@ public class SolicitudAdopcionService {
 
         return solicitudMapper.deEntidadesAdetails(solicitudes);
     }
+
+    @Transactional(readOnly = true)
+    public List<SolicitudAdopcionDetailDTO> listarEnviadas(Long idMiembroSolicitante){
+        List<SolicitudAdopcion> solicitudes = solicitudRepository.findByMiembroSolicitante_IdAndPublicacion_ActivoTrue(idMiembroSolicitante);
+
+        return solicitudMapper.deEntidadesAdetails(solicitudes);
+    }
 }
