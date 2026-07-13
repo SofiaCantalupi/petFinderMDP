@@ -5,14 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.solicitud.SolicitudAdopcionDetailDTO;
 import pet_finder.dtos.solicitud.SolicitudAdopcionRequestDTO;
 import pet_finder.services.SolicitudAdopcionService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/solicitudes")
@@ -30,5 +29,12 @@ public class SolicitudAdopcionController {
 
         SolicitudAdopcionDetailDTO guardada = solicitudService.guardar(request,miembroId);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
+    }
+
+    @PreAuthorize("hasRole('MIEMBRO')")
+    @GetMapping
+    public ResponseEntity<List<SolicitudAdopcionDetailDTO>> listarRecibidas(@AuthenticationPrincipal MiembroUserDetails userDetails){
+        List<SolicitudAdopcionDetailDTO> dtos = solicitudService.listarRecibidas(userDetails.getId());
+        return ResponseEntity.ok(dtos);
     }
 }
