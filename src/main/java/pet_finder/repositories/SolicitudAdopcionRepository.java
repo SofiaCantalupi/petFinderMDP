@@ -12,4 +12,6 @@ public interface SolicitudAdopcionRepository extends JpaRepository<SolicitudAdop
 
     boolean existsByPublicacion_IdAndMiembroSolicitante_IdAndEstadoAndMotivoRechazo(
             Long idPublicacion, Long idMiembroSolicitante, EstadoSolicitud estado, MotivoRechazo motivoRechazo);
+
+    List<SolicitudAdopcion> findByPublicacion_Miembro_IdAndPublicacion_ActivoTrue(Long idMiembroDuenio);
 }
