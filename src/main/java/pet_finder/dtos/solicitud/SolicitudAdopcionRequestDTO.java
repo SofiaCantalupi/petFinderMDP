@@ -15,11 +15,13 @@ public class SolicitudAdopcionRequestDTO {
     @NotNull(message = "Debe indicar un tipo de hogar")
     private TipoHogar tipoHogar;
 
-    private boolean hayMascotaEnHogar;
+    @NotNull(message = "Debe indicar si hay mascotas en su hogar.")
+    private Boolean hayMascotaEnHogar;
 
     private TipoMascotasEnHogar tipoMascotasEnHogar;
 
-    private boolean tienePatio;
+    @NotNull(message = "Debe indicar si tiene patio.")
+    private Boolean tienePatio;
 
     @AssertTrue(message = "Debe aceptar las condiciones establecidas para la adopción.")
     private boolean aceptaCondiciones;
@@ -36,54 +38,51 @@ public class SolicitudAdopcionRequestDTO {
         this.idPublicacion = idPublicacion;
     }
 
-    public @NotBlank(message = "Debe ingresar un celular.") String getCelular() {
+    public String getCelular() {
         return celular;
     }
 
-    public void setCelular(@NotBlank(message = "Debe ingresar un celular.") String celular) {
+    public void setCelular(String celular) {
         this.celular = celular;
     }
 
-    public @NotNull(message = "Debe indicar un tipo de hogar") TipoHogar getTipoHogar() {
+    public TipoHogar getTipoHogar() {
         return tipoHogar;
     }
 
-    public void setTipoHogar(@NotNull(message = "Debe indicar un tipo de hogar") TipoHogar tipoHogar) {
+    public void setTipoHogar(TipoHogar tipoHogar) {
         this.tipoHogar = tipoHogar;
     }
 
-    @NotNull(message = "Debe indicar si viven mascotas en su hogar.")
-    public boolean isHayMascotaEnHogar() {
+    public Boolean getHayMascotaEnHogar() {
         return hayMascotaEnHogar;
     }
 
-    public void setHayMascotaEnHogar(@NotNull(message = "Debe indicar si viven mascotas en su hogar.") boolean hayMascotaEnHogar) {
+    public void setHayMascotaEnHogar(Boolean hayMascotaEnHogar) {
         this.hayMascotaEnHogar = hayMascotaEnHogar;
     }
 
-    public @NotNull(message = "Debe indicar qué tipo de mascota vive en su hogar.") TipoMascotasEnHogar getTipoMascotasEnHogar() {
+    public TipoMascotasEnHogar getTipoMascotasEnHogar() {
         return tipoMascotasEnHogar;
     }
 
-    public void setTipoMascotasEnHogar(@NotNull(message = "Debe indicar qué tipo de mascota vive en su hogar.") TipoMascotasEnHogar tipoMascotasEnHogar) {
+    public void setTipoMascotasEnHogar(TipoMascotasEnHogar tipoMascotasEnHogar) {
         this.tipoMascotasEnHogar = tipoMascotasEnHogar;
     }
 
-    @NotNull(message = "Debe indicar si tiene patio.")
-    public boolean isTienePatio() {
+    public Boolean getTienePatio() {
         return tienePatio;
     }
 
-    public void setTienePatio(@NotNull(message = "Debe indicar si tiene patio.") boolean tienePatio) {
+    public void setTienePatio(Boolean tienePatio) {
         this.tienePatio = tienePatio;
     }
 
-    @NotNull(message = "Debe indicar si acepta o no las condiciones establecidas para la adopción.")
     public boolean isAceptaCondiciones() {
         return aceptaCondiciones;
     }
 
-    public void setAceptaCondiciones(@NotNull(message = "Debe indicar si acepta o no las condiciones establecidas para la adopción.") boolean aceptaCondiciones) {
+    public void setAceptaCondiciones(boolean aceptaCondiciones) {
         this.aceptaCondiciones = aceptaCondiciones;
     }
 
@@ -93,5 +92,16 @@ public class SolicitudAdopcionRequestDTO {
 
     public void setMotivoAdopcion(String motivoAdopcion) {
         this.motivoAdopcion = motivoAdopcion;
+    }
+
+    @AssertTrue(message = "El tipo de mascotas en el hogar es inconsistente con si hay mascotas en el hogar.")
+    public boolean isTipoMascotasEnHogarConsistente() {
+        if (hayMascotaEnHogar == null) {
+            return true; // deja que @NotNull sea quien reporte el error, evita doble mensaje
+        }
+        if (!hayMascotaEnHogar) {
+            return tipoMascotasEnHogar == null;
+        }
+        return tipoMascotasEnHogar != null;
     }
 }

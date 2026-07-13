@@ -48,7 +48,6 @@ public class AuthService {
 
         // Validaciones personalizadas
         miembroValidation.validarNombre(miembro);
-        miembroValidation.validarApellido(miembro);
         miembroValidation.validarContrasenia(miembro);     //Siempre se valida antes de encriptar
         miembroValidation.validarEmailRegistrado(miembro);
 

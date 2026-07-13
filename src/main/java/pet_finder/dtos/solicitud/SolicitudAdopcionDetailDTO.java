@@ -43,7 +43,7 @@ public record SolicitudAdopcionDetailDTO(
 
                 solicitud.getTipoHogar().getValorFront(),
                 solicitud.isHayMascotaEnHogar(),
-                solicitud.getTipoMascotasEnHogar().getValorFront() != null ? solicitud.getTipoMascotasEnHogar().getValorFront() : null,
+                solicitud.getTipoMascotasEnHogar() != null ? solicitud.getTipoMascotasEnHogar().getValorFront() : null,
                 solicitud.isTienePatio(),
                 solicitud.isAceptaCondiciones(),
                 solicitud.getMotivoAdopcion(),
