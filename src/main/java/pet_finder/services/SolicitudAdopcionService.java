@@ -1,6 +1,6 @@
 package pet_finder.services;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import pet_finder.dtos.solicitud.SolicitudAdopcionDetailDTO;
 import pet_finder.dtos.solicitud.SolicitudAdopcionRequestDTO;
@@ -10,6 +10,8 @@ import pet_finder.models.SolicitudAdopcion;
 import pet_finder.repositories.SolicitudAdopcionRepository;
 import pet_finder.validations.SolicitudAdopcionValidation;
 import pet_finder.models.Miembro;
+
+import java.util.List;
 
 @Service
 public class SolicitudAdopcionService {
@@ -47,5 +49,12 @@ public class SolicitudAdopcionService {
 
         SolicitudAdopcion guardada = solicitudRepository.save(solicitud);
         return solicitudMapper.aDetail(guardada);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SolicitudAdopcionDetailDTO> listarRecibidas(Long idMiembroDuenio){
+        List<SolicitudAdopcion> solicitudes = solicitudRepository.findByPublicacion_Miembro_IdAndPublicacion_ActivoTrue(idMiembroDuenio);
+
+        return solicitudMapper.deEntidadesAdetails(solicitudes);
     }
 }
