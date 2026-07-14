@@ -10,6 +10,7 @@ import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.publicacion.PublicacionDetailDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestUpdateDTO;
+import pet_finder.enums.EstadoMascota;
 import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.mappers.PublicacionMapper;
 import pet_finder.models.Publicacion;
@@ -53,6 +54,18 @@ public class PublicacionController {
                                                           @AuthenticationPrincipal MiembroUserDetails miembroUserDetails){
 
         Publicacion actualizado = publicacionService.modificar(id, miembroUserDetails.getId(), request);
+
+        // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
+        return ResponseEntity.ok(publicacionMapper.aDetail(actualizado));
+    }
+
+    @PreAuthorize("hasRole('MIEMBRO')")
+    @PutMapping("/{id}/estado/{estado}")
+    public ResponseEntity<PublicacionDetailDTO> modificarEstado(@PathVariable Long id,
+                                                                @PathVariable EstadoMascota estado,
+                                                                @AuthenticationPrincipal MiembroUserDetails miembroUserDetails){
+
+        Publicacion actualizado = publicacionService.modificarEstado(id, miembroUserDetails.getId(), estado);
 
         // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
         return ResponseEntity.ok(publicacionMapper.aDetail(actualizado));
