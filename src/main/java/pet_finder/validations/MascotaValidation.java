@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
+import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.models.Mascota;
 import pet_finder.repositories.MascotaRepository;
 
@@ -46,4 +47,13 @@ public class MascotaValidation {
             throw new IllegalArgumentException("Estado de mascota inválido.");
         }
     }
+
+    public void validarCambioEstado(Mascota mascota, EstadoMascota nuevoEstado) {
+
+        if (mascota.getEstadoMascota() == nuevoEstado) {
+            throw new OperacionNoPermitidaException(
+                    "La mascota ya posee ese estado.");
+        }
+    }
+
 }

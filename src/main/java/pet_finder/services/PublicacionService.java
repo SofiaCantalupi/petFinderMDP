@@ -3,8 +3,10 @@ package pet_finder.services;
 import pet_finder.dtos.publicacion.PublicacionRequestUpdateDTO;
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
+import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.mappers.UbicacionMapper;
 import pet_finder.models.Comentario;
+import pet_finder.models.Mascota;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.PublicacionRepository;
 import org.springframework.stereotype.Service;
@@ -162,6 +164,24 @@ public class PublicacionService {
             ubicacionValidation.validarGeocodificacion(ubicacionMapper.aEntidad(request.getUbicacion()));
             existente.setUbicacion(ubicacionMapper.aEntidad(request.getUbicacion()));
         }
+
+        //Se retorna la publicación con los cambios hechos.
+        publicacionRepository.save(existente);
+        return existente;
+    }
+
+    // Modificar el estado de la mascota de una publicacion
+    public Publicacion modificarEstado(Long publicacionId, Long miembroLogeadoId, EstadoMascota estado) {
+
+        // Se obtiene la publicacion que se quiere modificar, se valida que exista y este activa
+        Publicacion existente = obtenerPorId(publicacionId);
+
+        // Validación de que el miembro logueado sea el dueño de la publicación
+        miembroValidation.estaLogeado(existente.getMiembro().getId(), miembroLogeadoId);
+
+        Mascota mascota = existente.getMascota();
+        mascotaValidation.validarCambioEstado(mascota,estado);  //Valida que ya no tengan el mismo estado.
+        mascota.setEstadoMascota(estado);
 
         //Se retorna la publicación con los cambios hechos.
         publicacionRepository.save(existente);
