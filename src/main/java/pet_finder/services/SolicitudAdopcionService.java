@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import pet_finder.dtos.solicitud.ResolucionSolicitudRequestDTO;
 import pet_finder.dtos.solicitud.SolicitudAdopcionDetailDTO;
 import pet_finder.dtos.solicitud.SolicitudAdopcionRequestDTO;
+import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.EstadoSolicitud;
 import pet_finder.enums.MotivoRechazo;
 import pet_finder.exceptions.OperacionNoPermitidaException;
@@ -71,22 +72,33 @@ public class SolicitudAdopcionService {
     }
 
     @Transactional
-    public SolicitudAdopcionDetailDTO resolverSolicitud(Long idSolicitud, Long idMiembroLoggeado, ResolucionSolicitudRequestDTO resolucionRequest) {
+    public SolicitudAdopcionDetailDTO resolverSolicitudAdopcion(Long idSolicitud, Long idMiembroLoggeado, ResolucionSolicitudRequestDTO resolucionRequest) {
         SolicitudAdopcion solicitud = solicitudValidation.existePorId(idSolicitud);
 
+        // Se valida que la publicacion de la solicitud sea del mismo miembro que el que la resuelve
         if (!solicitud.getPublicacion().getMiembro().getId().equals(idMiembroLoggeado)) {
             throw new OperacionNoPermitidaException("Solo el dueño de la publicación puede resolver la solicitud de adopción.");
         }
 
+        // Se valida que el estado sea distinto de pendiente, es decir, que no este resuelta aun
         if (!solicitud.getEstado().equals(EstadoSolicitud.PENDIENTE)){
             throw new IllegalArgumentException("Esta solicitud ya fue resuelta.");
         }
 
+        // Se valida que la mascota sigua "en_adopcion"
+        if (solicitud.getPublicacion().getMascota().getEstadoMascota() != EstadoMascota.EN_ADOPCION) {
+            throw new IllegalArgumentException("La publicación ya no está disponible para adopción.");
+        }
+
+        // Se obtiene el Enum que representa al nuevo Estado de la resolucion
         EstadoSolicitud nuevoEstado = solicitudValidation.validarYConvertirResolucion(resolucionRequest.getEstado());
 
+        // Se settea el nuevo estado y fecha a la Solicitud
         solicitud.setEstado(nuevoEstado);
         solicitud.setFechaResolucion(LocalDateTime.now());
 
+        // Si el nuevo estado es rechazada, se le settea el motivo como "manual"
+        // Si el nuevo estado es rechazada y contiene un comentario, se le settea esta ultimo
         if (nuevoEstado == EstadoSolicitud.RECHAZADA) {
             solicitud.setMotivoRechazo(MotivoRechazo.MANUAL);
 
@@ -95,7 +107,12 @@ public class SolicitudAdopcionService {
             }
         }
 
-        // AGREGAR METODO QUE CAMBIA EL ESTADO DE LA MASCOTA A ADOPTADO Y QUE CAMBIA EL ESTADO DE LAS OTRAS SOLICITUDES PENDIENTES A RECHAZADAS AUTO
+        // Se cambia el estado de la mascota de "en adopcion" a "adoptado" si se acepta la solicitud
+        if(nuevoEstado.equals(EstadoSolicitud.APROBADA)){
+            publicacionService.modificarEstado(solicitud.getPublicacion().getId(), idMiembroLoggeado, EstadoMascota.ADOPTADA.toString());
+        }
+
+        // AGREGAR METODO QUE CAMBIA EL ESTADO DE LAS OTRAS SOLICITUDES PENDIENTES A RECHAZADAS AUTO
 
         SolicitudAdopcion guardada = solicitudRepository.save(solicitud);
 
