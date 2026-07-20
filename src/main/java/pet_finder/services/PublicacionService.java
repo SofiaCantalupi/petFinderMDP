@@ -3,7 +3,6 @@ package pet_finder.services;
 import pet_finder.dtos.publicacion.PublicacionRequestUpdateDTO;
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
-import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.mappers.UbicacionMapper;
 import pet_finder.models.Comentario;
 import pet_finder.models.Mascota;
@@ -171,7 +170,7 @@ public class PublicacionService {
     }
 
     // Modificar el estado de la mascota de una publicacion
-    public Publicacion modificarEstado(Long publicacionId, Long miembroLogeadoId, EstadoMascota estado) {
+    public Publicacion modificarEstado(Long publicacionId, Long miembroLogeadoId, String estado) {
 
         // Se obtiene la publicacion que se quiere modificar, se valida que exista y este activa
         Publicacion existente = obtenerPorId(publicacionId);
@@ -179,9 +178,12 @@ public class PublicacionService {
         // Validación de que el miembro logueado sea el dueño de la publicación
         miembroValidation.estaLogeado(existente.getMiembro().getId(), miembroLogeadoId);
 
+        EstadoMascota nuevoEstado = mascotaValidation.validarYConvertirEstadoMascota(estado);
+
         Mascota mascota = existente.getMascota();
-        mascotaValidation.validarCambioEstado(mascota,estado);  //Valida que ya no tengan el mismo estado.
-        mascota.setEstadoMascota(estado);
+
+        mascotaValidation.validarCambioEstado(mascota,nuevoEstado);  //Valida que ya no tengan el mismo estado.
+        mascota.setEstadoMascota(nuevoEstado);
 
         //Se retorna la publicación con los cambios hechos.
         publicacionRepository.save(existente);

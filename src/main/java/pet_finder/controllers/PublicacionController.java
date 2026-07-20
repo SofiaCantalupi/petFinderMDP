@@ -62,7 +62,7 @@ public class PublicacionController {
     @PreAuthorize("hasRole('MIEMBRO')")
     @PutMapping("/{id}/estado/{estado}")
     public ResponseEntity<PublicacionDetailDTO> modificarEstado(@PathVariable Long id,
-                                                                @PathVariable EstadoMascota estado,
+                                                                @PathVariable String estado,
                                                                 @AuthenticationPrincipal MiembroUserDetails miembroUserDetails){
 
         Publicacion actualizado = publicacionService.modificarEstado(id, miembroUserDetails.getId(), estado);
