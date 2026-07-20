@@ -34,15 +34,19 @@ public class SolicitudAdopcionController {
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @GetMapping("/recibidas")
-    public ResponseEntity<List<SolicitudAdopcionDetailDTO>> listarRecibidas(@AuthenticationPrincipal MiembroUserDetails userDetails){
-        List<SolicitudAdopcionDetailDTO> dtos = solicitudService.listarRecibidas(userDetails.getId());
+    public ResponseEntity<List<SolicitudAdopcionDetailDTO>> listarRecibidas(
+            @RequestParam(required = false) String estado,
+            @AuthenticationPrincipal MiembroUserDetails userDetails){
+        List<SolicitudAdopcionDetailDTO> dtos = solicitudService.listarRecibidas(userDetails.getId(), estado);
         return ResponseEntity.ok(dtos);
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @GetMapping("/enviadas")
-    public ResponseEntity<List<SolicitudAdopcionDetailDTO>> listarEnviadas(@AuthenticationPrincipal MiembroUserDetails userDetails){
-        List<SolicitudAdopcionDetailDTO> dtos =  solicitudService.listarEnviadas(userDetails.getId());
+    public ResponseEntity<List<SolicitudAdopcionDetailDTO>> listarEnviadas(
+            @RequestParam(required = false) String estado,
+            @AuthenticationPrincipal MiembroUserDetails userDetails){
+        List<SolicitudAdopcionDetailDTO> dtos =  solicitudService.listarEnviadas(userDetails.getId(), estado);
         return  ResponseEntity.ok(dtos);
     }
 

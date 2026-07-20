@@ -58,15 +58,25 @@ public class SolicitudAdopcionService {
     }
 
     @Transactional(readOnly = true)
-    public List<SolicitudAdopcionDetailDTO> listarRecibidas(Long idMiembroDuenio) {
+    public List<SolicitudAdopcionDetailDTO> listarRecibidas(Long idMiembroDuenio, String estadoParam) {
         List<SolicitudAdopcion> solicitudes = solicitudRepository.findByPublicacion_Miembro_IdAndPublicacion_ActivoTrue(idMiembroDuenio);
+
+        if(estadoParam != null && !estadoParam.isBlank()){
+            EstadoSolicitud estadoSolicitud = solicitudValidation.validarYConvertirEstadoSolicitud(estadoParam);
+            solicitudes = solicitudes.stream().filter(s -> s.getEstado() == estadoSolicitud).toList();
+        }
 
         return solicitudMapper.deEntidadesAdetails(solicitudes);
     }
 
     @Transactional(readOnly = true)
-    public List<SolicitudAdopcionDetailDTO> listarEnviadas(Long idMiembroSolicitante) {
+    public List<SolicitudAdopcionDetailDTO> listarEnviadas(Long idMiembroSolicitante, String estadoParam) {
         List<SolicitudAdopcion> solicitudes = solicitudRepository.findByMiembroSolicitante_IdAndPublicacion_ActivoTrue(idMiembroSolicitante);
+
+        if(estadoParam != null && !estadoParam.isBlank()){
+            EstadoSolicitud estadoSolicitud = solicitudValidation.validarYConvertirEstadoSolicitud(estadoParam);
+            solicitudes = solicitudes.stream().filter(s -> s.getEstado() == estadoSolicitud).toList();
+        }
 
         return solicitudMapper.deEntidadesAdetails(solicitudes);
     }
