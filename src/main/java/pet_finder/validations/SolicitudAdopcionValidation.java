@@ -64,4 +64,12 @@ public class SolicitudAdopcionValidation {
 
         return estado;
     }
+
+    public EstadoSolicitud validarYConvertirEstadoSolicitud(String estado) {
+        try {
+            return EstadoSolicitud.valueOf(estado.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Estado de solicitud inválido: " + estado);
+        }
+    }
 }
