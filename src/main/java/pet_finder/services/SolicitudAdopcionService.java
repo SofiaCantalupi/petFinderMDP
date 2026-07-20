@@ -72,6 +72,17 @@ public class SolicitudAdopcionService {
     }
 
     @Transactional
+    public void revertirPendientes(Long idPublicacion){
+        List<SolicitudAdopcion> solicitudes = solicitudRepository.findByPublicacion_IdAndEstado(idPublicacion, EstadoSolicitud.PENDIENTE);
+
+        solicitudes.forEach(solicitud -> {
+            solicitud.setEstado(EstadoSolicitud.RECHAZADA);
+            solicitud.setMotivoRechazo(MotivoRechazo.AUTO_POR_OTRA_APROBADA);
+            solicitud.setFechaResolucion(LocalDateTime.now());
+        });
+    }
+
+    @Transactional
     public SolicitudAdopcionDetailDTO resolverSolicitudAdopcion(Long idSolicitud, Long idMiembroLoggeado, ResolucionSolicitudRequestDTO resolucionRequest) {
         SolicitudAdopcion solicitud = solicitudValidation.existePorId(idSolicitud);
 
@@ -101,18 +112,18 @@ public class SolicitudAdopcionService {
         // Si el nuevo estado es rechazada y contiene un comentario, se le settea esta ultimo
         if (nuevoEstado == EstadoSolicitud.RECHAZADA) {
             solicitud.setMotivoRechazo(MotivoRechazo.MANUAL);
-
-            if (resolucionRequest.getComentarioResolucion() != null && !resolucionRequest.getComentarioResolucion().isBlank()) {
-                solicitud.setComentarioResolucion(resolucionRequest.getComentarioResolucion());
-            }
         }
 
-        // Se cambia el estado de la mascota de "en adopcion" a "adoptado" si se acepta la solicitud
+        // Si la resolucion tiene un comentario, se guarda
+        if (resolucionRequest.getComentarioResolucion() != null && !resolucionRequest.getComentarioResolucion().isBlank()) {
+            solicitud.setComentarioResolucion(resolucionRequest.getComentarioResolucion());
+        }
+
+        // Se cambia el estado de la mascota de "en adopcion" a "adoptado" si se acepta la solicitud. Ademas se revierten las pendientes a "rechazadas" por motivo auto
         if(nuevoEstado.equals(EstadoSolicitud.APROBADA)){
             publicacionService.modificarEstado(solicitud.getPublicacion().getId(), idMiembroLoggeado, EstadoMascota.ADOPTADA.toString());
+            revertirPendientes(solicitud.getPublicacion().getId());
         }
-
-        // AGREGAR METODO QUE CAMBIA EL ESTADO DE LAS OTRAS SOLICITUDES PENDIENTES A RECHAZADAS AUTO
 
         SolicitudAdopcion guardada = solicitudRepository.save(solicitud);
 
