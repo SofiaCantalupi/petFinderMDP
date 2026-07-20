@@ -1,6 +1,8 @@
 package pet_finder.exceptions.handler;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -15,10 +17,12 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalHandlerException {
+    private final Logger logger = LoggerFactory.getLogger(GlobalHandlerException.class);
 
     // para excepciones en general
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> manejarGeneral(Exception ex) {
+        logger.error("Error:", ex);
         ErrorResponse error = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
