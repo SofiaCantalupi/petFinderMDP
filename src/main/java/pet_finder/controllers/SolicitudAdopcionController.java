@@ -58,4 +58,12 @@ public class SolicitudAdopcionController {
         SolicitudAdopcionDetailDTO resuelta = solicitudService.resolverSolicitudAdopcion(id,userDetails.getId(),requestDTO);
         return ResponseEntity.ok(resuelta);
     }
+
+    @PreAuthorize("hasRole('MIEMBRO')")
+    @PutMapping("/cancelar/{id}")
+    public ResponseEntity<SolicitudAdopcionDetailDTO> cancelarPropia(@PathVariable Long id,
+                                                                     @AuthenticationPrincipal MiembroUserDetails userDetail){
+        SolicitudAdopcionDetailDTO cancelada = solicitudService.cancelarSolicitudPropia(userDetail.getId(), id);
+        return  ResponseEntity.ok(cancelada);
+    }
 }

@@ -139,4 +139,12 @@ public class SolicitudAdopcionService {
 
         return solicitudMapper.aDetail(guardada);
     }
+
+    public SolicitudAdopcionDetailDTO cancelarSolicitudPropia(Long idMiembro, Long idSolicitud){
+        SolicitudAdopcion solicitud = solicitudValidation.validarQueSolicitudSeaPropia(idMiembro, idSolicitud);
+
+        solicitud.setEstado(EstadoSolicitud.CANCELADA);
+
+        return solicitudMapper.aDetail(solicitud);
+    }
 }
