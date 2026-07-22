@@ -34,6 +34,7 @@ public class MensajeService {
         this.mensajeMapper = mensajeMapper;
     }
 
+    @Transactional
     public MensajeDetailDTO enviarMensaje(MensajeRequestDTO request, Long idEmisor) {
         Long idReceptor = request.getIdReceptor();
         mensajeValidation.validarNoAutoMensaje(idEmisor, idReceptor);

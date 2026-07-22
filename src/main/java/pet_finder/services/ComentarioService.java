@@ -1,6 +1,7 @@
 package pet_finder.services;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pet_finder.dtos.comentario.ComentarioDetailDTO;
 import pet_finder.dtos.comentario.ComentarioRequestDTO;
 import pet_finder.mappers.ComentarioMapper;
@@ -66,6 +67,7 @@ public class ComentarioService {
         return comentarioRepository.findByPublicacionIdAndActivoTrue(idPublicacion);
     }
 
+    @Transactional(readOnly = true)
     public List<ComentarioDetailDTO> listarDetallesPorPublicacion(Long idPublicacion) {
         return comentarioMapper.deEntidadesAdetails(listarPorPublicacion(idPublicacion));
     }

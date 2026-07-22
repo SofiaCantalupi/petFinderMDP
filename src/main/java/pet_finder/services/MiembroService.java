@@ -1,8 +1,8 @@
 package pet_finder.services;
 
 
-import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import pet_finder.dtos.miembro.MiembroDetailDTO;
 import pet_finder.dtos.miembro.MiembroRequestDTO;
 import pet_finder.dtos.miembro.MiembroRequestUpdateDTO;
@@ -73,6 +73,7 @@ public class MiembroService {
         return miembro;
     }
 
+    @Transactional(readOnly = true)
     public MiembroDetailDTO obtenerDetallePorId(Long id){
         return miembroMapper.aDetail(obtenerPorId(id));
     }

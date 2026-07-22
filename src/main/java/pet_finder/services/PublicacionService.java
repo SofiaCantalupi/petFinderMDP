@@ -12,6 +12,7 @@ import pet_finder.models.Mascota;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.PublicacionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pet_finder.validations.MascotaValidation;
 import pet_finder.validations.MiembroValidation;
 import pet_finder.validations.PublicacionValidation;
@@ -52,6 +53,7 @@ public class PublicacionService {
 
 
     //Nueva publicacion.
+    @Transactional
     public PublicacionDetailDTO guardar(PublicacionRequestDTO request, Long idMiembro) {
 
         Publicacion publicacion = publicacionMapper.aEntidad(request);
@@ -82,6 +84,7 @@ public class PublicacionService {
         return existente;
     }
 
+    @Transactional(readOnly = true)
     public PublicacionDetailDTO obtenerDetallePorId(Long id) {
         return publicacionMapper.aDetail(obtenerPorId(id));
     }
@@ -92,16 +95,19 @@ public class PublicacionService {
     }
 
     // LISTAR LAS PUBLICACIONES ACTIVAS
+    @Transactional(readOnly = true)
     public List<PublicacionDetailDTO> listarActivas() {
         return publicacionMapper.deEntidadesAdetails(publicacionRepository.findAllByActivoTrue());
     }
 
     // Listar publicaciones de un miembro
+    @Transactional(readOnly = true)
     public List<PublicacionDetailDTO> listarPropias(Long miembroId){
         return publicacionMapper.deEntidadesAdetails(publicacionRepository.findByMiembroId(miembroId));
     }
 
     // FILTRAR POR TipoMascota
+    @Transactional(readOnly = true)
     public List<PublicacionDetailDTO> filtrarPorTipoMascota(String tipoString){
 
         // El controller recibe un String, por lo tanto debe convertirse a un dato tipo Enum (TipoMascota)
@@ -118,6 +124,7 @@ public class PublicacionService {
     }
 
     // FILTRAR POR EstadoMascota
+    @Transactional(readOnly = true)
     public List<PublicacionDetailDTO> filtrarPorEstadoMascota(String estadoString){
 
         // Se valida que el string sea valido ("perdido" o "encontrado") y se convierte a su respectivo Enum (EstadoMascota)
@@ -133,6 +140,7 @@ public class PublicacionService {
     }
 
     // FILTRAR POR TipoMascota y EstadoMascota
+    @Transactional(readOnly = true)
     public List<PublicacionDetailDTO> filtrarPorTipoYEstado(String tipo, String estado) {
         // Validar y convertir ambos strings a Enum
         TipoMascota tipoEnum = mascotaValidation.validarYConvertirTipoMascota(tipo);
@@ -149,6 +157,7 @@ public class PublicacionService {
     }
 
     // Modificar una publicacion
+    @Transactional
     public PublicacionDetailDTO modificar(Long publicacionId, Long miembroLogeadoId, PublicacionRequestUpdateDTO request) {
 
         // Se obtiene la publicacion que se quiere modificar, se valida que exista y este activa
@@ -186,6 +195,7 @@ public class PublicacionService {
     }
 
     // Modificar el estado de la mascota de una publicacion
+    @Transactional
     public PublicacionDetailDTO modificarEstado(Long publicacionId, Long miembroLogeadoId, String estado) {
 
         // Se obtiene la publicacion que se quiere modificar, se valida que exista y este activa
