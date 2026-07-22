@@ -1,6 +1,9 @@
 package pet_finder.services;
 
 import org.springframework.stereotype.Service;
+import pet_finder.dtos.comentario.ComentarioDetailDTO;
+import pet_finder.dtos.comentario.ComentarioRequestDTO;
+import pet_finder.mappers.ComentarioMapper;
 import pet_finder.models.Comentario;
 import pet_finder.models.Miembro;
 import pet_finder.models.Publicacion;
@@ -22,18 +25,23 @@ public class ComentarioService {
     private final MiembroValidation miembroValidation;
     private final PublicacionValidation publicacionValidation;
 
+    private final ComentarioMapper comentarioMapper;
 
-    public ComentarioService(ComentarioRepository comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation) {
+
+    public ComentarioService(ComentarioRepository comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation, ComentarioMapper comentarioMapper) {
         this.comentarioRepository = comentarioRepository;
         this.publicacionRepository = publicacionRepository;
         this.comentarioValidation = comentarioValidation;
         this.miembroValidation = miembroValidation;
         this.publicacionValidation = publicacionValidation;
+        this.comentarioMapper = comentarioMapper;
     }
 
-    public Comentario crearComentario(Comentario comentario, Long idPublicacion, Long idMiembro){
+    public ComentarioDetailDTO crearComentario(ComentarioRequestDTO request, Long idMiembro){
 
-        Publicacion publicacion = publicacionValidation.existePorId(idPublicacion);
+        Comentario comentario = comentarioMapper.aEntidad(request);
+
+        Publicacion publicacion = publicacionValidation.existePorId(request.getIdPublicacion());
         publicacionValidation.esActivo(publicacion.getActivo());
 
         Miembro miembro = miembroValidation.validarExistenciaPorId(idMiembro);
@@ -45,7 +53,8 @@ public class ComentarioService {
         publicacion.agregarComentario(comentario);
         publicacionRepository.save(publicacion);
 
-        return comentarioRepository.save(comentario);
+        Comentario creado = comentarioRepository.save(comentario);
+        return comentarioMapper.aDetail(creado);
     }
 
     //Muestra los comentarios de una publicación por su ID.
@@ -55,6 +64,10 @@ public class ComentarioService {
         publicacionValidation.esActivo(p.getActivo());
 
         return comentarioRepository.findByPublicacionIdAndActivoTrue(idPublicacion);
+    }
+
+    public List<ComentarioDetailDTO> listarDetallesPorPublicacion(Long idPublicacion) {
+        return comentarioMapper.deEntidadesAdetails(listarPorPublicacion(idPublicacion));
     }
 
 

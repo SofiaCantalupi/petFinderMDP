@@ -1,6 +1,7 @@
 package pet_finder.services;
 
 import org.springframework.stereotype.Service;
+import pet_finder.dtos.norma.NormaComunidadDetailDTO;
 import pet_finder.models.NormaComunidad;
 import pet_finder.repositories.NormaComunidadRepository;
 
@@ -15,11 +16,14 @@ public class NormaComunidadService {
         this.repository = repository;
     }
 
-    public List<NormaComunidad> verNormas(){
-        return repository.findAll();
+    public List<NormaComunidadDetailDTO> verNormas(){
+        return repository.findAll()
+                .stream()
+                .map(NormaComunidadDetailDTO::new)
+                .toList();
     }
 
-    public NormaComunidad crear(NormaComunidad norma){
-        return repository.save(norma);
+    public NormaComunidadDetailDTO crear(NormaComunidad norma){
+        return new NormaComunidadDetailDTO(repository.save(norma));
     }
 }

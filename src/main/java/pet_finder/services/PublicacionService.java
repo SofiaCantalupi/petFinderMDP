@@ -1,8 +1,11 @@
 package pet_finder.services;
 
+import pet_finder.dtos.publicacion.PublicacionDetailDTO;
+import pet_finder.dtos.publicacion.PublicacionRequestDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestUpdateDTO;
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.TipoMascota;
+import pet_finder.mappers.PublicacionMapper;
 import pet_finder.mappers.UbicacionMapper;
 import pet_finder.models.Comentario;
 import pet_finder.models.Mascota;
@@ -32,8 +35,9 @@ public class PublicacionService {
     private final UbicacionValidation ubicacionValidation;
 
     private final UbicacionMapper ubicacionMapper;
+    private final PublicacionMapper publicacionMapper;
 
-    public PublicacionService(PublicacionRepository publicacionRepository, UbicacionService ubicacionService, MascotaService mascotaService, ComentarioService comentarioService, PublicacionValidation publicacionValidation, MiembroValidation miembroValidation, MascotaValidation mascotaValidation, UbicacionValidation ubicacionValidation, UbicacionMapper ubicacionMapper) {
+    public PublicacionService(PublicacionRepository publicacionRepository, UbicacionService ubicacionService, MascotaService mascotaService, ComentarioService comentarioService, PublicacionValidation publicacionValidation, MiembroValidation miembroValidation, MascotaValidation mascotaValidation, UbicacionValidation ubicacionValidation, UbicacionMapper ubicacionMapper, PublicacionMapper publicacionMapper) {
         this.publicacionRepository = publicacionRepository;
         this.ubicacionService = ubicacionService;
         this.mascotaService = mascotaService;
@@ -43,11 +47,14 @@ public class PublicacionService {
         this.mascotaValidation = mascotaValidation;
         this.ubicacionValidation = ubicacionValidation;
         this.ubicacionMapper = ubicacionMapper;
+        this.publicacionMapper = publicacionMapper;
     }
 
 
     //Nueva publicacion.
-    public Publicacion guardar(Publicacion publicacion,Long idMiembro) {
+    public PublicacionDetailDTO guardar(PublicacionRequestDTO request, Long idMiembro) {
+
+        Publicacion publicacion = publicacionMapper.aEntidad(request);
 
         // Se valida que la mascota este activa
         mascotaValidation.esActivo(publicacion.getMascota().getEsActivo());
@@ -61,7 +68,8 @@ public class PublicacionService {
         //Se valida que el miembro exista y se lo asocia a la publicación.
         publicacion.setMiembro(miembroValidation.validarExistenciaPorId(idMiembro));
 
-        return publicacionRepository.save(publicacion);
+        Publicacion guardada = publicacionRepository.save(publicacion);
+        return publicacionMapper.aDetail(guardada);
     }
 
     public Publicacion obtenerPorId(Long id) {
@@ -74,66 +82,74 @@ public class PublicacionService {
         return existente;
     }
 
+    public PublicacionDetailDTO obtenerDetallePorId(Long id) {
+        return publicacionMapper.aDetail(obtenerPorId(id));
+    }
+
     // LISTAR TODAS LAS PUBLICACIONES
     public List<Publicacion> listarTodas() {
         return publicacionRepository.findAll();
     }
 
     // LISTAR LAS PUBLICACIONES ACTIVAS
-    public List<Publicacion> listarActivas() {
-        return publicacionRepository.findAllByActivoTrue();
+    public List<PublicacionDetailDTO> listarActivas() {
+        return publicacionMapper.deEntidadesAdetails(publicacionRepository.findAllByActivoTrue());
     }
 
     // Listar publicaciones de un miembro
-    public List<Publicacion> listarPropias(Long miembroId){
-        return publicacionRepository.findByMiembroId(miembroId)
-        .stream()
-        .toList();
+    public List<PublicacionDetailDTO> listarPropias(Long miembroId){
+        return publicacionMapper.deEntidadesAdetails(publicacionRepository.findByMiembroId(miembroId));
     }
 
     // FILTRAR POR TipoMascota
-    public List<Publicacion> filtrarPorTipoMascota(String tipoString){
+    public List<PublicacionDetailDTO> filtrarPorTipoMascota(String tipoString){
 
         // El controller recibe un String, por lo tanto debe convertirse a un dato tipo Enum (TipoMascota)
         // Se valida que el string sea valido ("gato" o "perro") y se convierte a su respectivo Enum (TipoMascota)
         TipoMascota tipoEnum = mascotaValidation.validarYConvertirTipoMascota(tipoString);
 
         // Se buscan las publicaciones cuyas mascotas son del tipo ingresado por parametro, y se filtran las publicaciones activas
-        return publicacionRepository.findAllByMascotaTipoMascota(tipoEnum)
+        List<Publicacion> publicaciones = publicacionRepository.findAllByMascotaTipoMascota(tipoEnum)
                 .stream()
                 .filter(Publicacion::getActivo)
                 .toList();
+
+        return publicacionMapper.deEntidadesAdetails(publicaciones);
     }
 
     // FILTRAR POR EstadoMascota
-    public List<Publicacion> filtrarPorEstadoMascota(String estadoString){
+    public List<PublicacionDetailDTO> filtrarPorEstadoMascota(String estadoString){
 
         // Se valida que el string sea valido ("perdido" o "encontrado") y se convierte a su respectivo Enum (EstadoMascota)
         EstadoMascota estadoEnum = mascotaValidation.validarYConvertirEstadoMascota(estadoString);
 
         // El metodo encuentra todas las publicaciones con ese estado y filtra las publicaciones activas.
-        return publicacionRepository.findAllByMascotaEstadoMascota(estadoEnum)
+        List<Publicacion> publicaciones = publicacionRepository.findAllByMascotaEstadoMascota(estadoEnum)
                 .stream()
                 .filter(Publicacion::getActivo)
                 .toList();
+
+        return publicacionMapper.deEntidadesAdetails(publicaciones);
     }
 
     // FILTRAR POR TipoMascota y EstadoMascota
-    public List<Publicacion> filtrarPorTipoYEstado(String tipo, String estado) {
+    public List<PublicacionDetailDTO> filtrarPorTipoYEstado(String tipo, String estado) {
         // Validar y convertir ambos strings a Enum
         TipoMascota tipoEnum = mascotaValidation.validarYConvertirTipoMascota(tipo);
         EstadoMascota estadoEnum = mascotaValidation.validarYConvertirEstadoMascota(estado);
 
         // Buscar publicaciones con ese tipo y estado
-        return publicacionRepository
+        List<Publicacion> publicaciones = publicacionRepository
                 .findAllByMascotaTipoMascotaAndMascotaEstadoMascota(tipoEnum, estadoEnum)
                 .stream()
                 .filter(Publicacion::getActivo)
                 .toList();
+
+        return publicacionMapper.deEntidadesAdetails(publicaciones);
     }
 
     // Modificar una publicacion
-    public Publicacion modificar(Long publicacionId, Long miembroLogeadoId, PublicacionRequestUpdateDTO request) {
+    public PublicacionDetailDTO modificar(Long publicacionId, Long miembroLogeadoId, PublicacionRequestUpdateDTO request) {
 
         // Se obtiene la publicacion que se quiere modificar, se valida que exista y este activa
         Publicacion existente = obtenerPorId(publicacionId);
@@ -166,11 +182,11 @@ public class PublicacionService {
 
         //Se retorna la publicación con los cambios hechos.
         publicacionRepository.save(existente);
-        return existente;
+        return publicacionMapper.aDetail(existente);
     }
 
     // Modificar el estado de la mascota de una publicacion
-    public Publicacion modificarEstado(Long publicacionId, Long miembroLogeadoId, String estado) {
+    public PublicacionDetailDTO modificarEstado(Long publicacionId, Long miembroLogeadoId, String estado) {
 
         // Se obtiene la publicacion que se quiere modificar, se valida que exista y este activa
         Publicacion existente = obtenerPorId(publicacionId);
@@ -187,7 +203,7 @@ public class PublicacionService {
 
         //Se retorna la publicación con los cambios hechos.
         publicacionRepository.save(existente);
-        return existente;
+        return publicacionMapper.aDetail(existente);
     }
 
     // Eliminar una publicacion
