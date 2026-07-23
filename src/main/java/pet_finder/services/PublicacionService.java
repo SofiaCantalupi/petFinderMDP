@@ -217,6 +217,7 @@ public class PublicacionService {
     }
 
     // Eliminar una publicacion
+    @Transactional
     public void eliminar(Publicacion publicacion) {
 
         // Baja logica de la mascota asociada

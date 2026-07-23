@@ -38,6 +38,7 @@ public class ComentarioService {
         this.comentarioMapper = comentarioMapper;
     }
 
+    @Transactional
     public ComentarioDetailDTO crearComentario(ComentarioRequestDTO request, Long idMiembro){
 
         Comentario comentario = comentarioMapper.aEntidad(request);
@@ -59,6 +60,7 @@ public class ComentarioService {
     }
 
     //Muestra los comentarios de una publicación por su ID.
+    @Transactional(readOnly = true)
     public List<Comentario> listarPorPublicacion(Long idPublicacion) {
 
         Publicacion p = publicacionValidation.existePorId(idPublicacion);
@@ -73,6 +75,7 @@ public class ComentarioService {
     }
 
 
+    @Transactional
     public void eliminarComentarioPorId(Long id){
 
         Comentario comentario = comentarioValidation.existePorId(id);
@@ -83,6 +86,7 @@ public class ComentarioService {
         comentarioRepository.save(comentario);
     }
 
+    @Transactional
     public void eliminarComentarioPropio(Long idComentario, Long idMiembroLogeado) {
 
         Comentario comentario = comentarioValidation.existePorId(idComentario);
