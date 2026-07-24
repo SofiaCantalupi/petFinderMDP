@@ -82,12 +82,12 @@ public class SolicitudAdopcionService {
     }
 
     @Transactional
-    public void revertirPendientes(Long idPublicacion){
+    public void revertirPendientes(Long idPublicacion, MotivoRechazo motivoRechazo){
         List<SolicitudAdopcion> solicitudes = solicitudRepository.findByPublicacion_IdAndEstado(idPublicacion, EstadoSolicitud.PENDIENTE);
 
         solicitudes.forEach(solicitud -> {
             solicitud.setEstado(EstadoSolicitud.RECHAZADA);
-            solicitud.setMotivoRechazo(MotivoRechazo.AUTO_POR_OTRA_APROBADA);
+            solicitud.setMotivoRechazo(motivoRechazo);
             solicitud.setFechaResolucion(LocalDateTime.now());
         });
     }
