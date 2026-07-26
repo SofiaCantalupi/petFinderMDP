@@ -1,9 +1,11 @@
 package pet_finder.services;
 
+import org.springframework.context.annotation.Lazy;
 import pet_finder.dtos.publicacion.PublicacionDetailDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestUpdateDTO;
 import pet_finder.enums.EstadoMascota;
+import pet_finder.enums.MotivoRechazo;
 import pet_finder.enums.TipoMascota;
 import pet_finder.mappers.PublicacionMapper;
 import pet_finder.mappers.UbicacionMapper;
@@ -29,6 +31,7 @@ public class PublicacionService {
     private final UbicacionService ubicacionService;
     private final MascotaService mascotaService;
     private final ComentarioService comentarioService;
+    private final SolicitudAdopcionService solicitudService;
 
     private final PublicacionValidation publicacionValidation;
     private final MiembroValidation miembroValidation;
@@ -38,11 +41,12 @@ public class PublicacionService {
     private final UbicacionMapper ubicacionMapper;
     private final PublicacionMapper publicacionMapper;
 
-    public PublicacionService(PublicacionRepository publicacionRepository, UbicacionService ubicacionService, MascotaService mascotaService, ComentarioService comentarioService, PublicacionValidation publicacionValidation, MiembroValidation miembroValidation, MascotaValidation mascotaValidation, UbicacionValidation ubicacionValidation, UbicacionMapper ubicacionMapper, PublicacionMapper publicacionMapper) {
+    public PublicacionService(PublicacionRepository publicacionRepository, UbicacionService ubicacionService, MascotaService mascotaService, ComentarioService comentarioService, @Lazy SolicitudAdopcionService solicitudService, PublicacionValidation publicacionValidation, MiembroValidation miembroValidation, MascotaValidation mascotaValidation, UbicacionValidation ubicacionValidation, UbicacionMapper ubicacionMapper, PublicacionMapper publicacionMapper) {
         this.publicacionRepository = publicacionRepository;
         this.ubicacionService = ubicacionService;
         this.mascotaService = mascotaService;
         this.comentarioService = comentarioService;
+        this.solicitudService = solicitudService;
         this.publicacionValidation = publicacionValidation;
         this.miembroValidation = miembroValidation;
         this.mascotaValidation = mascotaValidation;
@@ -209,6 +213,11 @@ public class PublicacionService {
         Mascota mascota = existente.getMascota();
 
         mascotaValidation.validarCambioEstado(mascota,nuevoEstado);  //Valida que ya no tengan el mismo estado.
+
+        if(mascota.getEstadoMascota()==EstadoMascota.EN_ADOPCION && (nuevoEstado == EstadoMascota.ENCONTRADA || nuevoEstado == EstadoMascota.PERDIDA)){
+            solicitudService.revertirPendientes(publicacionId, MotivoRechazo.AUTO_CAMBIO_ESTADO_MASCOTA);
+        }
+
         mascota.setEstadoMascota(nuevoEstado);
 
         //Se retorna la publicación con los cambios hechos.
@@ -229,6 +238,9 @@ public class PublicacionService {
         // Baja logica de cada comentario
         List<Comentario> comentarios = comentarioService.listarPorPublicacion(publicacion.getId());
         comentarios.forEach(comentario -> comentarioService.eliminarComentarioPorId(comentario.getId()));
+
+        // Se cambia el estado de las solicitudes de asociadas de pendiente a rechazadas
+        solicitudService.revertirPendientes(publicacion.getId(), MotivoRechazo.AUTO_POR_PUBLICACION_ELIMINADA);
 
         // Baja logica de la publicacion en si
         publicacion.setActivo(false);
