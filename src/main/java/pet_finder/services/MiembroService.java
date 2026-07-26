@@ -1,10 +1,13 @@
 package pet_finder.services;
 
 
-import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
+import pet_finder.dtos.miembro.MiembroDetailDTO;
+import pet_finder.dtos.miembro.MiembroRequestDTO;
 import pet_finder.dtos.miembro.MiembroRequestUpdateDTO;
 import pet_finder.exceptions.UsuarioNoEncontradoException;
+import pet_finder.mappers.MiembroMapper;
 import pet_finder.models.Miembro;
 import pet_finder.enums.RolUsuario;
 import pet_finder.models.Publicacion;
@@ -23,17 +26,21 @@ public class MiembroService {
     public final PublicacionRepository publicacionRepository;
     public final PublicacionService publicacionService;
     public final PasswordEncoder passwordEncoder;
+    public final MiembroMapper miembroMapper;
 
-    public MiembroService(MiembroRepository miembroRepository, MiembroValidation miembroValidation, PublicacionRepository publicacionRepository, PublicacionService publicacionService, PasswordEncoder passwordEncoder) {
+    public MiembroService(MiembroRepository miembroRepository, MiembroValidation miembroValidation, PublicacionRepository publicacionRepository, PublicacionService publicacionService, PasswordEncoder passwordEncoder, MiembroMapper miembroMapper) {
         this.miembroRepository = miembroRepository;
         this.miembroValidation = miembroValidation;
         this.publicacionRepository = publicacionRepository;
         this.publicacionService = publicacionService;
         this.passwordEncoder = passwordEncoder;
+        this.miembroMapper = miembroMapper;
     }
 
 
-    public Miembro crear(Miembro miembro){
+    public MiembroDetailDTO crear(MiembroRequestDTO request){
+
+        Miembro miembro = miembroMapper.aEntidad(request);
 
         miembroValidation.validarNombre(miembro);
         miembroValidation.validarContrasenia(miembro);
@@ -43,15 +50,17 @@ public class MiembroService {
         miembro.setContrasenia(passwordEncoder.encode(miembro.getContrasenia()));
         Miembro miembroGuardado = miembroRepository.save(miembro);
 
-        return miembroGuardado;
+        return miembroMapper.aDetail(miembroGuardado);
     }
 
-    public List<Miembro> listar(){
+    public List<MiembroDetailDTO> listar(){
 
-        return miembroRepository.findAll()
+        List<Miembro> miembros = miembroRepository.findAll()
                 .stream()
                 .filter(Miembro::isActivo)      //Muestro solo los activos
                 .toList();
+
+        return miembroMapper.deEntidadesAdetails(miembros);
     }
 
     public Miembro obtenerPorId(Long Id){
@@ -64,6 +73,11 @@ public class MiembroService {
         return miembro;
     }
 
+    @Transactional(readOnly = true)
+    public MiembroDetailDTO obtenerDetallePorId(Long id){
+        return miembroMapper.aDetail(obtenerPorId(id));
+    }
+
     public Miembro obtenerPorEmail(String email){
 
         return (miembroRepository.findByEmail(email))
@@ -72,7 +86,9 @@ public class MiembroService {
 
     //La logica de este metodo es para cambiar el miembro entero, inclusive el email.
     //Por el momento no se usa.
-    public Miembro modificarPorId(Long id,Miembro miembro){
+    public MiembroDetailDTO modificarPorId(Long id, MiembroRequestDTO request){
+
+        Miembro miembro = miembroMapper.aEntidad(request);
 
         Miembro miembroAModificar = miembroRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
@@ -85,11 +101,11 @@ public class MiembroService {
         miembroValidation.validarEmailUpdates(miembroAModificar);
 
         Miembro miembroModificado = miembroRepository.save(miembroAModificar);
-        return miembroModificado;
+        return miembroMapper.aDetail(miembroModificado);
     }
 
 
-    public Miembro modificarDatos(MiembroRequestUpdateDTO dto, Long id){
+    public MiembroDetailDTO modificarDatos(MiembroRequestUpdateDTO dto, Long id){
 
         Miembro miembroAModificar = miembroRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
@@ -99,11 +115,11 @@ public class MiembroService {
         miembroValidation.validarNombre(miembroAModificar);
 
         Miembro miembroModificado = miembroRepository.save(miembroAModificar);
-        return miembroModificado;
+        return miembroMapper.aDetail(miembroModificado);
     }
 
     //Metodo para hacer administrador a un miembro por su ID.
-    public Miembro hacerAdministrador(Long id){
+    public MiembroDetailDTO hacerAdministrador(Long id){
 
         Miembro miembroAHacerAdmin = miembroRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontro un miembro con ese ID"));
@@ -113,7 +129,7 @@ public class MiembroService {
         miembroAHacerAdmin.setRol(RolUsuario.ADMINISTRADOR);
 
         Miembro miembroModificado = miembroRepository.save(miembroAHacerAdmin);
-        return miembroModificado;
+        return miembroMapper.aDetail(miembroModificado);
     }
 
     //Metodo para que los administradores den la baja pasiva a cuentas.

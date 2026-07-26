@@ -9,7 +9,6 @@ import pet_finder.dtos.ubicacion.UbicacionDetailDTO;
 import pet_finder.dtos.miembro.MiembroDetailDTO;
 import pet_finder.models.*;
 import pet_finder.services.MascotaService;
-import pet_finder.services.MiembroService;
 
 import java.util.List;
 
@@ -17,7 +16,6 @@ import java.util.List;
 public class PublicacionMapper implements Mapper<PublicacionRequestDTO, PublicacionDetailDTO, Publicacion> {
 
     private final MascotaService mascotaService;
-    private final MiembroService miembroService;
 
     private final UbicacionMapper ubicacionMapper;
     private final ComentarioMapper comentarioMapper;
@@ -28,13 +26,11 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
     public PublicacionMapper (MascotaService mascotaService,
                               UbicacionMapper ubicacionMapper,
                               ComentarioMapper comentarioMapper,
-                              MiembroService miembroService,
                               MascotaMapper mascotaMapper,
                               MiembroMapper miembroMapper) {
         this.mascotaService = mascotaService;
         this.ubicacionMapper = ubicacionMapper;
         this.comentarioMapper = comentarioMapper;
-        this.miembroService = miembroService;
         this.mascotaMapper = mascotaMapper;
         this.miembroMapper = miembroMapper;
     }
@@ -63,11 +59,8 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
                 .map(comentarioMapper::aDetail)  // luego los convierto a DTO
                 .toList();
 
-        //Obtengo el miembro 
-        Miembro miembro = miembroService.obtenerPorId(publicacion.getMiembro().getId());
-
         // Conversion de entidades a DTOs
-        MiembroDetailDTO miembroDTO = miembroMapper.aDetail(miembro);
+        MiembroDetailDTO miembroDTO = miembroMapper.aDetail(publicacion.getMiembro());
         MascotaDetailDTO mascotaDTO = mascotaMapper.aDetail(publicacion.getMascota());
         UbicacionDetailDTO ubicacionDTO = publicacion.getUbicacion() != null
             ? ubicacionMapper.aDetail(publicacion.getUbicacion())

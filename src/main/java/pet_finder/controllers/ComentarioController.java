@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.comentario.ComentarioDetailDTO;
 import pet_finder.dtos.comentario.ComentarioRequestDTO;
-import pet_finder.mappers.ComentarioMapper;
-import pet_finder.models.Comentario;
 import pet_finder.services.ComentarioService;
 
 import java.util.List;
@@ -19,11 +17,9 @@ import java.util.List;
 public class ComentarioController {
 
     private final ComentarioService comentarioService;
-    private final ComentarioMapper comentarioMapper;
 
-    public ComentarioController(ComentarioService comentarioService, ComentarioMapper comentarioMapper) {
+    public ComentarioController(ComentarioService comentarioService) {
         this.comentarioService = comentarioService;
-        this.comentarioMapper = comentarioMapper;
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")
@@ -33,19 +29,16 @@ public class ComentarioController {
         //Se guarda el ID del miembro autenticado.
         Long idMiembro = userDetails.getId();
 
-        Comentario comentario = comentarioMapper.aEntidad(request);
+        ComentarioDetailDTO creado = comentarioService.crearComentario(request, idMiembro);
 
-        Comentario creado = comentarioService.crearComentario(comentario, request.getIdPublicacion(), idMiembro);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ComentarioDetailDTO(creado));
+        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @GetMapping("/publicacion/{idPublicacion}")
     public ResponseEntity<List<ComentarioDetailDTO>> listarPorPublicacion(@PathVariable Long idPublicacion) {
 
-        List<Comentario> comentarios = comentarioService.listarPorPublicacion(idPublicacion);
-        List<ComentarioDetailDTO> dtos = comentarioMapper.deEntidadesAdetails(comentarios);
+        List<ComentarioDetailDTO> dtos = comentarioService.listarDetallesPorPublicacion(idPublicacion);
 
         return ResponseEntity.ok(dtos);
     }
