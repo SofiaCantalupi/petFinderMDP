@@ -72,4 +72,14 @@ public class SolicitudAdopcionValidation {
             throw new IllegalArgumentException("Estado de solicitud inválido: " + estado);
         }
     }
+
+    public SolicitudAdopcion validarQueSolicitudSeaPropia(Long idMiembro, Long idSolicitud){
+        SolicitudAdopcion solicitud = this.existePorId(idSolicitud);
+
+        if(!solicitud.getMiembroSolicitante().getId().equals(idMiembro)){
+            throw new IllegalArgumentException("La solicitud debe ser tuya para cancelarla.");
+        }
+
+        return solicitud;
+    }
 }
