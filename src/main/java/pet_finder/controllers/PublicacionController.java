@@ -10,9 +10,6 @@ import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.publicacion.PublicacionDetailDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestUpdateDTO;
-import pet_finder.enums.EstadoMascota;
-import pet_finder.exceptions.OperacionNoPermitidaException;
-import pet_finder.mappers.PublicacionMapper;
 import pet_finder.models.Publicacion;
 import pet_finder.services.PublicacionService;
 
@@ -24,12 +21,9 @@ import java.util.List;
 public class PublicacionController {
 
     private final PublicacionService publicacionService;
-    private final PublicacionMapper publicacionMapper;
 
-    public PublicacionController (PublicacionService publicacionService,
-                                  PublicacionMapper publicacionMapper) {
+    public PublicacionController (PublicacionService publicacionService) {
         this.publicacionService = publicacionService;
-        this.publicacionMapper = publicacionMapper;
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")
@@ -37,14 +31,11 @@ public class PublicacionController {
     public ResponseEntity<PublicacionDetailDTO> crear (@Valid @RequestBody PublicacionRequestDTO req,
                                                        @AuthenticationPrincipal MiembroUserDetails userDetails) {
 
-        Publicacion publicacion = publicacionMapper.aEntidad(req);
-
         // Obtengo el id del miembro logeado, lo asocio a la publicación y lo relaciono a la publicacion
         Long miembroId = userDetails.getId();
 
-        Publicacion guardada = publicacionService.guardar(publicacion,miembroId);
-        // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
-        return ResponseEntity.status(HttpStatus.CREATED).body(publicacionMapper.aDetail(guardada));
+        PublicacionDetailDTO guardada = publicacionService.guardar(req, miembroId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")
@@ -53,43 +44,35 @@ public class PublicacionController {
                                                           @Valid @RequestBody PublicacionRequestUpdateDTO request,
                                                           @AuthenticationPrincipal MiembroUserDetails miembroUserDetails){
 
-        Publicacion actualizado = publicacionService.modificar(id, miembroUserDetails.getId(), request);
-
-        // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
-        return ResponseEntity.ok(publicacionMapper.aDetail(actualizado));
+        return ResponseEntity.ok(publicacionService.modificar(id, miembroUserDetails.getId(), request));
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @PutMapping("/{id}/estado/{estado}")
     public ResponseEntity<PublicacionDetailDTO> modificarEstado(@PathVariable Long id,
-                                                                @PathVariable EstadoMascota estado,
+                                                                @PathVariable String estado,
                                                                 @AuthenticationPrincipal MiembroUserDetails miembroUserDetails){
 
-        Publicacion actualizado = publicacionService.modificarEstado(id, miembroUserDetails.getId(), estado);
-
-        // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
-        return ResponseEntity.ok(publicacionMapper.aDetail(actualizado));
+        return ResponseEntity.ok(publicacionService.modificarEstado(id, miembroUserDetails.getId(), estado));
     }
 
     @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
     @GetMapping("/{id}")
     public ResponseEntity<PublicacionDetailDTO> obtenerPorId(@PathVariable Long id) {
 
-        Publicacion publicacion = publicacionService.obtenerPorId(id);
-        // Transforma la Publicacion en un ResponseEntity de PublicacionDetailDTO
-        return ResponseEntity.ok(publicacionMapper.aDetail(publicacion));
+        return ResponseEntity.ok(publicacionService.obtenerDetallePorId(id));
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @GetMapping("/propias")
     public ResponseEntity<List<PublicacionDetailDTO>> listarPropias(@AuthenticationPrincipal MiembroUserDetails userDetail){
-        List<Publicacion> publicaciones = publicacionService.listarPropias(userDetail.getId());
+        List<PublicacionDetailDTO> publicaciones = publicacionService.listarPropias(userDetail.getId());
 
         if(publicaciones.isEmpty()){
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
+        return ResponseEntity.ok(publicaciones);
     }
 
 
@@ -97,14 +80,13 @@ public class PublicacionController {
     @GetMapping
     public ResponseEntity<List<PublicacionDetailDTO>> listarActivas() {
 
-        List<Publicacion> publicaciones = publicacionService.listarActivas();
+        List<PublicacionDetailDTO> publicaciones = publicacionService.listarActivas();
 
         if (publicaciones.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        // Transforma la List<Publicacion> en un ResponseEntity de List<PublicacionDetailDTO>
-        return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
+        return ResponseEntity.ok(publicaciones);
     }
 
 
@@ -112,14 +94,13 @@ public class PublicacionController {
     @GetMapping("/tipoMascota/{tipoMascota}")
     public ResponseEntity<List<PublicacionDetailDTO>> filtrarPorTipoMascota(@PathVariable String tipoMascota){
 
-        List<Publicacion> publicaciones = publicacionService.filtrarPorTipoMascota(tipoMascota);
+        List<PublicacionDetailDTO> publicaciones = publicacionService.filtrarPorTipoMascota(tipoMascota);
 
         if(publicaciones.isEmpty()){
             return ResponseEntity.noContent().build();
         }
 
-        // Se mappean las publicaciones enontradas a detailsDTO
-        return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
+        return ResponseEntity.ok(publicaciones);
     }
 
 
@@ -128,14 +109,13 @@ public class PublicacionController {
     public ResponseEntity<List<PublicacionDetailDTO>> filtrarPorEstadoMascota(@PathVariable String estadoMascota){
 
         // FiltrarPorEstadoMascota se encarga de validar el parametro recibido y retornar una lista segun el enum
-        List<Publicacion> publicaciones = publicacionService.filtrarPorEstadoMascota(estadoMascota);
+        List<PublicacionDetailDTO> publicaciones = publicacionService.filtrarPorEstadoMascota(estadoMascota);
 
         if (publicaciones.isEmpty()){
             return ResponseEntity.noContent().build();
         }
 
-        // Se mappean las publicaciones enontradas a detailsDTO
-        return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(publicaciones));
+        return ResponseEntity.ok(publicaciones);
     }
 
     // Ejemplo: GET http://localhost:8080/publicaciones/filtro?tipoMascota=PERRO&estadoMascota=PERDIDA
@@ -145,14 +125,13 @@ public class PublicacionController {
             @RequestParam String tipoMascota,
             @RequestParam String estadoMascota
     ) {
-        List<Publicacion> filtradas = publicacionService.filtrarPorTipoYEstado(tipoMascota, estadoMascota);
+        List<PublicacionDetailDTO> filtradas = publicacionService.filtrarPorTipoYEstado(tipoMascota, estadoMascota);
 
         if (filtradas.isEmpty()){
             return ResponseEntity.noContent().build();
         }
 
-        // Se mappean las publicaciones enontradas a detailsDTO
-        return ResponseEntity.ok(publicacionMapper.deEntidadesAdetails(filtradas));
+        return ResponseEntity.ok(filtradas);
     }
 
 

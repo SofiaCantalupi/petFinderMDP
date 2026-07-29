@@ -3,6 +3,9 @@ package pet_finder.services;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pet_finder.dtos.mensaje.ConversacionDetailDTO;
+import pet_finder.dtos.mensaje.MensajeDetailDTO;
+import pet_finder.dtos.mensaje.MensajeRequestDTO;
+import pet_finder.mappers.MensajeMapper;
 import pet_finder.models.Mensaje;
 import pet_finder.models.Miembro;
 import pet_finder.repositories.MensajeRepository;
@@ -21,16 +24,22 @@ public class MensajeService {
     private final MiembroRepository miembroRepository;
     private final MensajeValidation mensajeValidation;
     private final MiembroValidation miembroValidation;
+    private final MensajeMapper mensajeMapper;
 
-    public MensajeService(MensajeRepository mensajeRepository, MiembroRepository miembroRepository, MensajeValidation mensajeValidation, MiembroValidation miembroValidation) {
+    public MensajeService(MensajeRepository mensajeRepository, MiembroRepository miembroRepository, MensajeValidation mensajeValidation, MiembroValidation miembroValidation, MensajeMapper mensajeMapper) {
         this.mensajeRepository = mensajeRepository;
         this.miembroRepository = miembroRepository;
         this.mensajeValidation = mensajeValidation;
         this.miembroValidation = miembroValidation;
+        this.mensajeMapper = mensajeMapper;
     }
 
-    public Mensaje enviarMensaje(Mensaje mensaje, Long idEmisor, Long idReceptor) {
+    @Transactional
+    public MensajeDetailDTO enviarMensaje(MensajeRequestDTO request, Long idEmisor) {
+        Long idReceptor = request.getIdReceptor();
         mensajeValidation.validarNoAutoMensaje(idEmisor, idReceptor);
+
+        Mensaje mensaje = mensajeMapper.aEntidad(request);
 
         Miembro emisor = miembroValidation.validarExistenciaPorId(idEmisor);
         Miembro receptor = mensajeValidation.validarReceptorExiste(idReceptor);
@@ -39,11 +48,12 @@ public class MensajeService {
         mensaje.setEmisor(emisor);
         mensaje.setReceptor(receptor);
 
-        return mensajeRepository.save(mensaje);
+        Mensaje enviado = mensajeRepository.save(mensaje);
+        return mensajeMapper.aDetail(enviado);
     }
 
     @Transactional
-    public List<Mensaje> obtenerConversacion(Long idUsuario, Long idOtro) {
+    public List<MensajeDetailDTO> obtenerConversacion(Long idUsuario, Long idOtro) {
         miembroValidation.validarExistenciaPorId(idOtro);
 
         List<Mensaje> mensajes = mensajeRepository.findConversacion(idUsuario, idOtro);
@@ -53,7 +63,7 @@ public class MensajeService {
                 .forEach(m -> m.setLeido(true));
         mensajeRepository.saveAll(mensajes);
 
-        return mensajes;
+        return mensajeMapper.deEntidadesAdetails(mensajes);
     }
 
     public List<ConversacionDetailDTO> listarConversaciones(Long idUsuario) {

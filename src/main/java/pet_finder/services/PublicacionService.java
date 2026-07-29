@@ -1,15 +1,20 @@
 package pet_finder.services;
 
+import org.springframework.context.annotation.Lazy;
+import pet_finder.dtos.publicacion.PublicacionDetailDTO;
+import pet_finder.dtos.publicacion.PublicacionRequestDTO;
 import pet_finder.dtos.publicacion.PublicacionRequestUpdateDTO;
 import pet_finder.enums.EstadoMascota;
+import pet_finder.enums.MotivoRechazo;
 import pet_finder.enums.TipoMascota;
-import pet_finder.exceptions.OperacionNoPermitidaException;
+import pet_finder.mappers.PublicacionMapper;
 import pet_finder.mappers.UbicacionMapper;
 import pet_finder.models.Comentario;
 import pet_finder.models.Mascota;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.PublicacionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pet_finder.validations.MascotaValidation;
 import pet_finder.validations.MiembroValidation;
 import pet_finder.validations.PublicacionValidation;
@@ -26,6 +31,7 @@ public class PublicacionService {
     private final UbicacionService ubicacionService;
     private final MascotaService mascotaService;
     private final ComentarioService comentarioService;
+    private final SolicitudAdopcionService solicitudService;
 
     private final PublicacionValidation publicacionValidation;
     private final MiembroValidation miembroValidation;
@@ -33,22 +39,28 @@ public class PublicacionService {
     private final UbicacionValidation ubicacionValidation;
 
     private final UbicacionMapper ubicacionMapper;
+    private final PublicacionMapper publicacionMapper;
 
-    public PublicacionService(PublicacionRepository publicacionRepository, UbicacionService ubicacionService, MascotaService mascotaService, ComentarioService comentarioService, PublicacionValidation publicacionValidation, MiembroValidation miembroValidation, MascotaValidation mascotaValidation, UbicacionValidation ubicacionValidation, UbicacionMapper ubicacionMapper) {
+    public PublicacionService(PublicacionRepository publicacionRepository, UbicacionService ubicacionService, MascotaService mascotaService, ComentarioService comentarioService, @Lazy SolicitudAdopcionService solicitudService, PublicacionValidation publicacionValidation, MiembroValidation miembroValidation, MascotaValidation mascotaValidation, UbicacionValidation ubicacionValidation, UbicacionMapper ubicacionMapper, PublicacionMapper publicacionMapper) {
         this.publicacionRepository = publicacionRepository;
         this.ubicacionService = ubicacionService;
         this.mascotaService = mascotaService;
         this.comentarioService = comentarioService;
+        this.solicitudService = solicitudService;
         this.publicacionValidation = publicacionValidation;
         this.miembroValidation = miembroValidation;
         this.mascotaValidation = mascotaValidation;
         this.ubicacionValidation = ubicacionValidation;
         this.ubicacionMapper = ubicacionMapper;
+        this.publicacionMapper = publicacionMapper;
     }
 
 
     //Nueva publicacion.
-    public Publicacion guardar(Publicacion publicacion,Long idMiembro) {
+    @Transactional
+    public PublicacionDetailDTO guardar(PublicacionRequestDTO request, Long idMiembro) {
+
+        Publicacion publicacion = publicacionMapper.aEntidad(request);
 
         // Se valida que la mascota este activa
         mascotaValidation.esActivo(publicacion.getMascota().getEsActivo());
@@ -62,7 +74,8 @@ public class PublicacionService {
         //Se valida que el miembro exista y se lo asocia a la publicación.
         publicacion.setMiembro(miembroValidation.validarExistenciaPorId(idMiembro));
 
-        return publicacionRepository.save(publicacion);
+        Publicacion guardada = publicacionRepository.save(publicacion);
+        return publicacionMapper.aDetail(guardada);
     }
 
     public Publicacion obtenerPorId(Long id) {
@@ -75,66 +88,81 @@ public class PublicacionService {
         return existente;
     }
 
+    @Transactional(readOnly = true)
+    public PublicacionDetailDTO obtenerDetallePorId(Long id) {
+        return publicacionMapper.aDetail(obtenerPorId(id));
+    }
+
     // LISTAR TODAS LAS PUBLICACIONES
     public List<Publicacion> listarTodas() {
         return publicacionRepository.findAll();
     }
 
     // LISTAR LAS PUBLICACIONES ACTIVAS
-    public List<Publicacion> listarActivas() {
-        return publicacionRepository.findAllByActivoTrue();
+    @Transactional(readOnly = true)
+    public List<PublicacionDetailDTO> listarActivas() {
+        return publicacionMapper.deEntidadesAdetails(publicacionRepository.findAllByActivoTrue());
     }
 
     // Listar publicaciones de un miembro
-    public List<Publicacion> listarPropias(Long miembroId){
-        return publicacionRepository.findByMiembroId(miembroId)
-        .stream()
-        .toList();
+    @Transactional(readOnly = true)
+    public List<PublicacionDetailDTO> listarPropias(Long miembroId){
+        return publicacionMapper.deEntidadesAdetails(publicacionRepository.findByMiembroId(miembroId));
     }
 
     // FILTRAR POR TipoMascota
-    public List<Publicacion> filtrarPorTipoMascota(String tipoString){
+    @Transactional(readOnly = true)
+    public List<PublicacionDetailDTO> filtrarPorTipoMascota(String tipoString){
 
         // El controller recibe un String, por lo tanto debe convertirse a un dato tipo Enum (TipoMascota)
         // Se valida que el string sea valido ("gato" o "perro") y se convierte a su respectivo Enum (TipoMascota)
         TipoMascota tipoEnum = mascotaValidation.validarYConvertirTipoMascota(tipoString);
 
         // Se buscan las publicaciones cuyas mascotas son del tipo ingresado por parametro, y se filtran las publicaciones activas
-        return publicacionRepository.findAllByMascotaTipoMascota(tipoEnum)
+        List<Publicacion> publicaciones = publicacionRepository.findAllByMascotaTipoMascota(tipoEnum)
                 .stream()
                 .filter(Publicacion::getActivo)
                 .toList();
+
+        return publicacionMapper.deEntidadesAdetails(publicaciones);
     }
 
     // FILTRAR POR EstadoMascota
-    public List<Publicacion> filtrarPorEstadoMascota(String estadoString){
+    @Transactional(readOnly = true)
+    public List<PublicacionDetailDTO> filtrarPorEstadoMascota(String estadoString){
 
         // Se valida que el string sea valido ("perdido" o "encontrado") y se convierte a su respectivo Enum (EstadoMascota)
         EstadoMascota estadoEnum = mascotaValidation.validarYConvertirEstadoMascota(estadoString);
 
         // El metodo encuentra todas las publicaciones con ese estado y filtra las publicaciones activas.
-        return publicacionRepository.findAllByMascotaEstadoMascota(estadoEnum)
+        List<Publicacion> publicaciones = publicacionRepository.findAllByMascotaEstadoMascota(estadoEnum)
                 .stream()
                 .filter(Publicacion::getActivo)
                 .toList();
+
+        return publicacionMapper.deEntidadesAdetails(publicaciones);
     }
 
     // FILTRAR POR TipoMascota y EstadoMascota
-    public List<Publicacion> filtrarPorTipoYEstado(String tipo, String estado) {
+    @Transactional(readOnly = true)
+    public List<PublicacionDetailDTO> filtrarPorTipoYEstado(String tipo, String estado) {
         // Validar y convertir ambos strings a Enum
         TipoMascota tipoEnum = mascotaValidation.validarYConvertirTipoMascota(tipo);
         EstadoMascota estadoEnum = mascotaValidation.validarYConvertirEstadoMascota(estado);
 
         // Buscar publicaciones con ese tipo y estado
-        return publicacionRepository
+        List<Publicacion> publicaciones = publicacionRepository
                 .findAllByMascotaTipoMascotaAndMascotaEstadoMascota(tipoEnum, estadoEnum)
                 .stream()
                 .filter(Publicacion::getActivo)
                 .toList();
+
+        return publicacionMapper.deEntidadesAdetails(publicaciones);
     }
 
     // Modificar una publicacion
-    public Publicacion modificar(Long publicacionId, Long miembroLogeadoId, PublicacionRequestUpdateDTO request) {
+    @Transactional
+    public PublicacionDetailDTO modificar(Long publicacionId, Long miembroLogeadoId, PublicacionRequestUpdateDTO request) {
 
         // Se obtiene la publicacion que se quiere modificar, se valida que exista y este activa
         Publicacion existente = obtenerPorId(publicacionId);
@@ -167,11 +195,12 @@ public class PublicacionService {
 
         //Se retorna la publicación con los cambios hechos.
         publicacionRepository.save(existente);
-        return existente;
+        return publicacionMapper.aDetail(existente);
     }
 
     // Modificar el estado de la mascota de una publicacion
-    public Publicacion modificarEstado(Long publicacionId, Long miembroLogeadoId, EstadoMascota estado) {
+    @Transactional
+    public PublicacionDetailDTO modificarEstado(Long publicacionId, Long miembroLogeadoId, String estado) {
 
         // Se obtiene la publicacion que se quiere modificar, se valida que exista y este activa
         Publicacion existente = obtenerPorId(publicacionId);
@@ -179,16 +208,25 @@ public class PublicacionService {
         // Validación de que el miembro logueado sea el dueño de la publicación
         miembroValidation.estaLogeado(existente.getMiembro().getId(), miembroLogeadoId);
 
+        EstadoMascota nuevoEstado = mascotaValidation.validarYConvertirEstadoMascota(estado);
+
         Mascota mascota = existente.getMascota();
-        mascotaValidation.validarCambioEstado(mascota,estado);  //Valida que ya no tengan el mismo estado.
-        mascota.setEstadoMascota(estado);
+
+        mascotaValidation.validarCambioEstado(mascota,nuevoEstado);  //Valida que ya no tengan el mismo estado.
+
+        if(mascota.getEstadoMascota()==EstadoMascota.EN_ADOPCION && (nuevoEstado == EstadoMascota.ENCONTRADA || nuevoEstado == EstadoMascota.PERDIDA)){
+            solicitudService.revertirPendientes(publicacionId, MotivoRechazo.AUTO_CAMBIO_ESTADO_MASCOTA);
+        }
+
+        mascota.setEstadoMascota(nuevoEstado);
 
         //Se retorna la publicación con los cambios hechos.
         publicacionRepository.save(existente);
-        return existente;
+        return publicacionMapper.aDetail(existente);
     }
 
     // Eliminar una publicacion
+    @Transactional
     public void eliminar(Publicacion publicacion) {
 
         // Baja logica de la mascota asociada
@@ -200,6 +238,9 @@ public class PublicacionService {
         // Baja logica de cada comentario
         List<Comentario> comentarios = comentarioService.listarPorPublicacion(publicacion.getId());
         comentarios.forEach(comentario -> comentarioService.eliminarComentarioPorId(comentario.getId()));
+
+        // Se cambia el estado de las solicitudes de asociadas de pendiente a rechazadas
+        solicitudService.revertirPendientes(publicacion.getId(), MotivoRechazo.AUTO_POR_PUBLICACION_ELIMINADA);
 
         // Baja logica de la publicacion en si
         publicacion.setActivo(false);

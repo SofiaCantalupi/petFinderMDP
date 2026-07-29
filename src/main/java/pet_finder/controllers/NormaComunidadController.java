@@ -24,18 +24,13 @@ public class NormaComunidadController {
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @GetMapping
     public ResponseEntity<List<NormaComunidadDetailDTO>> listar(){
-        List<NormaComunidad> normas = service.verNormas();
+        List<NormaComunidadDetailDTO> normas = service.verNormas();
 
         if(normas.isEmpty()){
             return ResponseEntity.noContent().build();
         }
 
-        // Se mappea cada norma a un detailDTO
-        List<NormaComunidadDetailDTO> details = normas
-                .stream().map(NormaComunidadDetailDTO::new)
-                .toList();
-
-        return ResponseEntity.ok(details);
+        return ResponseEntity.ok(normas);
     }
 
     @PostMapping
@@ -45,9 +40,9 @@ public class NormaComunidadController {
         NormaComunidad norma = new NormaComunidad();
         norma.setTexto(request.getTexto());
 
-        service.crear(norma);
+        NormaComunidadDetailDTO creada = service.crear(norma);
 
         // Se retorna un detailDTO
-        return ResponseEntity.status(HttpStatus.CREATED).body(new NormaComunidadDetailDTO(norma));
+        return ResponseEntity.status(HttpStatus.CREATED).body(creada);
     }
 }

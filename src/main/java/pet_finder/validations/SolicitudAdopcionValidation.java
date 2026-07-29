@@ -1,9 +1,11 @@
 package pet_finder.validations;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.EstadoSolicitud;
 import pet_finder.enums.MotivoRechazo;
+import pet_finder.models.SolicitudAdopcion;
 import pet_finder.repositories.SolicitudAdopcionRepository;
 
 import java.util.List;
@@ -15,6 +17,11 @@ public class SolicitudAdopcionValidation {
 
     public SolicitudAdopcionValidation(SolicitudAdopcionRepository solicitudAdopcionRepository) {
         this.solicitudAdopcionRepository = solicitudAdopcionRepository;
+    }
+
+    public SolicitudAdopcion existePorId(Long idSolicitud){
+        return solicitudAdopcionRepository.findById(idSolicitud)
+                .orElseThrow(() -> new EntityNotFoundException("No se encontró una solucitud de adopción con ese ID."));
     }
 
     public void validarEstadoMascotaParaAdopcion(EstadoMascota estadoMascota) {
@@ -40,5 +47,39 @@ public class SolicitudAdopcionValidation {
         if(existeSolicitudPendienteOAprobada || tieneRechazoManual){
             throw new IllegalArgumentException("Ya tenés una solicitud de adopción asociada a esta publicación.");
         }
+    }
+
+    public EstadoSolicitud validarYConvertirResolucion(String estadoResolucion){
+        EstadoSolicitud estado;
+
+        try {
+            estado = EstadoSolicitud.valueOf(estadoResolucion.toUpperCase());
+        }catch (IllegalArgumentException exc){
+            throw new IllegalArgumentException("Estado de resolucion invalido.");
+        }
+
+        if(estado != EstadoSolicitud.APROBADA && estado != EstadoSolicitud.RECHAZADA){
+            throw new IllegalArgumentException("Una solucitud de adopción sólo puede ser aceptada o rechazada.");
+        }
+
+        return estado;
+    }
+
+    public EstadoSolicitud validarYConvertirEstadoSolicitud(String estado) {
+        try {
+            return EstadoSolicitud.valueOf(estado.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Estado de solicitud inválido: " + estado);
+        }
+    }
+
+    public SolicitudAdopcion validarQueSolicitudSeaPropia(Long idMiembro, Long idSolicitud){
+        SolicitudAdopcion solicitud = this.existePorId(idSolicitud);
+
+        if(!solicitud.getMiembroSolicitante().getId().equals(idMiembro)){
+            throw new IllegalArgumentException("La solicitud debe ser tuya para cancelarla.");
+        }
+
+        return solicitud;
     }
 }

@@ -1,7 +1,10 @@
 package pet_finder.services;
 
 import org.springframework.stereotype.Service;
+import pet_finder.dtos.mascota.MascotaDetailDTO;
+import pet_finder.dtos.mascota.MascotaRequestDTO;
 import pet_finder.dtos.mascota.MascotaRequestUpdateDTO;
+import pet_finder.mappers.MascotaMapper;
 import pet_finder.models.Mascota;
 import pet_finder.repositories.MascotaRepository;
 import pet_finder.validations.MascotaValidation;
@@ -17,10 +20,13 @@ public class MascotaService {
     private final MascotaValidation mascotaValidation;
     private final MiembroValidation miembroValidation;
 
-    public MascotaService(MascotaRepository mascotaRepository, MascotaValidation mascotaValidation, MiembroValidation miembroValidation) {
+    private final MascotaMapper mascotaMapper;
+
+    public MascotaService(MascotaRepository mascotaRepository, MascotaValidation mascotaValidation, MiembroValidation miembroValidation, MascotaMapper mascotaMapper) {
         this.mascotaRepository = mascotaRepository;
         this.mascotaValidation = mascotaValidation;
         this.miembroValidation = miembroValidation;
+        this.mascotaMapper = mascotaMapper;
     }
 
     /*  obtenerPorId y listar devuelven solo registros activos, es decir, sin baja logica*/
@@ -37,8 +43,16 @@ public class MascotaService {
         return existente;
     }
 
-    public Mascota guardar(Mascota mascota){
-        return mascotaRepository.save(mascota);
+    public MascotaDetailDTO obtenerDetallePorId(Long id){
+        return mascotaMapper.aDetail(obtenerPorId(id));
+    }
+
+    public MascotaDetailDTO guardar(MascotaRequestDTO request, Long miembroId){
+        Mascota mascota = mascotaMapper.aEntidad(request);
+        mascota.setMiembroId(miembroId);
+
+        Mascota guardada = mascotaRepository.save(mascota);
+        return mascotaMapper.aDetail(guardada);
     }
 
     public void eliminar(Long id){
@@ -54,7 +68,7 @@ public class MascotaService {
         mascotaRepository.save(mascota);
     }
 
-    public Mascota modificar(Long mascotaId, Long miembroId, MascotaRequestUpdateDTO request){
+    public MascotaDetailDTO modificar(Long mascotaId, Long miembroId, MascotaRequestUpdateDTO request){
         // Se obtiene la mascota que se quiere modificar, ademas se valida que la mascota exista y este activa
         Mascota existente = obtenerPorId(mascotaId);
 
@@ -86,11 +100,12 @@ public class MascotaService {
             existente.setUrlFoto(request.getUrlFoto());
         }
 
-        return mascotaRepository.save(existente);
+        Mascota guardada = mascotaRepository.save(existente);
+        return mascotaMapper.aDetail(guardada);
     }
 
     // Solo retorna las mascotas con esActivo = true
-    public List<Mascota> listar(){
-        return mascotaRepository.findAllByEsActivoTrue();
+    public List<MascotaDetailDTO> listar(){
+        return mascotaMapper.deEntidadesAdetails(mascotaRepository.findAllByEsActivoTrue());
     }
 }

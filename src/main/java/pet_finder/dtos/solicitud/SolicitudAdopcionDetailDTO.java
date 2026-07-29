@@ -24,7 +24,8 @@ public record SolicitudAdopcionDetailDTO(
         String motivoAdopcion,
 
         LocalDateTime fechaResolucion,
-        String comentarioResolucion
+        String comentarioResolucion,
+        String motivoRechazo
 ) {
     public SolicitudAdopcionDetailDTO(SolicitudAdopcion solicitud) {
         this(
@@ -49,7 +50,8 @@ public record SolicitudAdopcionDetailDTO(
                 solicitud.getMotivoAdopcion(),
 
                 solicitud.getFechaResolucion(),
-                solicitud.getComentarioResolucion()
-        );
+                solicitud.getComentarioResolucion(),
+                solicitud.getMotivoRechazo() != null ? solicitud.getMotivoRechazo().getValorFront() : null
+                );
     }
 }
