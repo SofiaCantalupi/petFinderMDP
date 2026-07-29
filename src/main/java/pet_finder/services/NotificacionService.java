@@ -25,7 +25,7 @@ public class NotificacionService {
         this.notificacionValidation = notificacionValidation;
     }
 
-    public Notificacion crearNotificacion(Long receptorId, Long emisorId, TipoNotificacion tipo){
+    public Notificacion generarNotificacion(Long receptorId, Long emisorId, TipoNotificacion tipo, Long entidadReferenciaId){
 
         //Valido que no tengan los mismos ID, que significaria que son el mismo miembro
         notificacionValidation.validarEmisorYReceptor(receptorId, emisorId);
@@ -35,7 +35,7 @@ public class NotificacionService {
         Miembro emisor = miembroService.obtenerPorId(emisorId);
 
         //Creo la notificacion
-        Notificacion notificacion = new Notificacion(receptor,emisor,tipo);
+        Notificacion notificacion = new Notificacion(receptor,emisor,tipo,entidadReferenciaId);
 
         return notificacionRepository.save(notificacion);
     }
@@ -116,4 +116,31 @@ public class NotificacionService {
 
         notificacionRepository.save(notificacion);
     }
+
+    //Metodo para reutilizar en el eliminado de varias notificaciones asociadas a un comentario o una solicitud de adopcion.
+    private void eliminarPorReferencia(TipoNotificacion tipo, Long referenciaId){
+
+        List<Notificacion> notificaciones =
+                notificacionRepository
+                        .findByTipoAndReferenciaIdAndActivaTrue(
+                                tipo,
+                                referenciaId);
+
+        notificaciones.forEach(n -> n.setActiva(false));
+
+        notificacionRepository.saveAll(notificaciones);
+    }
+
+    public void eliminarNotificacionesComentario(Long comentarioId){
+        eliminarPorReferencia(TipoNotificacion.NUEVO_COMENTARIO, comentarioId);
+    }
+
+    public void eliminarNotificacionesSolicitud(Long solicitudId){
+        eliminarPorReferencia(
+                TipoNotificacion.SOLICITUD_ADOPCION,
+                solicitudId);
+    }
+
 }
+
+

@@ -8,6 +8,7 @@ import pet_finder.dtos.solicitud.SolicitudAdopcionRequestDTO;
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.EstadoSolicitud;
 import pet_finder.enums.MotivoRechazo;
+import pet_finder.enums.TipoNotificacion;
 import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.mappers.SolicitudAdopcionMapper;
 import pet_finder.models.Publicacion;
@@ -26,13 +27,15 @@ public class SolicitudAdopcionService {
     private final MiembroService miembroService;
     private final SolicitudAdopcionValidation solicitudValidation;
     private final SolicitudAdopcionMapper solicitudMapper;
+    private final NotificacionService notificacionService;
 
-    public SolicitudAdopcionService(SolicitudAdopcionRepository solicitudRepository, PublicacionService publicacionService, MiembroService miembroService, SolicitudAdopcionValidation solicitudValidation, SolicitudAdopcionMapper solicitudMapper) {
+    public SolicitudAdopcionService(SolicitudAdopcionRepository solicitudRepository, PublicacionService publicacionService, MiembroService miembroService, SolicitudAdopcionValidation solicitudValidation, SolicitudAdopcionMapper solicitudMapper, NotificacionService notificacionService) {
         this.solicitudRepository = solicitudRepository;
         this.publicacionService = publicacionService;
         this.miembroService = miembroService;
         this.solicitudValidation = solicitudValidation;
         this.solicitudMapper = solicitudMapper;
+        this.notificacionService = notificacionService;
     }
 
     @Transactional
@@ -54,6 +57,14 @@ public class SolicitudAdopcionService {
         solicitud.setMiembroSolicitante(miembroSolicitante);
 
         SolicitudAdopcion guardada = solicitudRepository.save(solicitud);
+
+        //Genero notificacion al dueño de la publicacion y guardo el ID de la solicitud de adopcion
+        notificacionService.generarNotificacion(
+                idMiembroDuenio,
+                idMiembroSolicitante,
+                TipoNotificacion.SOLICITUD_ADOPCION,
+                guardada.getId());
+
         return solicitudMapper.aDetail(guardada);
     }
 
@@ -137,6 +148,13 @@ public class SolicitudAdopcionService {
 
         SolicitudAdopcion guardada = solicitudRepository.save(solicitud);
 
+        //Se manda una notificacion a cada miembro Solicitante sobre la respuesta de adopcion.
+        notificacionService.generarNotificacion(
+                solicitud.getMiembroSolicitante().getId(),
+                solicitud.getPublicacion().getMiembro().getId(),
+                TipoNotificacion.RESPUESTA_ADOPCION,
+                guardada.getId());
+
         return solicitudMapper.aDetail(guardada);
     }
 
@@ -145,6 +163,9 @@ public class SolicitudAdopcionService {
         SolicitudAdopcion solicitud = solicitudValidation.validarQueSolicitudSeaPropia(idMiembro, idSolicitud);
 
         solicitud.setEstado(EstadoSolicitud.CANCELADA);
+
+        //Elimino las notificaciones asociadas al ID de esta solicitud de adopcion
+        notificacionService.eliminarNotificacionesSolicitud(solicitud.getId());
 
         return solicitudMapper.aDetail(solicitud);
     }
