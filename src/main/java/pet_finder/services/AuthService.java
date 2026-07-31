@@ -1,8 +1,11 @@
-package pet_finder.config;
+package pet_finder.services;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import pet_finder.config.JwtService;
+import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.auth.AuthResponseDTO;
 import pet_finder.dtos.auth.CambiarContraseniaDTO;
 import pet_finder.dtos.auth.LoginRequestDTO;

@@ -1,11 +1,8 @@
 package pet_finder.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import pet_finder.enums.EstadoSolicitud;
-import pet_finder.enums.MotivoRechazo;
 import pet_finder.enums.TipoNotificacion;
 import pet_finder.models.Notificacion;
-import pet_finder.models.SolicitudAdopcion;
 
 import java.util.List;
 

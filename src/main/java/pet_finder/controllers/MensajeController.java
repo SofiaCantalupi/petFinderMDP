@@ -38,10 +38,6 @@ public class MensajeController {
         Long idUsuario = userDetails.getId();
         List<MensajeDetailDTO> mensajes = mensajeService.obtenerConversacion(idUsuario, idMiembro);
 
-        if (mensajes.isEmpty()) {
-            return ResponseEntity.ok("No hay mensajes en esta conversación.");
-        }
-
         return ResponseEntity.ok(mensajes);
     }
 
@@ -50,10 +46,6 @@ public class MensajeController {
     public ResponseEntity<?> listarConversaciones(@AuthenticationPrincipal MiembroUserDetails userDetails) {
         Long idUsuario = userDetails.getId();
         List<ConversacionDetailDTO> conversaciones = mensajeService.listarConversaciones(idUsuario);
-
-        if (conversaciones.isEmpty()) {
-            return ResponseEntity.ok("No tenés conversaciones aún.");
-        }
 
         return ResponseEntity.ok(conversaciones);
     }

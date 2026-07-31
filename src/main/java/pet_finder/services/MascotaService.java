@@ -55,18 +55,21 @@ public class MascotaService {
         return mascotaMapper.aDetail(guardada);
     }
 
-    public void eliminar(Long id){
-        // Se valida que la mascota exista
-        Mascota mascota = mascotaValidation.existePorId(id);
+public void eliminar(Long id, Long miembroId){
+    // Se valida que la mascota exista
+    Mascota mascota = mascotaValidation.existePorId(id);
 
-        // Se valida que el estado de la mascota que se quiere eliminar tengas su atributo esActivo == true
-        mascotaValidation.esActivo(mascota.getEsActivo());
+    // Se valida que el estado de la mascota que se quiere eliminar tengas su atributo esActivo == true
+    mascotaValidation.esActivo(mascota.getEsActivo());
 
-        // Baja pasiva
-        mascota.setEsActivo(false);
+    // Se valida que la mascota pertenezca al miembro que la quiere eliminar
+    miembroValidation.estaLogeado(mascota.getMiembroId(), miembroId);
 
-        mascotaRepository.save(mascota);
-    }
+    // Baja pasiva
+    mascota.setEsActivo(false);
+
+    mascotaRepository.save(mascota);
+}
 
     public MascotaDetailDTO modificar(Long mascotaId, Long miembroId, MascotaRequestUpdateDTO request){
         // Se obtiene la mascota que se quiere modificar, ademas se valida que la mascota exista y este activa

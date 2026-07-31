@@ -61,26 +61,29 @@ public class PublicacionService {
 
 
     //Nueva publicacion.
-    @Transactional
-    public PublicacionDetailDTO guardar(PublicacionRequestDTO request, Long idMiembro) {
+@Transactional
+public PublicacionDetailDTO guardar(PublicacionRequestDTO request, Long idMiembro) {
 
-        Publicacion publicacion = publicacionMapper.aEntidad(request);
+    Publicacion publicacion = publicacionMapper.aEntidad(request);
 
-        // Se valida que la mascota este activa
-        mascotaValidation.esActivo(publicacion.getMascota().getEsActivo());
+    // Se valida que la mascota este activa
+    mascotaValidation.esActivo(publicacion.getMascota().getEsActivo());
 
-        // Se valida que la mascota no pertenezca a otra publicacion
-        publicacionValidation.mascotaYaAsignada(publicacion.getMascota().getId());
+    // Se valida que la mascota pertenezca al miembro que esta publicando
+    miembroValidation.estaLogeado(publicacion.getMascota().getMiembroId(), idMiembro);
 
-        // Se valida que la ubicacion pueda ser geocodificada
-        ubicacionValidation.validarGeocodificacion(publicacion.getUbicacion());
+    // Se valida que la mascota no pertenezca a otra publicacion
+    publicacionValidation.mascotaYaAsignada(publicacion.getMascota().getId());
 
-        //Se valida que el miembro exista y se lo asocia a la publicación.
-        publicacion.setMiembro(miembroValidation.validarExistenciaPorId(idMiembro));
+    // Se valida que la ubicacion pueda ser geocodificada
+    ubicacionValidation.validarGeocodificacion(publicacion.getUbicacion());
 
-        Publicacion guardada = publicacionRepository.save(publicacion);
-        return publicacionMapper.aDetail(guardada);
-    }
+    //Se valida que el miembro exista y se lo asocia a la publicación.
+    publicacion.setMiembro(miembroValidation.validarExistenciaPorId(idMiembro));
+
+    Publicacion guardada = publicacionRepository.save(publicacion);
+    return publicacionMapper.aDetail(guardada);
+}
 
     public Publicacion obtenerPorId(Long id) {
 
@@ -111,7 +114,7 @@ public class PublicacionService {
     // Listar publicaciones de un miembro
     @Transactional(readOnly = true)
     public List<PublicacionDetailDTO> listarPropias(Long miembroId){
-        return publicacionMapper.deEntidadesAdetails(publicacionRepository.findByMiembroId(miembroId));
+        return publicacionMapper.deEntidadesAdetails(publicacionRepository.findByMiembroIdAndActivoTrue(miembroId));
     }
 
     // FILTRAR POR TipoMascota
@@ -268,7 +271,7 @@ private PublicacionDetailDTO cambiarEstadoMascota(Long publicacionId,
     public void eliminar(Publicacion publicacion) {
 
         // Baja logica de la mascota asociada
-        mascotaService.eliminar(publicacion.getMascota().getId());
+mascotaService.eliminar(publicacion.getMascota().getId(), publicacion.getMiembro().getId());
 
         // Baja logica de la ubicacion
         ubicacionService.eliminar(publicacion.getUbicacion().getId());

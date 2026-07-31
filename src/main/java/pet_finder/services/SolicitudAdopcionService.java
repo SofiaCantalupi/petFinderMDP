@@ -5,11 +5,9 @@ import org.springframework.stereotype.Service;
 import pet_finder.dtos.solicitud.ResolucionSolicitudRequestDTO;
 import pet_finder.dtos.solicitud.SolicitudAdopcionDetailDTO;
 import pet_finder.dtos.solicitud.SolicitudAdopcionRequestDTO;
-import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.EstadoSolicitud;
 import pet_finder.enums.MotivoRechazo;
 import pet_finder.enums.TipoNotificacion;
-import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.mappers.SolicitudAdopcionMapper;
 import pet_finder.models.Publicacion;
 import pet_finder.models.SolicitudAdopcion;
@@ -29,7 +27,10 @@ public class SolicitudAdopcionService {
     private final SolicitudAdopcionMapper solicitudMapper;
     private final NotificacionService notificacionService;
 
-    public SolicitudAdopcionService(SolicitudAdopcionRepository solicitudRepository, PublicacionService publicacionService, MiembroService miembroService, SolicitudAdopcionValidation solicitudValidation, SolicitudAdopcionMapper solicitudMapper, NotificacionService notificacionService) {
+    public SolicitudAdopcionService(SolicitudAdopcionRepository solicitudRepository,
+            PublicacionService publicacionService, MiembroService miembroService,
+            SolicitudAdopcionValidation solicitudValidation, SolicitudAdopcionMapper solicitudMapper,
+            NotificacionService notificacionService) {
         this.solicitudRepository = solicitudRepository;
         this.publicacionService = publicacionService;
         this.miembroService = miembroService;
@@ -58,7 +59,8 @@ public class SolicitudAdopcionService {
 
         SolicitudAdopcion guardada = solicitudRepository.save(solicitud);
 
-        //Genero notificacion al dueño de la publicacion y guardo el ID de la solicitud de adopcion
+        // Genero notificacion al dueño de la publicacion y guardo el ID de la solicitud
+        // de adopcion
         notificacionService.generarNotificacion(
                 idMiembroDuenio,
                 idMiembroSolicitante,
@@ -70,9 +72,10 @@ public class SolicitudAdopcionService {
 
     @Transactional(readOnly = true)
     public List<SolicitudAdopcionDetailDTO> listarRecibidas(Long idMiembroDuenio, String estadoParam) {
-        List<SolicitudAdopcion> solicitudes = solicitudRepository.findByPublicacion_Miembro_IdAndPublicacion_ActivoTrue(idMiembroDuenio);
+        List<SolicitudAdopcion> solicitudes = solicitudRepository
+                .findByPublicacion_Miembro_IdAndPublicacion_ActivoTrue(idMiembroDuenio);
 
-        if(estadoParam != null && !estadoParam.isBlank()){
+        if (estadoParam != null && !estadoParam.isBlank()) {
             EstadoSolicitud estadoSolicitud = solicitudValidation.validarYConvertirEstadoSolicitud(estadoParam);
             solicitudes = solicitudes.stream().filter(s -> s.getEstado() == estadoSolicitud).toList();
         }
@@ -82,9 +85,10 @@ public class SolicitudAdopcionService {
 
     @Transactional(readOnly = true)
     public List<SolicitudAdopcionDetailDTO> listarEnviadas(Long idMiembroSolicitante, String estadoParam) {
-        List<SolicitudAdopcion> solicitudes = solicitudRepository.findByMiembroSolicitante_IdAndPublicacion_ActivoTrue(idMiembroSolicitante);
+        List<SolicitudAdopcion> solicitudes = solicitudRepository
+                .findByMiembroSolicitante_IdAndPublicacion_ActivoTrue(idMiembroSolicitante);
 
-        if(estadoParam != null && !estadoParam.isBlank()){
+        if (estadoParam != null && !estadoParam.isBlank()) {
             EstadoSolicitud estadoSolicitud = solicitudValidation.validarYConvertirEstadoSolicitud(estadoParam);
             solicitudes = solicitudes.stream().filter(s -> s.getEstado() == estadoSolicitud).toList();
         }
@@ -93,8 +97,9 @@ public class SolicitudAdopcionService {
     }
 
     @Transactional
-    public void revertirPendientes(Long idPublicacion, MotivoRechazo motivoRechazo){
-        List<SolicitudAdopcion> solicitudes = solicitudRepository.findByPublicacion_IdAndEstado(idPublicacion, EstadoSolicitud.PENDIENTE);
+    public void revertirPendientes(Long idPublicacion, MotivoRechazo motivoRechazo) {
+        List<SolicitudAdopcion> solicitudes = solicitudRepository.findByPublicacion_IdAndEstado(idPublicacion,
+                EstadoSolicitud.PENDIENTE);
 
         solicitudes.forEach(solicitud -> {
 
@@ -111,23 +116,21 @@ public class SolicitudAdopcionService {
     }
 
     @Transactional
-    public SolicitudAdopcionDetailDTO resolverSolicitudAdopcion(Long idSolicitud, Long idMiembroLoggeado, ResolucionSolicitudRequestDTO resolucionRequest) {
+    public SolicitudAdopcionDetailDTO resolverSolicitudAdopcion(Long idSolicitud, Long idMiembroLoggeado,
+            ResolucionSolicitudRequestDTO resolucionRequest) {
+
         SolicitudAdopcion solicitud = solicitudValidation.existePorId(idSolicitud);
 
-        // Se valida que la publicacion de la solicitud sea del mismo miembro que el que la resuelve
-        if (!solicitud.getPublicacion().getMiembro().getId().equals(idMiembroLoggeado)) {
-            throw new OperacionNoPermitidaException("Solo el dueño de la publicación puede resolver la solicitud de adopción.");
-        }
+        // Se valida que la publicacion de la solicitud sea del mismo miembro que el que
+        // la resuelve
+        solicitudValidation.validarDuenioPublicacion(solicitud, idMiembroLoggeado);
 
-        // Se valida que el estado sea distinto de pendiente, es decir, que no este resuelta aun
-        if (!solicitud.getEstado().equals(EstadoSolicitud.PENDIENTE)){
-            throw new IllegalArgumentException("Esta solicitud ya fue resuelta.");
-        }
+        // Se valida que el estado sea distinto de pendiente, es decir, que no este
+        // resuelta aun
+        solicitudValidation.validarPendiente(solicitud);
 
         // Se valida que la mascota sigua "en_adopcion"
-        if (solicitud.getPublicacion().getMascota().getEstadoMascota() != EstadoMascota.EN_ADOPCION) {
-            throw new IllegalArgumentException("La publicación ya no está disponible para adopción.");
-        }
+        solicitudValidation.validarMascotaEnAdopcion(solicitud);
 
         // Se obtiene el Enum que representa al nuevo Estado de la resolucion
         EstadoSolicitud nuevoEstado = solicitudValidation.validarYConvertirResolucion(resolucionRequest.getEstado());
@@ -137,26 +140,30 @@ public class SolicitudAdopcionService {
         solicitud.setFechaResolucion(LocalDateTime.now());
 
         // Si el nuevo estado es rechazada, se le settea el motivo como "manual"
-        // Si el nuevo estado es rechazada y contiene un comentario, se le settea esta ultimo
+        // Si el nuevo estado es rechazada y contiene un comentario, se le settea esta
+        // ultimo
         if (nuevoEstado == EstadoSolicitud.RECHAZADA) {
             solicitud.setMotivoRechazo(MotivoRechazo.MANUAL);
         }
 
         // Si la resolucion tiene un comentario, se guarda
-        if (resolucionRequest.getComentarioResolucion() != null && !resolucionRequest.getComentarioResolucion().isBlank()) {
+        if (resolucionRequest.getComentarioResolucion() != null
+                && !resolucionRequest.getComentarioResolucion().isBlank()) {
             solicitud.setComentarioResolucion(resolucionRequest.getComentarioResolucion());
         }
 
-        // Se cambia el estado de la mascota de "en adopcion" a "adoptado" si se acepta la solicitud. Ademas se revierten las pendientes a "rechazadas" por motivo auto
-        if(nuevoEstado.equals(EstadoSolicitud.APROBADA)){
+        // Se cambia el estado de la mascota de "en adopcion" a "adoptado" si se acepta
+        // la solicitud. Ademas se revierten las pendientes a "rechazadas" por motivo
+        // auto
+        if (nuevoEstado.equals(EstadoSolicitud.APROBADA)) {
             publicacionService.marcarComoAdoptada(solicitud.getPublicacion().getId(), idMiembroLoggeado);
             revertirPendientes(solicitud.getPublicacion().getId(), MotivoRechazo.AUTO_POR_OTRA_APROBADA);
         }
 
-
         SolicitudAdopcion guardada = solicitudRepository.save(solicitud);
 
-        //Se manda una notificacion a cada miembro Solicitante sobre la respuesta de adopcion.
+        // Se manda una notificacion a cada miembro Solicitante sobre la respuesta de
+        // adopcion.
         notificacionService.generarNotificacion(
                 solicitud.getMiembroSolicitante().getId(),
                 solicitud.getPublicacion().getMiembro().getId(),
@@ -167,12 +174,16 @@ public class SolicitudAdopcionService {
     }
 
     @Transactional
-    public SolicitudAdopcionDetailDTO cancelarSolicitudPropia(Long idMiembro, Long idSolicitud){
+    public SolicitudAdopcionDetailDTO cancelarSolicitudPropia(Long idMiembro, Long idSolicitud) {
+
         SolicitudAdopcion solicitud = solicitudValidation.validarQueSolicitudSeaPropia(idMiembro, idSolicitud);
+
+        // Solo se puede cancelar mientras el dueño todavía no la resolvió.
+        solicitudValidation.validarPendiente(solicitud);
 
         solicitud.setEstado(EstadoSolicitud.CANCELADA);
 
-        //Elimino las notificaciones asociadas al ID de esta solicitud de adopcion
+        // Elimino las notificaciones asociadas al ID de esta solicitud de adopcion
         notificacionService.eliminarNotificacionesSolicitud(solicitud.getId());
 
         return solicitudMapper.aDetail(solicitud);

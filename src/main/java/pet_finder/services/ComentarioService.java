@@ -13,7 +13,6 @@ import pet_finder.repositories.ComentarioRepository;
 import pet_finder.repositories.PublicacionRepository;
 import pet_finder.validations.ComentarioValidation;
 import pet_finder.validations.MiembroValidation;
-import pet_finder.validations.NotificacionValidation;
 import pet_finder.validations.PublicacionValidation;
 
 import java.util.List;
@@ -31,10 +30,9 @@ public class ComentarioService {
     private final ComentarioMapper comentarioMapper;
 
     private final NotificacionService notificacionService;
-    private final NotificacionValidation notificacionValidation;
 
 
-    public ComentarioService(ComentarioRepository comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation, ComentarioMapper comentarioMapper, NotificacionService notificacionService, NotificacionValidation notificacionValidation) {
+    public ComentarioService(ComentarioRepository comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation, ComentarioMapper comentarioMapper, NotificacionService notificacionService) {
         this.comentarioRepository = comentarioRepository;
         this.publicacionRepository = publicacionRepository;
         this.comentarioValidation = comentarioValidation;
@@ -42,7 +40,6 @@ public class ComentarioService {
         this.publicacionValidation = publicacionValidation;
         this.comentarioMapper = comentarioMapper;
         this.notificacionService = notificacionService;
-        this.notificacionValidation = notificacionValidation;
     }
 
     @Transactional

@@ -68,10 +68,6 @@ public class PublicacionController {
     public ResponseEntity<List<PublicacionDetailDTO>> listarPropias(@AuthenticationPrincipal MiembroUserDetails userDetail){
         List<PublicacionDetailDTO> publicaciones = publicacionService.listarPropias(userDetail.getId());
 
-        if(publicaciones.isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
-
         return ResponseEntity.ok(publicaciones);
     }
 
@@ -82,10 +78,6 @@ public class PublicacionController {
 
         List<PublicacionDetailDTO> publicaciones = publicacionService.listarActivas();
 
-        if (publicaciones.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
         return ResponseEntity.ok(publicaciones);
     }
 
@@ -95,10 +87,6 @@ public class PublicacionController {
     public ResponseEntity<List<PublicacionDetailDTO>> filtrarPorTipoMascota(@PathVariable String tipoMascota){
 
         List<PublicacionDetailDTO> publicaciones = publicacionService.filtrarPorTipoMascota(tipoMascota);
-
-        if(publicaciones.isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
 
         return ResponseEntity.ok(publicaciones);
     }
@@ -111,10 +99,6 @@ public class PublicacionController {
         // FiltrarPorEstadoMascota se encarga de validar el parametro recibido y retornar una lista segun el enum
         List<PublicacionDetailDTO> publicaciones = publicacionService.filtrarPorEstadoMascota(estadoMascota);
 
-        if (publicaciones.isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
-
         return ResponseEntity.ok(publicaciones);
     }
 
@@ -126,10 +110,6 @@ public class PublicacionController {
             @RequestParam String estadoMascota
     ) {
         List<PublicacionDetailDTO> filtradas = publicacionService.filtrarPorTipoYEstado(tipoMascota, estadoMascota);
-
-        if (filtradas.isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
 
         return ResponseEntity.ok(filtradas);
     }

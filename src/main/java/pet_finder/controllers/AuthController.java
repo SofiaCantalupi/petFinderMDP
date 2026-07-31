@@ -1,17 +1,19 @@
-package pet_finder.config;
+package pet_finder.controllers;
 
 import jakarta.validation.Valid;
-import org.hibernate.grammars.hql.HqlParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.auth.AuthResponseDTO;
 import pet_finder.dtos.auth.CambiarContraseniaDTO;
 import pet_finder.dtos.auth.LoginRequestDTO;
 import pet_finder.dtos.auth.RegistroRequestDTO;
 import pet_finder.dtos.miembro.MiembroDetailDTO;
+import pet_finder.services.AuthService;
 
 @RestController
 @RequestMapping("/auth")

@@ -2,6 +2,8 @@ package pet_finder.controllers;
 
 
 import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,7 +46,8 @@ public class MascotaController {
 
         Long miembroID = userDetails.getId(); // se obtiene el id del miembro loggeado
 
-        return ResponseEntity.ok(service.guardar(request, miembroID));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.guardar(request, miembroID));
+
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")
@@ -70,7 +73,7 @@ public ResponseEntity<Void> eliminar(@PathVariable Long id,
         publicacionService.eliminarPublicacionPropia(publicacionAsociada.get(), userDetails.getId());
     } else {
         // Mascota que nunca llegó a tener una publicación asociada.
-        service.eliminar(id);
+service.eliminar(id, userDetails.getId());
     }
 
     return ResponseEntity.noContent().build();
@@ -81,10 +84,7 @@ public ResponseEntity<Void> eliminar(@PathVariable Long id,
     public ResponseEntity<List<MascotaDetailDTO>> listar() {
 
         List<MascotaDetailDTO> details = service.listar();  //Acá se asegura que sean las activas.
-
-        if (details.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
+        
         return ResponseEntity.ok(details);
     }
 
