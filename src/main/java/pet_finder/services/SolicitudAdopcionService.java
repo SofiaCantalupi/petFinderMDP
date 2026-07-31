@@ -97,9 +97,16 @@ public class SolicitudAdopcionService {
         List<SolicitudAdopcion> solicitudes = solicitudRepository.findByPublicacion_IdAndEstado(idPublicacion, EstadoSolicitud.PENDIENTE);
 
         solicitudes.forEach(solicitud -> {
+
             solicitud.setEstado(EstadoSolicitud.RECHAZADA);
-            solicitud.setMotivoRechazo(motivoRechazo);
+            solicitud.setMotivoRechazo(MotivoRechazo.AUTO_POR_OTRA_APROBADA);
             solicitud.setFechaResolucion(LocalDateTime.now());
+
+            notificacionService.generarNotificacion(
+                    solicitud.getMiembroSolicitante().getId(),
+                    solicitud.getPublicacion().getMiembro().getId(),
+                    TipoNotificacion.RESPUESTA_ADOPCION,
+                    solicitud.getId());
         });
     }
 
@@ -142,9 +149,10 @@ public class SolicitudAdopcionService {
 
         // Se cambia el estado de la mascota de "en adopcion" a "adoptado" si se acepta la solicitud. Ademas se revierten las pendientes a "rechazadas" por motivo auto
         if(nuevoEstado.equals(EstadoSolicitud.APROBADA)){
-            publicacionService.modificarEstado(solicitud.getPublicacion().getId(), idMiembroLoggeado, EstadoMascota.ADOPTADA.toString());
+            publicacionService.marcarComoAdoptada(solicitud.getPublicacion().getId(), idMiembroLoggeado);
             revertirPendientes(solicitud.getPublicacion().getId(), MotivoRechazo.AUTO_POR_OTRA_APROBADA);
         }
+
 
         SolicitudAdopcion guardada = solicitudRepository.save(solicitud);
 

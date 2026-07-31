@@ -10,7 +10,11 @@ import pet_finder.config.MiembroUserDetails;
 import pet_finder.dtos.mascota.MascotaDetailDTO;
 import pet_finder.dtos.mascota.MascotaRequestDTO;
 import pet_finder.dtos.mascota.MascotaRequestUpdateDTO;
+import pet_finder.models.Publicacion;
 import pet_finder.services.MascotaService;
+import pet_finder.services.PublicacionService;
+import java.util.Optional;
+
 
 import java.util.List;
 
@@ -19,9 +23,11 @@ import java.util.List;
 public class MascotaController {
 
     public final MascotaService service;
+    public final PublicacionService publicacionService;
 
-    public MascotaController(MascotaService service) {
+    public MascotaController(MascotaService service, PublicacionService publicacionService) {
         this.service = service;
+        this.publicacionService = publicacionService;
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")
@@ -51,14 +57,24 @@ public class MascotaController {
         return ResponseEntity.ok(service.modificar(id, userDetails.getId(), request));
     }
 
-    @PreAuthorize("hasRole('MIEMBRO')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+@PreAuthorize("hasRole('MIEMBRO')")
+@DeleteMapping("/{id}")
+public ResponseEntity<Void> eliminar(@PathVariable Long id,
+                                      @AuthenticationPrincipal MiembroUserDetails userDetails) {
 
-        service.eliminar(id); // baja logica, no se elimina el registro
+    Optional<Publicacion> publicacionAsociada = publicacionService.buscarPorMascotaId(id);
 
-        return ResponseEntity.noContent().build();
+    if (publicacionAsociada.isPresent()) {
+        // Cascada completa: mascota, ubicación, comentarios y solicitudes pendientes
+        // (rechazo automático + notificación).
+        publicacionService.eliminarPublicacionPropia(publicacionAsociada.get(), userDetails.getId());
+    } else {
+        // Mascota que nunca llegó a tener una publicación asociada.
+        service.eliminar(id);
     }
+
+    return ResponseEntity.noContent().build();
+}
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @GetMapping

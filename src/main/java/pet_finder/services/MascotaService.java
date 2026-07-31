@@ -77,7 +77,6 @@ public class MascotaService {
 
         // Se valida que al menos haya un campo para modificar
         if (request.getNombre() == null &&
-                request.getEstadoMascota() == null &&
                 request.getTipoMascota() == null &&
                 request.getUrlFoto() == null) {
             throw new IllegalArgumentException("Debe proporcionar al menos un campo para modificar.");
@@ -86,10 +85,6 @@ public class MascotaService {
         // Actualiza el campo solo si no es null
         if(request.getNombre() != null){
             existente.setNombre(request.getNombre());
-        }
-
-        if(request.getEstadoMascota() != null){
-            existente.setEstadoMascota(request.getEstadoMascota());
         }
 
         if(request.getTipoMascota() != null){

@@ -1,10 +1,17 @@
 package pet_finder.services;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import pet_finder.enums.EstadoSolicitud;
+import pet_finder.enums.MotivoRechazo;
 import pet_finder.enums.TipoNotificacion;
+import pet_finder.exceptions.UsuarioNoEncontradoException;
 import pet_finder.models.Miembro;
 import pet_finder.models.Notificacion;
+import pet_finder.models.SolicitudAdopcion;
+import pet_finder.repositories.MiembroRepository;
 import pet_finder.repositories.NotificacionRepository;
+import pet_finder.repositories.SolicitudAdopcionRepository;
 import pet_finder.validations.MiembroValidation;
 import pet_finder.validations.NotificacionValidation;
 
@@ -14,15 +21,17 @@ import java.util.List;
 public class NotificacionService {
 
     private final NotificacionRepository notificacionRepository;
-    private final MiembroService miembroService;
     private final MiembroValidation miembroValidation;
     private final NotificacionValidation notificacionValidation;
+    private final SolicitudAdopcionRepository solicitudAdopcionRepository;
+    private final MiembroRepository miembroRepository; //!!! usar validation
 
-    public NotificacionService(NotificacionRepository notificacionRepository, MiembroService miembroService, MiembroValidation miembroValidation, NotificacionValidation notificacionValidation) {
+    public NotificacionService(NotificacionRepository notificacionRepository, MiembroValidation miembroValidation, NotificacionValidation notificacionValidation, SolicitudAdopcionRepository solicitudAdopcionRepository, MiembroRepository miembroRepository) {
         this.notificacionRepository = notificacionRepository;
-        this.miembroService = miembroService;
         this.miembroValidation = miembroValidation;
         this.notificacionValidation = notificacionValidation;
+        this.solicitudAdopcionRepository = solicitudAdopcionRepository;
+        this.miembroRepository = miembroRepository;
     }
 
     public Notificacion generarNotificacion(Long receptorId, Long emisorId, TipoNotificacion tipo, Long entidadReferenciaId){
@@ -31,8 +40,10 @@ public class NotificacionService {
         notificacionValidation.validarEmisorYReceptor(receptorId, emisorId);
 
         //Obtengo los objetos.
-        Miembro receptor = miembroService.obtenerPorId(receptorId);
-        Miembro emisor = miembroService.obtenerPorId(emisorId);
+        Miembro receptor = miembroRepository.findById(receptorId).orElseThrow(() -> new UsuarioNoEncontradoException(
+                "No se encontró un miembro activo con ese ID."));
+        Miembro emisor = miembroRepository.findById(emisorId).orElseThrow(() -> new UsuarioNoEncontradoException(
+                "No se encontró un miembro activo con ese ID."));
 
         //Creo la notificacion
         Notificacion notificacion = new Notificacion(receptor,emisor,tipo,entidadReferenciaId);
@@ -54,7 +65,8 @@ public class NotificacionService {
     public List<Notificacion> listarPropias(Long receptorId){
 
         // Valida que el miembro exista y esté activo
-        miembroService.obtenerPorId(receptorId);
+        miembroRepository.findByIdAndActivoTrue(receptorId).orElseThrow(() -> new UsuarioNoEncontradoException(
+                "No se encontró un miembro activo con ese ID."));
 
         return notificacionRepository.findByReceptorIdAndActivaTrue(receptorId);
     }
@@ -69,6 +81,7 @@ public class NotificacionService {
                 notificacion.getReceptor().getId(),
                 miembroLogueadoId);
 
+
         // Si ya está leída no hacemos nada
         if (!notificacion.isLeida()) {
             notificacion.setLeida(true);
@@ -80,7 +93,8 @@ public class NotificacionService {
     public void marcarTodasComoLeidas(Long receptorId){
 
         // Valida que el miembro exista y esté activo
-        miembroService.obtenerPorId(receptorId);
+        miembroRepository.findByIdAndActivoTrue(receptorId).orElseThrow(() -> new UsuarioNoEncontradoException(
+                "No se encontró un miembro activo con ese ID."));
 
         List<Notificacion> notificaciones =
                 notificacionRepository.findByReceptorIdAndActivaTrue(receptorId);
@@ -97,7 +111,8 @@ public class NotificacionService {
     public long contarNoLeidas(Long receptorId){
 
         // Valida que el miembro exista y esté activo
-        miembroService.obtenerPorId(receptorId);
+        miembroRepository.findByIdAndActivoTrue(receptorId).orElseThrow(() -> new UsuarioNoEncontradoException(
+                "No se encontró un miembro activo con ese ID."));
 
         return notificacionRepository.countByReceptorIdAndActivaTrueAndLeidaFalse(receptorId);
     }
@@ -122,7 +137,7 @@ public class NotificacionService {
 
         List<Notificacion> notificaciones =
                 notificacionRepository
-                        .findByTipoAndReferenciaIdAndActivaTrue(
+                        .findByTipoAndEntidadReferenciaIdAndActivaTrue(
                                 tipo,
                                 referenciaId);
 
@@ -140,6 +155,36 @@ public class NotificacionService {
                 TipoNotificacion.SOLICITUD_ADOPCION,
                 solicitudId);
     }
+
+    // Notifica a todos los solicitantes que fueron rechazados automáticamente
+    // cuando una mascota vuelve a estar disponible para adopción.
+@Transactional
+public void notificarSolicitantesPorAdopcionDisponible(Long publicacionId) {
+
+    List<SolicitudAdopcion> solicitudes =
+            solicitudAdopcionRepository.findByPublicacion_IdAndEstadoAndMotivoRechazoIn(
+                    publicacionId,
+                    EstadoSolicitud.RECHAZADA,
+                    List.of(
+                            MotivoRechazo.AUTO_POR_OTRA_APROBADA,
+                            MotivoRechazo.AUTO_CAMBIO_ESTADO_MASCOTA
+                    ));
+
+    for (SolicitudAdopcion solicitud : solicitudes) {
+
+        boolean yaNotificado = notificacionRepository.existsByTipoAndEntidadReferenciaId(
+                TipoNotificacion.ADOPCION_DISPONIBLE_NUEVAMENTE,
+                solicitud.getId());
+
+        if (!yaNotificado) {
+            generarNotificacion(
+                    solicitud.getMiembroSolicitante().getId(),
+                    solicitud.getPublicacion().getMiembro().getId(),
+                    TipoNotificacion.ADOPCION_DISPONIBLE_NUEVAMENTE,
+                    solicitud.getId());
+        }
+    }
+}
 
 }
 

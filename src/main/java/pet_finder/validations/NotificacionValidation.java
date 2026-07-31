@@ -33,4 +33,5 @@ public class NotificacionValidation {
                     "Un miembro no puede generarse una notificación a sí mismo.");
         }
     }
+
 }

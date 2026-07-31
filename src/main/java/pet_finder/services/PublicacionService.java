@@ -19,6 +19,7 @@ import pet_finder.validations.MascotaValidation;
 import pet_finder.validations.MiembroValidation;
 import pet_finder.validations.PublicacionValidation;
 import pet_finder.validations.UbicacionValidation;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -41,7 +42,9 @@ public class PublicacionService {
     private final UbicacionMapper ubicacionMapper;
     private final PublicacionMapper publicacionMapper;
 
-    public PublicacionService(PublicacionRepository publicacionRepository, UbicacionService ubicacionService, MascotaService mascotaService, ComentarioService comentarioService, @Lazy SolicitudAdopcionService solicitudService, PublicacionValidation publicacionValidation, MiembroValidation miembroValidation, MascotaValidation mascotaValidation, UbicacionValidation ubicacionValidation, UbicacionMapper ubicacionMapper, PublicacionMapper publicacionMapper) {
+    private final NotificacionService notificacionService;
+
+    public PublicacionService(PublicacionRepository publicacionRepository, UbicacionService ubicacionService, MascotaService mascotaService, ComentarioService comentarioService, @Lazy SolicitudAdopcionService solicitudService, PublicacionValidation publicacionValidation, MiembroValidation miembroValidation, MascotaValidation mascotaValidation, UbicacionValidation ubicacionValidation, UbicacionMapper ubicacionMapper, PublicacionMapper publicacionMapper, NotificacionService notificacionService) {
         this.publicacionRepository = publicacionRepository;
         this.ubicacionService = ubicacionService;
         this.mascotaService = mascotaService;
@@ -53,6 +56,7 @@ public class PublicacionService {
         this.ubicacionValidation = ubicacionValidation;
         this.ubicacionMapper = ubicacionMapper;
         this.publicacionMapper = publicacionMapper;
+        this.notificacionService = notificacionService;
     }
 
 
@@ -198,32 +202,66 @@ public class PublicacionService {
         return publicacionMapper.aDetail(existente);
     }
 
-    // Modificar el estado de la mascota de una publicacion
-    @Transactional
-    public PublicacionDetailDTO modificarEstado(Long publicacionId, Long miembroLogeadoId, String estado) {
 
-        // Se obtiene la publicacion que se quiere modificar, se valida que exista y este activa
-        Publicacion existente = obtenerPorId(publicacionId);
+    
+  // Modificar el estado de la mascota de una publicacion (endpoint genérico).
+// No permite marcar como ADOPTADA: eso solo puede pasar al resolver una solicitud.
+@Transactional
+public PublicacionDetailDTO modificarEstado(Long publicacionId,
+                                            Long miembroLogeadoId,
+                                            String estado) {
 
-        // Validación de que el miembro logueado sea el dueño de la publicación
-        miembroValidation.estaLogeado(existente.getMiembro().getId(), miembroLogeadoId);
+    EstadoMascota nuevoEstado = mascotaValidation.validarYConvertirEstadoMascota(estado);
 
-        EstadoMascota nuevoEstado = mascotaValidation.validarYConvertirEstadoMascota(estado);
+    publicacionValidation.validarCambioEstadoManual(nuevoEstado);
 
-        Mascota mascota = existente.getMascota();
+    return cambiarEstadoMascota(publicacionId, miembroLogeadoId, nuevoEstado);
+}
 
-        mascotaValidation.validarCambioEstado(mascota,nuevoEstado);  //Valida que ya no tengan el mismo estado.
+// Uso exclusivo de SolicitudAdopcionService al aprobar una solicitud.
+@Transactional
+public PublicacionDetailDTO marcarComoAdoptada(Long publicacionId, Long miembroLogeadoId) {
+    return cambiarEstadoMascota(publicacionId, miembroLogeadoId, EstadoMascota.ADOPTADA);
+}
 
-        if(mascota.getEstadoMascota()==EstadoMascota.EN_ADOPCION && (nuevoEstado == EstadoMascota.ENCONTRADA || nuevoEstado == EstadoMascota.PERDIDA)){
-            solicitudService.revertirPendientes(publicacionId, MotivoRechazo.AUTO_CAMBIO_ESTADO_MASCOTA);
-        }
 
-        mascota.setEstadoMascota(nuevoEstado);
+private PublicacionDetailDTO cambiarEstadoMascota(Long publicacionId,
+                                                  Long miembroLogeadoId,
+                                                  EstadoMascota nuevoEstado) {
 
-        //Se retorna la publicación con los cambios hechos.
-        publicacionRepository.save(existente);
-        return publicacionMapper.aDetail(existente);
+    Publicacion existente = obtenerPorId(publicacionId);
+
+    miembroValidation.estaLogeado(existente.getMiembro().getId(), miembroLogeadoId);
+
+    Mascota mascota = existente.getMascota();
+    EstadoMascota estadoAnterior = mascota.getEstadoMascota();
+
+    mascotaValidation.validarCambioEstado(mascota, nuevoEstado);
+
+    if (estadoAnterior == EstadoMascota.EN_ADOPCION &&
+            (nuevoEstado == EstadoMascota.ENCONTRADA ||
+                    nuevoEstado == EstadoMascota.PERDIDA)) {
+
+        solicitudService.revertirPendientes(
+                publicacionId,
+                MotivoRechazo.AUTO_CAMBIO_ESTADO_MASCOTA);
     }
+
+    if (nuevoEstado == EstadoMascota.EN_ADOPCION &&
+            (estadoAnterior == EstadoMascota.ADOPTADA ||
+                    estadoAnterior == EstadoMascota.ENCONTRADA ||
+                    estadoAnterior == EstadoMascota.PERDIDA)) {
+
+        notificacionService.notificarSolicitantesPorAdopcionDisponible(publicacionId);
+    }
+
+    mascota.setEstadoMascota(nuevoEstado);
+    publicacionRepository.save(existente);
+
+    return publicacionMapper.aDetail(existente);
+}
+
+
 
     // Eliminar una publicacion
     @Transactional
@@ -258,6 +296,9 @@ public class PublicacionService {
         this.eliminar(publicacion);
     }
 
-
+    // Método para buscar una publicación por el ID de la mascota asociada
+public Optional<Publicacion> buscarPorMascotaId(Long mascotaId) {
+    return publicacionRepository.findByMascotaId(mascotaId);
+}
 
 }
