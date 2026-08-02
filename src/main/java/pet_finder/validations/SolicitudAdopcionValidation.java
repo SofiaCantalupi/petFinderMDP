@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import pet_finder.enums.EstadoMascota;
 import pet_finder.enums.EstadoSolicitud;
 import pet_finder.enums.MotivoRechazo;
+import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.models.SolicitudAdopcion;
 import pet_finder.repositories.SolicitudAdopcionRepository;
 
@@ -74,6 +75,7 @@ public class SolicitudAdopcionValidation {
     }
 
     public SolicitudAdopcion validarQueSolicitudSeaPropia(Long idMiembro, Long idSolicitud){
+
         SolicitudAdopcion solicitud = this.existePorId(idSolicitud);
 
         if(!solicitud.getMiembroSolicitante().getId().equals(idMiembro)){
@@ -82,4 +84,22 @@ public class SolicitudAdopcionValidation {
 
         return solicitud;
     }
+
+    public void validarDuenioPublicacion(SolicitudAdopcion solicitud, Long idMiembroLoggeado) {
+    if (!solicitud.getPublicacion().getMiembro().getId().equals(idMiembroLoggeado)) {
+        throw new OperacionNoPermitidaException("Solo el dueño de la publicación puede resolver la solicitud de adopción.");
+    }
+}
+
+public void validarPendiente(SolicitudAdopcion solicitud) {
+    if (!solicitud.getEstado().equals(EstadoSolicitud.PENDIENTE)) {
+        throw new IllegalArgumentException("Esta solicitud ya fue resuelta.");
+    }
+}
+
+public void validarMascotaEnAdopcion(SolicitudAdopcion solicitud) {
+    if (solicitud.getPublicacion().getMascota().getEstadoMascota() != EstadoMascota.EN_ADOPCION) {
+        throw new IllegalArgumentException("La publicación ya no está disponible para adopción.");
+    }
+}
 }

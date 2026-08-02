@@ -2,6 +2,9 @@ package pet_finder.validations;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
+
+import pet_finder.enums.EstadoMascota;
+import pet_finder.exceptions.OperacionNoPermitidaException;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.PublicacionRepository;
 
@@ -32,5 +35,13 @@ public class PublicacionValidation {
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No existe una publicación con el ID ingresado."));
     }
+
+    //Valida que el estado de la mascota no se ponga en Adoptada, ya que solo puede cambiarse a ese estado al aceptar una solicitud de adopción.
+    public void validarCambioEstadoManual(EstadoMascota nuevoEstado) {
+    if (nuevoEstado == EstadoMascota.ADOPTADA) {
+        throw new OperacionNoPermitidaException(
+                "La mascota solo puede marcarse como adoptada al aceptar una solicitud de adopción.");
+    }
+}
 
 }

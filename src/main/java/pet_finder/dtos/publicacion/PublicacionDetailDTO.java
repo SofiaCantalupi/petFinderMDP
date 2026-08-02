@@ -18,6 +18,7 @@ public record PublicacionDetailDTO(
         Long idMiembro,
         String nombreCompleto,
 
+        Long idMascota,
         String nombreMascota,
         String tipoMascota,
         String estadoMascota,
@@ -43,6 +44,7 @@ public record PublicacionDetailDTO(
                    miembro.id(),
                    miembro.nombre() + " " + miembro.apellido(),
 
+                   mascota.id(),
                    mascota.nombre(),
                    mascota.tipoMascota(),
                    mascota.estadoMascota(),

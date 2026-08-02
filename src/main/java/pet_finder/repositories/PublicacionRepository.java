@@ -6,6 +6,7 @@ import pet_finder.models.Miembro;
 import pet_finder.models.Publicacion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -27,6 +28,9 @@ public interface PublicacionRepository extends JpaRepository<Publicacion, Long> 
 
     List<Publicacion> findByMiembroAndActivoTrue(Miembro miembro);
 
-    List<Publicacion> findByMiembroId(Long miembroId);
+    List<Publicacion> findByMiembroIdAndActivoTrue(Long miembroId);
+
+    Optional<Publicacion> findByMascotaId(Long mascotaId);
+
 
 }

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pet_finder.dtos.comentario.ComentarioDetailDTO;
 import pet_finder.dtos.comentario.ComentarioRequestDTO;
+import pet_finder.enums.TipoNotificacion;
 import pet_finder.mappers.ComentarioMapper;
 import pet_finder.models.Comentario;
 import pet_finder.models.Miembro;
@@ -28,14 +29,17 @@ public class ComentarioService {
 
     private final ComentarioMapper comentarioMapper;
 
+    private final NotificacionService notificacionService;
 
-    public ComentarioService(ComentarioRepository comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation, ComentarioMapper comentarioMapper) {
+
+    public ComentarioService(ComentarioRepository comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation, ComentarioMapper comentarioMapper, NotificacionService notificacionService) {
         this.comentarioRepository = comentarioRepository;
         this.publicacionRepository = publicacionRepository;
         this.comentarioValidation = comentarioValidation;
         this.miembroValidation = miembroValidation;
         this.publicacionValidation = publicacionValidation;
         this.comentarioMapper = comentarioMapper;
+        this.notificacionService = notificacionService;
     }
 
     @Transactional
@@ -56,6 +60,17 @@ public class ComentarioService {
         publicacionRepository.save(publicacion);
 
         Comentario creado = comentarioRepository.save(comentario);
+
+        //Valido que el que comento la publicacion no sea el dueño para evitar notificacion sin sentido.
+        if (!publicacion.getMiembro().getId().equals(miembro.getId())) {
+
+            notificacionService.generarNotificacion(
+                    publicacion.getMiembro().getId(),
+                    miembro.getId(),
+                    TipoNotificacion.NUEVO_COMENTARIO,
+                    creado.getId());
+        }
+
         return comentarioMapper.aDetail(creado);
     }
 
@@ -82,6 +97,9 @@ public class ComentarioService {
         // Se valida que el comentario no haya sido eliminado anteriormente
         comentarioValidation.esActivo(comentario.getActivo());
 
+        //Borro las notificaciones asociadas al comentario
+        notificacionService.eliminarNotificacionesComentario(comentario.getId());
+
         comentario.setActivo(false);
         comentarioRepository.save(comentario);
     }
@@ -96,6 +114,9 @@ public class ComentarioService {
 
         //Valida que el usuario autenticado coincida con el autor del comentario que se va a borrar.
         miembroValidation.estaLogeado(comentario.getMiembro().getId(),idMiembroLogeado);
+
+        //Borro las notificaciones asociadas al comentario
+        notificacionService.eliminarNotificacionesComentario(comentario.getId());
 
         comentario.setActivo(false);
         comentarioRepository.save(comentario);

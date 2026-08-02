@@ -26,61 +26,76 @@ public class MiembroController {
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping
-    public ResponseEntity<List<MiembroDetailDTO>> listar(){
+    public ResponseEntity<List<MiembroDetailDTO>> listar() {
 
         return ResponseEntity.ok(miembroService.listar());
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/{id}")
-    public ResponseEntity<MiembroDetailDTO> obtenerPorId(@PathVariable Long id){
+    public ResponseEntity<MiembroDetailDTO> obtenerPorId(@PathVariable Long id) {
 
         return ResponseEntity.ok(miembroService.obtenerDetallePorId(id));
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping
-    public ResponseEntity<MiembroDetailDTO> crear(@Valid @RequestBody MiembroRequestDTO request){
+    public ResponseEntity<MiembroDetailDTO> crear(@Valid @RequestBody MiembroRequestDTO request) {
 
         MiembroDetailDTO miembroCreado = miembroService.crear(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(miembroCreado);
     }
 
-    //Sin uso. Cambiaria el miembro entero, hasta su contraseña y obliga a cambiar todo.
+    // Sin uso. Cambiaria el miembro entero, hasta su contraseña y obliga a cambiar
+    // todo.
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/{id}")
-    public ResponseEntity<MiembroDetailDTO> modificarPorId(@PathVariable Long id, @Valid @RequestBody MiembroRequestDTO request){
+    public ResponseEntity<MiembroDetailDTO> modificarPorId(@PathVariable Long id,
+            @Valid @RequestBody MiembroRequestDTO request) {
 
         return ResponseEntity.ok(miembroService.modificarPorId(id, request));
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @PutMapping("/modificar-datos")
-    public ResponseEntity<MiembroDetailDTO> modificar(@Valid @RequestBody MiembroRequestUpdateDTO request, @AuthenticationPrincipal MiembroUserDetails userDetails){
+    public ResponseEntity<MiembroDetailDTO> modificar(@Valid @RequestBody MiembroRequestUpdateDTO request,
+            @AuthenticationPrincipal MiembroUserDetails userDetails) {
 
-        //Se asegura de que el miembro que se va a modificar sea el autenticado por su ID.
+        // Se asegura de que el miembro que se va a modificar sea el autenticado por su
+        // ID.
         return ResponseEntity.ok(miembroService.modificarDatos(request, userDetails.getId()));
     }
 
-
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PutMapping("/hacer-administrador/{id}")
-    public ResponseEntity<String> hacerAdministradorPorId(@PathVariable Long id){
+    public ResponseEntity<String> hacerAdministradorPorId(@PathVariable Long id) {
 
         MiembroDetailDTO nuevoAdmin = miembroService.hacerAdministrador(id);
 
-        return ResponseEntity.ok("El miembro " + nuevoAdmin.nombre() + " " + nuevoAdmin.apellido() + " es ahora administrador en el sistema.");
+        return ResponseEntity.ok("El miembro " + nuevoAdmin.nombre() + " " + nuevoAdmin.apellido()
+                + " es ahora administrador en el sistema.");
     }
 
-    //Por ID elimina el administrador (ya que seria el que sabe los IDS de los miembros)
+    // Por ID elimina el administrador (ya que seria el que sabe los IDS de los
+    // miembros)
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarPorId(@PathVariable Long id){
+    public ResponseEntity<String> eliminarPorId(@PathVariable Long id) {
 
         miembroService.eliminarPorId(id);
 
-        return ResponseEntity.ok("Se ha dado de baja con éxito al miembro con ID: " + id + " y a sus publicaciones asociadas.");
+        return ResponseEntity
+                .ok("Se ha dado de baja con éxito al miembro con ID: " + id + " y a sus publicaciones asociadas.");
+    }
+
+    @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
+    @DeleteMapping("/cuenta")
+    public ResponseEntity<String> eliminarCuentaPropia(@AuthenticationPrincipal MiembroUserDetails userDetails) {
+
+        miembroService.eliminarPorId(userDetails.getId());
+
+        return ResponseEntity.ok("Tu cuenta y tus publicaciones asociadas fueron dadas de baja con éxito.");
     }
 
 }

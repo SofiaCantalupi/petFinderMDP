@@ -18,7 +18,7 @@ public record SolicitudAdopcionDetailDTO(
 
         String tipoHogar,
         boolean hayMascotaEnHogar,
-        String tipoMascotaEnHogar,
+        String tipoMascotasEnHogar,
         boolean tienePatio,
         boolean aceptaCondiciones,
         String motivoAdopcion,

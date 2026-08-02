@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface MiembroRepository extends JpaRepository<Miembro,Long> {
+    Optional<Miembro> findByIdAndActivoTrue(Long id);
     Optional<Miembro> findByEmail(String email);
     boolean existsByEmailAndIdNot(String email, Long id);       //Verifica que exista el mail registrado pero con otro ID (para los updates)
 }

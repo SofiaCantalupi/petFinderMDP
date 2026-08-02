@@ -26,10 +26,6 @@ public class NormaComunidadController {
     public ResponseEntity<List<NormaComunidadDetailDTO>> listar(){
         List<NormaComunidadDetailDTO> normas = service.verNormas();
 
-        if(normas.isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
-
         return ResponseEntity.ok(normas);
     }
 

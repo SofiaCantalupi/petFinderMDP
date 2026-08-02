@@ -24,6 +24,10 @@ public class Notificacion {
     @Enumerated(EnumType.STRING)
     private TipoNotificacion tipo;
 
+    //Se refiere a que entidad es la que esta relacionada con esta publicacion. Puede ser un comentario, publicacion o solicitud de adopcion.
+    @Column(nullable = false)
+    private Long entidadReferenciaId;
+
     @Column(nullable = false)
     private boolean leida;
 
@@ -31,6 +35,16 @@ public class Notificacion {
 
     @Column(nullable = false)
     private boolean activa;
+
+    public Notificacion(Miembro receptor,Miembro emisor,TipoNotificacion tipo,Long entidadReferenciaId) {
+        this.receptor = receptor;
+        this.emisor = emisor;
+        this.tipo = tipo;
+        this.entidadReferenciaId = entidadReferenciaId;
+        this.leida = false;
+        this.fecha = LocalDate.now();
+        this.activa = true;
+    }
 
     public Notificacion() {
         this.leida = false;
@@ -65,6 +79,12 @@ public class Notificacion {
         this.tipo = tipo;
     }
 
+    public Long getEntidadReferenciaId() {
+        return entidadReferenciaId;
+    }
+    public void setEntidadReferenciaId(Long entidadReferenciaId) {
+        this.entidadReferenciaId = entidadReferenciaId;
+    }
 
     public LocalDate getFecha() {
         return fecha;

@@ -23,16 +23,7 @@ public class ComentarioMapper implements Mapper <ComentarioRequestDTO, Comentari
     @Override
     public ComentarioDetailDTO aDetail(Comentario comentario) {
 
-        return new ComentarioDetailDTO(
-                comentario.getId(),
-                comentario.getTexto(),
-                comentario.getFechaPublicacion(),
-                comentario.getActivo(),
-                comentario.getPublicacion().getId(),
-                comentario.getMiembro().getId(),
-                comentario.getMiembro().getNombre(),
-                comentario.getMiembro().getApellido()
-        );
+        return new ComentarioDetailDTO(comentario);
     }
 
     @Override

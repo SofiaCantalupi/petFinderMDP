@@ -18,4 +18,6 @@ public interface SolicitudAdopcionRepository extends JpaRepository<SolicitudAdop
     List<SolicitudAdopcion> findByMiembroSolicitante_IdAndPublicacion_ActivoTrue(Long idMiembroSolicitante);
 
     List<SolicitudAdopcion> findByPublicacion_IdAndEstado(Long idPublicacion, EstadoSolicitud estado);
+    List<SolicitudAdopcion> findByPublicacion_IdAndEstadoAndMotivoRechazoIn(Long publicacionId, EstadoSolicitud estado, List<MotivoRechazo> motivos);
+
 }
