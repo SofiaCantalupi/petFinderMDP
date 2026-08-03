@@ -104,7 +104,7 @@ public class SolicitudAdopcionService {
         solicitudes.forEach(solicitud -> {
 
             solicitud.setEstado(EstadoSolicitud.RECHAZADA);
-            solicitud.setMotivoRechazo(MotivoRechazo.AUTO_POR_OTRA_APROBADA);
+            solicitud.setMotivoRechazo(motivoRechazo);
             solicitud.setFechaResolucion(LocalDateTime.now());
 
             notificacionService.generarNotificacion(
