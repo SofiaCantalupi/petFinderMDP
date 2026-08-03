@@ -5,10 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import pet_finder.exceptions.*;
 import pet_finder.exceptions.model.ErrorResponse;
 
@@ -42,6 +46,40 @@ public class GlobalHandlerException {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 
+    }
+
+    // Se dispara cuando @PreAuthorize rechaza una operacion por rol insuficiente
+    // (AuthorizationDeniedException extiende esta clase). Sin este handler caia en
+    // el handler generico de Exception y devolvia 500 en vez de 403.
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> manejarAccessDenied(AccessDeniedException ex) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.FORBIDDEN, "No tenes permisos para realizar esta operacion.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    // Cuerpo de la request malformado o con un valor de enum que no matchea ninguna
+    // constante (ej. tipoHogar en minuscula). No se expone ex.getMessage() porque
+    // incluye detalle interno de Jackson (nombres de paquete y clase).
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> manejarMensajeIlegible(HttpMessageNotReadableException ex) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, "El cuerpo de la solicitud es invalido o tiene un formato incorrecto.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    // Path/query param que no puede convertirse al tipo esperado (ej. /miembros/abc,
+    // donde {id} deberia ser un Long).
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> manejarTipoInvalido(MethodArgumentTypeMismatchException ex) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, "El parametro '" + ex.getName() + "' tiene un formato invalido.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    // Ninguna ruta mapeada matchea la request (ej. metodo HTTP no soportado en un
+    // path existente, o un path que no existe en absoluto).
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> manejarRecursoNoEncontrado(NoResourceFoundException ex) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND, "El recurso solicitado no existe.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     // ------ Handlers para excepciones especificas
