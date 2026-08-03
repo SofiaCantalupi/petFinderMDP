@@ -73,7 +73,7 @@ public class SolicitudAdopcionService {
     @Transactional(readOnly = true)
     public List<SolicitudAdopcionDetailDTO> listarRecibidas(Long idMiembroDuenio, String estadoParam) {
         List<SolicitudAdopcion> solicitudes = solicitudRepository
-                .findByPublicacion_Miembro_IdAndPublicacion_ActivoTrue(idMiembroDuenio);
+                .findByPublicacion_Miembro_Id(idMiembroDuenio);
 
         if (estadoParam != null && !estadoParam.isBlank()) {
             EstadoSolicitud estadoSolicitud = solicitudValidation.validarYConvertirEstadoSolicitud(estadoParam);
@@ -86,7 +86,7 @@ public class SolicitudAdopcionService {
     @Transactional(readOnly = true)
     public List<SolicitudAdopcionDetailDTO> listarEnviadas(Long idMiembroSolicitante, String estadoParam) {
         List<SolicitudAdopcion> solicitudes = solicitudRepository
-                .findByMiembroSolicitante_IdAndPublicacion_ActivoTrue(idMiembroSolicitante);
+                .findByMiembroSolicitante_Id(idMiembroSolicitante);
 
         if (estadoParam != null && !estadoParam.isBlank()) {
             EstadoSolicitud estadoSolicitud = solicitudValidation.validarYConvertirEstadoSolicitud(estadoParam);
