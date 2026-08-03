@@ -1,6 +1,7 @@
 package pet_finder.services;
 
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import pet_finder.dtos.miembro.MiembroDetailDTO;
@@ -27,14 +28,16 @@ public class MiembroService {
     public final PublicacionService publicacionService;
     public final PasswordEncoder passwordEncoder;
     public final MiembroMapper miembroMapper;
+    public final SolicitudAdopcionService solicitudAdopcionService;
 
-    public MiembroService(MiembroRepository miembroRepository, MiembroValidation miembroValidation, PublicacionRepository publicacionRepository, PublicacionService publicacionService, PasswordEncoder passwordEncoder, MiembroMapper miembroMapper) {
+    public MiembroService(MiembroRepository miembroRepository, MiembroValidation miembroValidation, PublicacionRepository publicacionRepository, PublicacionService publicacionService, PasswordEncoder passwordEncoder, MiembroMapper miembroMapper, @Lazy SolicitudAdopcionService solicitudAdopcionService) {
         this.miembroRepository = miembroRepository;
         this.miembroValidation = miembroValidation;
         this.publicacionRepository = publicacionRepository;
         this.publicacionService = publicacionService;
         this.passwordEncoder = passwordEncoder;
         this.miembroMapper = miembroMapper;
+        this.solicitudAdopcionService = solicitudAdopcionService;
     }
 
 
@@ -150,6 +153,10 @@ public class MiembroService {
         //Por cada publicacion del miembro dado de baja, se da de baja la publicación
         //sus mascotas, y los comentarios de la publicación.
         publicaciones.forEach(publicacionService::eliminar);
+
+        //Se rechazan las solicitudes pendientes que el miembro dado de baja envio
+        //a publicaciones de otros miembros.
+        solicitudAdopcionService.rechazarPendientesComoSolicitante(id);
 
         return "Se ha dado de baja con éxito al miembro con ID: " + id + " y a sus publicaciones asociadas.";
     }

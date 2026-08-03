@@ -243,7 +243,8 @@ private PublicacionDetailDTO cambiarEstadoMascota(Long publicacionId,
 
     if (estadoAnterior == EstadoMascota.EN_ADOPCION &&
             (nuevoEstado == EstadoMascota.ENCONTRADA ||
-                    nuevoEstado == EstadoMascota.PERDIDA)) {
+                    nuevoEstado == EstadoMascota.PERDIDA ||
+                    nuevoEstado == EstadoMascota.REENCONTRADA)) {
 
         solicitudService.revertirPendientes(
                 publicacionId,

@@ -2,7 +2,7 @@ package pet_finder.models;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comentarios")
@@ -17,7 +17,7 @@ public class Comentario {
     private String texto;
 
     @Column(nullable = false)
-    private LocalDate fechaPublicacion;
+    private LocalDateTime fechaPublicacion;
 
     private Boolean activo;
 
@@ -32,13 +32,13 @@ public class Comentario {
 
     public Comentario() {
         this.activo = true;
-        this.fechaPublicacion = LocalDate.now();
+        this.fechaPublicacion = LocalDateTime.now();
     }
 
     public Comentario(String texto, Publicacion publicacion, Miembro miembro) {
         this.activo = true;
         this.texto = texto;
-        this.fechaPublicacion = LocalDate.now();
+        this.fechaPublicacion = LocalDateTime.now();
         this.publicacion = publicacion;
         this.miembro = miembro;
     }
@@ -59,11 +59,11 @@ public class Comentario {
         this.texto = texto;
     }
 
-    public LocalDate getFechaPublicacion() {
+    public LocalDateTime getFechaPublicacion() {
         return fechaPublicacion;
     }
 
-    public void setFechaPublicacion(LocalDate fechaPublicacion) {
+    public void setFechaPublicacion(LocalDateTime fechaPublicacion) {
         this.fechaPublicacion = fechaPublicacion;
     }
 

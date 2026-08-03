@@ -104,12 +104,33 @@ public class SolicitudAdopcionService {
         solicitudes.forEach(solicitud -> {
 
             solicitud.setEstado(EstadoSolicitud.RECHAZADA);
-            solicitud.setMotivoRechazo(MotivoRechazo.AUTO_POR_OTRA_APROBADA);
+            solicitud.setMotivoRechazo(motivoRechazo);
             solicitud.setFechaResolucion(LocalDateTime.now());
 
             notificacionService.generarNotificacion(
                     solicitud.getMiembroSolicitante().getId(),
                     solicitud.getPublicacion().getMiembro().getId(),
+                    TipoNotificacion.RESPUESTA_ADOPCION,
+                    solicitud.getId());
+        });
+    }
+
+    // Uso exclusivo de MiembroService al dar de baja una cuenta (propia o por un administrador):
+    // rechaza las solicitudes pendientes que el miembro dado de baja envio a publicaciones de otros miembros.
+    @Transactional
+    public void rechazarPendientesComoSolicitante(Long idMiembroSolicitante) {
+        List<SolicitudAdopcion> solicitudes = solicitudRepository.findByMiembroSolicitante_IdAndEstado(
+                idMiembroSolicitante, EstadoSolicitud.PENDIENTE);
+
+        solicitudes.forEach(solicitud -> {
+
+            solicitud.setEstado(EstadoSolicitud.RECHAZADA);
+            solicitud.setMotivoRechazo(MotivoRechazo.AUTO_POR_BAJA_CUENTA);
+            solicitud.setFechaResolucion(LocalDateTime.now());
+
+            notificacionService.generarNotificacion(
+                    solicitud.getPublicacion().getMiembro().getId(),
+                    idMiembroSolicitante,
                     TipoNotificacion.RESPUESTA_ADOPCION,
                     solicitud.getId());
         });

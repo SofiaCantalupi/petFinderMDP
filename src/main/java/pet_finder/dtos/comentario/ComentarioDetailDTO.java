@@ -3,10 +3,10 @@ package pet_finder.dtos.comentario;
 
 import pet_finder.models.Comentario;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
-public record ComentarioDetailDTO (Long id, String texto, LocalDate fechaPublicacion, Boolean activo, Long idPublicacion, Long idMiembro, String nombreUsuario, String apellidoUsuario){
+public record ComentarioDetailDTO (Long id, String texto, LocalDateTime fechaPublicacion, Boolean activo, Long idPublicacion, Long idMiembro, String nombreUsuario, String apellidoUsuario){
 
 
     public ComentarioDetailDTO(Comentario comentario){
