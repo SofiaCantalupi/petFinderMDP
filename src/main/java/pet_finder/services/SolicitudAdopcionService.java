@@ -115,6 +115,27 @@ public class SolicitudAdopcionService {
         });
     }
 
+    // Uso exclusivo de MiembroService al dar de baja una cuenta (propia o por un administrador):
+    // rechaza las solicitudes pendientes que el miembro dado de baja envio a publicaciones de otros miembros.
+    @Transactional
+    public void rechazarPendientesComoSolicitante(Long idMiembroSolicitante) {
+        List<SolicitudAdopcion> solicitudes = solicitudRepository.findByMiembroSolicitante_IdAndEstado(
+                idMiembroSolicitante, EstadoSolicitud.PENDIENTE);
+
+        solicitudes.forEach(solicitud -> {
+
+            solicitud.setEstado(EstadoSolicitud.RECHAZADA);
+            solicitud.setMotivoRechazo(MotivoRechazo.AUTO_POR_BAJA_CUENTA);
+            solicitud.setFechaResolucion(LocalDateTime.now());
+
+            notificacionService.generarNotificacion(
+                    solicitud.getPublicacion().getMiembro().getId(),
+                    idMiembroSolicitante,
+                    TipoNotificacion.RESPUESTA_ADOPCION,
+                    solicitud.getId());
+        });
+    }
+
     @Transactional
     public SolicitudAdopcionDetailDTO resolverSolicitudAdopcion(Long idSolicitud, Long idMiembroLoggeado,
             ResolucionSolicitudRequestDTO resolucionRequest) {
