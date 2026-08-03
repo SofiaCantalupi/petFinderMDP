@@ -47,16 +47,6 @@ public class MiembroController {
         return ResponseEntity.status(HttpStatus.CREATED).body(miembroCreado);
     }
 
-    // Sin uso. Cambiaria el miembro entero, hasta su contraseña y obliga a cambiar
-    // todo.
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/{id}")
-    public ResponseEntity<MiembroDetailDTO> modificarPorId(@PathVariable Long id,
-            @Valid @RequestBody MiembroRequestDTO request) {
-
-        return ResponseEntity.ok(miembroService.modificarPorId(id, request));
-    }
-
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'MIEMBRO')")
     @PutMapping("/modificar-datos")
     public ResponseEntity<MiembroDetailDTO> modificar(@Valid @RequestBody MiembroRequestUpdateDTO request,
