@@ -7,6 +7,7 @@ import pet_finder.enums.TipoHogar;
 import pet_finder.enums.TipoMascotasEnHogar;
 
 public class SolicitudAdopcionRequestDTO {
+    @NotNull(message = "Debe indicar la publicacion.")
     private Long idPublicacion;
 
     @NotBlank(message = "Debe ingresar un celular.")
