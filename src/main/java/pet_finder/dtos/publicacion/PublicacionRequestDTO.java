@@ -13,6 +13,7 @@ public class PublicacionRequestDTO {
         @NotNull(message="Debe indicar la mascota.")
         private Long mascotaId;
 
+        @NotNull(message = "Debe indicar la ubicacion.")
         @Valid
         private UbicacionRequestDTO ubicacion;
 
