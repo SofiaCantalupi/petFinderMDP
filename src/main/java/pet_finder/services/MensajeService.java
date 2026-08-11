@@ -2,6 +2,7 @@ package pet_finder.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 import pet_finder.dtos.mensaje.ConversacionDetailDTO;
 import pet_finder.dtos.mensaje.MensajeDetailDTO;
 import pet_finder.dtos.mensaje.MensajeRequestDTO;
@@ -52,11 +53,12 @@ public class MensajeService {
         return mensajeMapper.aDetail(enviado);
     }
 
+    // En un principio desdeId tiene como default 0, es decir, trae toda la conversacion. Luego Angular va a guardar el id del ultimo mensaje traido desde la bd, para traer a partir de el.
     @Transactional
-    public List<MensajeDetailDTO> obtenerConversacion(Long idUsuario, Long idOtro) {
+    public List<MensajeDetailDTO> obtenerConversacion(Long idUsuario, Long idOtro, Long desdeId) {
         miembroValidation.validarExistenciaPorId(idOtro);
 
-        List<Mensaje> mensajes = mensajeRepository.findConversacion(idUsuario, idOtro);
+        List<Mensaje> mensajes = mensajeRepository.findConversacionDesde(idUsuario, idOtro, desdeId);
 
         mensajes.stream()
                 .filter(m -> m.getReceptor().getId().equals(idUsuario) && !m.getLeido())

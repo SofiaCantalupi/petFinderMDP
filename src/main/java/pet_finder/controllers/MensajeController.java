@@ -34,9 +34,9 @@ public class MensajeController {
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @GetMapping("/conversacion/{idMiembro}")
-    public ResponseEntity<?> obtenerConversacion(@PathVariable Long idMiembro, @AuthenticationPrincipal MiembroUserDetails userDetails) {
+    public ResponseEntity<?> obtenerConversacion(@PathVariable Long idMiembro, @AuthenticationPrincipal MiembroUserDetails userDetails, @RequestParam(defaultValue = "0") Long desdeId) {
         Long idUsuario = userDetails.getId();
-        List<MensajeDetailDTO> mensajes = mensajeService.obtenerConversacion(idUsuario, idMiembro);
+        List<MensajeDetailDTO> mensajes = mensajeService.obtenerConversacion(idUsuario, idMiembro, desdeId);
 
         return ResponseEntity.ok(mensajes);
     }

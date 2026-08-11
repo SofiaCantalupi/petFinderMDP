@@ -11,8 +11,8 @@ import java.util.List;
 @Repository
 public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
 
-    @Query("SELECT m FROM Mensaje m WHERE (m.emisor.id = :idUsuario AND m.receptor.id = :idOtro) OR (m.emisor.id = :idOtro AND m.receptor.id = :idUsuario) ORDER BY m.fechaEnvio ASC")
-    List<Mensaje> findConversacion(@Param("idUsuario") Long idUsuario, @Param("idOtro") Long idOtro);
+    @Query("SELECT m FROM Mensaje m WHERE ((m.emisor.id = :idUsuario AND m.receptor.id = :idOtro) OR (m.emisor.id = :idOtro AND m.receptor.id = :idUsuario)) AND m.id > :desdeId ORDER BY m.id ASC")
+    List<Mensaje> findConversacionDesde(@Param("idUsuario") Long idUsuario, @Param("idOtro") Long idOtro, @Param("desdeId") Long desdeId);
 
     @Query("SELECT DISTINCT m.receptor.id FROM Mensaje m WHERE m.emisor.id = :idUsuario")
     List<Long> findIdsReceptores(@Param("idUsuario") Long idUsuario);
