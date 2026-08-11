@@ -10,6 +10,7 @@ public record NotificacionDetailDTO(
         Long receptorId,
         Long emisorId,
         TipoNotificacion tipo,
+        Long entidadReferenciaId,
         boolean leida,
         LocalDate fecha,
         boolean activa
@@ -21,6 +22,7 @@ public record NotificacionDetailDTO(
                 notificacion.getReceptor().getId(),
                 notificacion.getEmisor().getId(),
                 notificacion.getTipo(),
+                notificacion.getEntidadReferenciaId(),
                 notificacion.isLeida(),
                 notificacion.getFecha(),
                 notificacion.isActiva()

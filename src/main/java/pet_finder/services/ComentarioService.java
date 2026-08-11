@@ -31,8 +31,10 @@ public class ComentarioService {
 
     private final NotificacionService notificacionService;
 
-
-    public ComentarioService(ComentarioRepository comentarioRepository, PublicacionRepository publicacionRepository, ComentarioValidation comentarioValidation, MiembroValidation miembroValidation, PublicacionValidation publicacionValidation, ComentarioMapper comentarioMapper, NotificacionService notificacionService) {
+    public ComentarioService(ComentarioRepository comentarioRepository, PublicacionRepository publicacionRepository,
+            ComentarioValidation comentarioValidation, MiembroValidation miembroValidation,
+            PublicacionValidation publicacionValidation, ComentarioMapper comentarioMapper,
+            NotificacionService notificacionService) {
         this.comentarioRepository = comentarioRepository;
         this.publicacionRepository = publicacionRepository;
         this.comentarioValidation = comentarioValidation;
@@ -43,7 +45,7 @@ public class ComentarioService {
     }
 
     @Transactional
-    public ComentarioDetailDTO crearComentario(ComentarioRequestDTO request, Long idMiembro){
+    public ComentarioDetailDTO crearComentario(ComentarioRequestDTO request, Long idMiembro) {
 
         Comentario comentario = comentarioMapper.aEntidad(request);
 
@@ -61,7 +63,8 @@ public class ComentarioService {
 
         Comentario creado = comentarioRepository.save(comentario);
 
-        //Valido que el que comento la publicacion no sea el dueño para evitar notificacion sin sentido.
+        // Valido que el que comento la publicacion no sea el dueño para evitar
+        // notificacion sin sentido.
         if (!publicacion.getMiembro().getId().equals(miembro.getId())) {
 
             notificacionService.generarNotificacion(
@@ -74,7 +77,7 @@ public class ComentarioService {
         return comentarioMapper.aDetail(creado);
     }
 
-    //Muestra los comentarios de una publicación por su ID.
+    // Muestra los comentarios de una publicación por su ID.
     @Transactional(readOnly = true)
     public List<Comentario> listarPorPublicacion(Long idPublicacion) {
 
@@ -89,15 +92,20 @@ public class ComentarioService {
         return comentarioMapper.deEntidadesAdetails(listarPorPublicacion(idPublicacion));
     }
 
+    @Transactional(readOnly = true)
+    public ComentarioDetailDTO obtenerDetallePorId(Long id) {
+        Comentario comentario = comentarioValidation.existePorId(id);
+        return comentarioMapper.aDetail(comentario);
+    }
 
     @Transactional
-    public void eliminarComentarioPorId(Long id){
+    public void eliminarComentarioPorId(Long id) {
 
         Comentario comentario = comentarioValidation.existePorId(id);
         // Se valida que el comentario no haya sido eliminado anteriormente
         comentarioValidation.esActivo(comentario.getActivo());
 
-        //Borro las notificaciones asociadas al comentario
+        // Borro las notificaciones asociadas al comentario
         notificacionService.eliminarNotificacionesComentario(comentario.getId());
 
         comentario.setActivo(false);
@@ -112,10 +120,11 @@ public class ComentarioService {
         // Se valida que el comentario no haya sido eliminado anteriormente
         comentarioValidation.esActivo(comentario.getActivo());
 
-        //Valida que el usuario autenticado coincida con el autor del comentario que se va a borrar.
-        miembroValidation.estaLogeado(comentario.getMiembro().getId(),idMiembroLogeado);
+        // Valida que el usuario autenticado coincida con el autor del comentario que se
+        // va a borrar.
+        miembroValidation.estaLogeado(comentario.getMiembro().getId(), idMiembroLogeado);
 
-        //Borro las notificaciones asociadas al comentario
+        // Borro las notificaciones asociadas al comentario
         notificacionService.eliminarNotificacionesComentario(comentario.getId());
 
         comentario.setActivo(false);
