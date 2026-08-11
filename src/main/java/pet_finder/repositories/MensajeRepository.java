@@ -20,6 +20,8 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
     @Query("SELECT DISTINCT m.emisor.id FROM Mensaje m WHERE m.receptor.id = :idUsuario")
     List<Long> findIdsEmisores(@Param("idUsuario") Long idUsuario);
 
-    @Query("SELECT COUNT(m) FROM Mensaje m WHERE m.receptor.id = :idUsuario AND m.emisor.id = :idOtro AND m.leido = false")
-    Long countMensajesNoLeidos(@Param("idUsuario") Long idUsuario, @Param("idOtro") Long idOtro);
+    @Query("SELECT m.emisor.id, COUNT(m) FROM Mensaje m WHERE m.receptor.id = :idUsuario AND m.leido = false GROUP BY m.emisor.id")
+    List<Object[]> contarMensajesNoLeidosPorContacto(@Param("idUsuario") Long idUsuario);
+
+    List<Mensaje> findByReceptorIdAndEmisorIdAndLeidoFalse(Long receptorId, Long emisorId);
 }

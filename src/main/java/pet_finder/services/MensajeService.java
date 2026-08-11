@@ -2,7 +2,6 @@ package pet_finder.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 import pet_finder.dtos.mensaje.ConversacionDetailDTO;
 import pet_finder.dtos.mensaje.MensajeDetailDTO;
 import pet_finder.dtos.mensaje.MensajeRequestDTO;
@@ -16,7 +15,9 @@ import pet_finder.validations.MiembroValidation;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class MensajeService {
@@ -54,20 +55,22 @@ public class MensajeService {
     }
 
     // En un principio desdeId tiene como default 0, es decir, trae toda la conversacion. Luego Angular va a guardar el id del ultimo mensaje traido desde la bd, para traer a partir de el.
-    @Transactional
+    @Transactional(readOnly = true)
     public List<MensajeDetailDTO> obtenerConversacion(Long idUsuario, Long idOtro, Long desdeId) {
         miembroValidation.validarExistenciaPorId(idOtro);
 
         List<Mensaje> mensajes = mensajeRepository.findConversacionDesde(idUsuario, idOtro, desdeId);
 
-        mensajes.stream()
-                .filter(m -> m.getReceptor().getId().equals(idUsuario) && !m.getLeido())
-                .forEach(m -> m.setLeido(true));
-        mensajeRepository.saveAll(mensajes);
-
         return mensajeMapper.deEntidadesAdetails(mensajes);
     }
 
+    @Transactional
+    public void marcarLeidos(Long idUsuario, Long idOtro) {
+        mensajeRepository.findByReceptorIdAndEmisorIdAndLeidoFalse(idUsuario, idOtro)
+                .forEach(m -> m.setLeido(true));
+    }
+
+    @Transactional(readOnly = true)
     public List<ConversacionDetailDTO> listarConversaciones(Long idUsuario) {
         Set<Long> idsContactos = new HashSet<>();
         idsContactos.addAll(mensajeRepository.findIdsReceptores(idUsuario));
@@ -75,12 +78,19 @@ public class MensajeService {
 
         List<Miembro> contactos = miembroRepository.findAllById(idsContactos);
 
+        Map<Long, Long> noLeidosPorContacto = mensajeRepository.contarMensajesNoLeidosPorContacto(idUsuario)
+                .stream()
+                .collect(Collectors.toMap(
+                        fila -> (Long) fila[0],
+                        fila -> (Long) fila[1]
+                ));
+
         return contactos.stream()
                 .map(contacto -> new ConversacionDetailDTO(
                         contacto.getId(),
                         contacto.getNombre(),
                         contacto.getApellido(),
-                        mensajeRepository.countMensajesNoLeidos(idUsuario, contacto.getId())
+                        noLeidosPorContacto.getOrDefault(contacto.getId(), 0L)
                 ))
                 .toList();
     }
