@@ -24,4 +24,18 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
     List<Object[]> contarMensajesNoLeidosPorContacto(@Param("idUsuario") Long idUsuario);
 
     List<Mensaje> findByReceptorIdAndEmisorIdAndLeidoFalse(Long receptorId, Long emisorId);
+
+    @Query("""
+    SELECT CASE WHEN m.emisor.id = :idUsuario THEN m.receptor.id ELSE m.emisor.id END,
+           m.texto,
+           m.fechaEnvio
+    FROM Mensaje m
+    WHERE (m.emisor.id = :idUsuario OR m.receptor.id = :idUsuario)
+      AND m.id = (
+          SELECT MAX(m2.id) FROM Mensaje m2
+          WHERE (m2.emisor.id = m.emisor.id AND m2.receptor.id = m.receptor.id)
+             OR (m2.emisor.id = m.receptor.id AND m2.receptor.id = m.emisor.id)
+      )
+    """)
+    List<Object[]> findUltimoMensajePorContacto(@Param("idUsuario") Long idUsuario);
 }

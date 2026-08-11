@@ -13,10 +13,8 @@ import pet_finder.repositories.MiembroRepository;
 import pet_finder.validations.MensajeValidation;
 import pet_finder.validations.MiembroValidation;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,6 +76,8 @@ public class MensajeService {
 
         List<Miembro> contactos = miembroRepository.findAllById(idsContactos);
 
+        // Una query para todos los conteos, en vez de una por contacto.
+        // Solo devuelve filas de contactos con mensajes pendientes.
         Map<Long, Long> noLeidosPorContacto = mensajeRepository.contarMensajesNoLeidosPorContacto(idUsuario)
                 .stream()
                 .collect(Collectors.toMap(
@@ -85,13 +85,30 @@ public class MensajeService {
                         fila -> (Long) fila[1]
                 ));
 
+        // Ídem para el último mensaje. fila = [idContacto, texto, fechaEnvio]
+        Map<Long, Object[]> ultimoPorContacto = mensajeRepository.findUltimoMensajePorContacto(idUsuario)
+                .stream()
+                .collect(Collectors.toMap(
+                        fila -> (Long) fila[0],
+                        fila -> fila
+                ));
+
         return contactos.stream()
-                .map(contacto -> new ConversacionDetailDTO(
-                        contacto.getId(),
-                        contacto.getNombre(),
-                        contacto.getApellido(),
-                        noLeidosPorContacto.getOrDefault(contacto.getId(), 0L)
-                ))
+                .map(contacto -> {
+                    Object[] ultimo = ultimoPorContacto.get(contacto.getId());
+                    return new ConversacionDetailDTO(
+                            contacto.getId(),
+                            contacto.getNombre(),
+                            contacto.getApellido(),
+                            noLeidosPorContacto.getOrDefault(contacto.getId(), 0L),
+                            ultimo != null ? (String) ultimo[1] : null,
+                            ultimo != null ? (LocalDateTime) ultimo[2] : null
+                    );
+                })
+                // Más reciente primero. nullsLast cubre contactos sin mensajes.
+                .sorted(Comparator.comparing(
+                        ConversacionDetailDTO::fechaUltimoMensaje,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
                 .toList();
     }
 }
