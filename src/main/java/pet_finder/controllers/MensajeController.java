@@ -34,11 +34,21 @@ public class MensajeController {
 
     @PreAuthorize("hasRole('MIEMBRO')")
     @GetMapping("/conversacion/{idMiembro}")
-    public ResponseEntity<?> obtenerConversacion(@PathVariable Long idMiembro, @AuthenticationPrincipal MiembroUserDetails userDetails) {
+    public ResponseEntity<?> obtenerConversacion(@PathVariable Long idMiembro, @AuthenticationPrincipal MiembroUserDetails userDetails, @RequestParam(defaultValue = "0") Long desdeId) {
         Long idUsuario = userDetails.getId();
-        List<MensajeDetailDTO> mensajes = mensajeService.obtenerConversacion(idUsuario, idMiembro);
+        List<MensajeDetailDTO> mensajes = mensajeService.obtenerConversacion(idUsuario, idMiembro, desdeId);
 
         return ResponseEntity.ok(mensajes);
+    }
+
+    @PreAuthorize("hasRole('MIEMBRO')")
+    @PutMapping("/conversacion/{idMiembro}/leidos")
+    public ResponseEntity<Void> marcarConversacionLeida(
+            @PathVariable Long idMiembro,
+            @AuthenticationPrincipal MiembroUserDetails userDetails) {
+
+        mensajeService.marcarLeidos(userDetails.getId(), idMiembro);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('MIEMBRO')")
