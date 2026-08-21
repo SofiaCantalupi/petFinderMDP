@@ -73,7 +73,7 @@ public class AuthService {
 
         //Recien ahora verifico la contraseña.
         if (!passwordEncoder.matches(request.contrasenia(), miembro.getContrasenia())) {
-            throw new FormatoInvalidoException("La contraseña no es válida");
+            throw new FormatoInvalidoException("Las credenciales no son válidas");
         }
 
         //Si la contraseña es valida, pasamos el miembro a UserDetails para generar el token
