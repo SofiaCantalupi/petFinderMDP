@@ -17,6 +17,9 @@ RUN mvn -B -ntp clean package -DskipTests \
 FROM eclipse-temurin:21-jre-alpine AS runtime
 WORKDIR /app
 
+RUN apk add --no-cache tzdata
+ENV TZ=America/Argentina/Buenos_Aires
+
 # Run unprivileged.
 RUN addgroup -S spring && adduser -S spring -G spring
 COPY --from=build --chown=spring:spring /build/app.jar /app/app.jar
