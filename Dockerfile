@@ -1,31 +1,38 @@
-# ---------- Stage 1: build ----------
+# ---------- Etapa 1: build ----------
 FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
-# Dependency layer first: re-resolved only when pom.xml changes, not on every code edit.
+# Primero se copia la capa de dependencias: se vuelve a copiar cuando cambia pom.xml, no en cada edicion de codigo.
 COPY pom.xml ./
 RUN mvn -B -ntp dependency:go-offline
 
-# Source layer.
+# Capa de codigo fuente.
 COPY src ./src
-# Tests are skipped: PetFinderApplicationTests is a @SpringBootTest that needs a live MySQL.
-# The jar name is derived from the build output, never hardcoded.
+# Se saltean los tests. Como esta conectado a Spring Boot se necesita levantar una conexion con mysql, algo que no existe en el entorno de Render. Los tets romperian el build
+# El nombre del file jar se construye con el build, esto es asi porque si se cambiara la version del pom.xml del proyexto y el nombre fuera fijo, se romperia la compilacion.
 RUN mvn -B -ntp clean package -DskipTests \
  && cp "$(find target -maxdepth 1 -type f -name '*.jar' ! -name '*-plain.jar' | head -n 1)" /build/app.jar
 
-# ---------- Stage 2: runtime ----------
+# ---------- Etapa 2: runtime ----------
+
+# La imagen que de verdad se despliega, es un JRE y Alpine. Menos tamanio de imagen ->buil y deploy mas rapido
 FROM eclipse-temurin:21-jre-alpine AS runtime
 WORKDIR /app
 
-# Run unprivileged.
+RUN apk add --no-cache tzdata
+ENV TZ=America/Argentina/Buenos_Aires
+
+# Practica de seguridad: en vez de correr el contenedor como root, se crea uno spring (usuario sin privilegios)
+# --from=build conecta las dos etapas: copia el app.jar (la imagen con Maven) hacia la imagen final -> el resultado final es solo el jar ya compilado
 RUN addgroup -S spring && adduser -S spring -G spring
 COPY --from=build --chown=spring:spring /build/app.jar /app/app.jar
 USER spring
 
-# Container-aware heap sizing; SerialGC suits Render's small/low-CPU instances.
+# Dimensionamiento de la memoria dinamico, la JVM usa solo el 75% del contenedor. SerialGC cambia el GargabeCollector que viene por default, es mas adecuado a GPU bajas de REnder
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -XX:+UseSerialGC"
 
-# Documentation only — the real port comes from $PORT at runtime.
+# Documentacion nada mas
+# Render inyecta la variable de entorno $PORT en runtime y la app tiene que escuchar en ese puerto
 EXPOSE 8080
 
 # `exec` so the JVM is PID 1 and receives Render's SIGTERM for graceful shutdown.
