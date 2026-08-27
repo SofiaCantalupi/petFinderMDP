@@ -19,6 +19,7 @@ public class Comentario {
     @Column(nullable = false)
     private LocalDateTime fechaPublicacion;
 
+    @Column(nullable = false)
     private Boolean activo;
 
     @ManyToOne(fetch=FetchType.LAZY)
