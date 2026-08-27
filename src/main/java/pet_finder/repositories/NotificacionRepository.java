@@ -9,6 +9,7 @@ import java.util.List;
 public interface NotificacionRepository extends JpaRepository<Notificacion,Long> {
 
     List<Notificacion> findByReceptorIdAndActivaTrue(Long receptorId);
+    List<Notificacion> findByEmisorIdAndActivaTrue(Long emisorId);
     long countByReceptorIdAndActivaTrueAndLeidaFalse(Long receptorId);
     List<Notificacion> findByEntidadReferenciaId(Long entidadReferenciaId);
     List<Notificacion> findByTipoAndEntidadReferenciaIdAndActivaTrue(TipoNotificacion tipo, Long referenciaId);

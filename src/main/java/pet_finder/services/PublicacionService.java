@@ -290,6 +290,7 @@ mascotaService.eliminar(publicacion.getMascota().getId(), publicacion.getMiembro
     }
 
     //Eliminar publicación como miembro.
+    @Transactional
     public void eliminarPublicacionPropia(Publicacion publicacion,Long idMiembroLogeado){
 
         //Si el ID del miembro autenticado y el del miembro no coinciden

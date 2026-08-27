@@ -10,7 +10,6 @@ import pet_finder.models.Comentario;
 import pet_finder.models.Miembro;
 import pet_finder.models.Publicacion;
 import pet_finder.repositories.ComentarioRepository;
-import pet_finder.repositories.PublicacionRepository;
 import pet_finder.validations.ComentarioValidation;
 import pet_finder.validations.MiembroValidation;
 import pet_finder.validations.PublicacionValidation;
@@ -21,7 +20,6 @@ import java.util.List;
 public class ComentarioService {
 
     private final ComentarioRepository comentarioRepository;
-    private final PublicacionRepository publicacionRepository;
 
     private final ComentarioValidation comentarioValidation;
     private final MiembroValidation miembroValidation;
@@ -31,12 +29,11 @@ public class ComentarioService {
 
     private final NotificacionService notificacionService;
 
-    public ComentarioService(ComentarioRepository comentarioRepository, PublicacionRepository publicacionRepository,
+    public ComentarioService(ComentarioRepository comentarioRepository,
             ComentarioValidation comentarioValidation, MiembroValidation miembroValidation,
             PublicacionValidation publicacionValidation, ComentarioMapper comentarioMapper,
             NotificacionService notificacionService) {
         this.comentarioRepository = comentarioRepository;
-        this.publicacionRepository = publicacionRepository;
         this.comentarioValidation = comentarioValidation;
         this.miembroValidation = miembroValidation;
         this.publicacionValidation = publicacionValidation;
@@ -57,9 +54,10 @@ public class ComentarioService {
         comentario.setPublicacion(publicacion);
         comentario.setMiembro(miembro);
 
-        // Agregaria el comentario en la lista de la Publicacion
+        // Agregaria el comentario en la lista de la Publicacion.
+        // No hace falta guardar la publicacion: el @OneToMany no tiene cascade,
+        // el comentario se persiste con su propio save.
         publicacion.agregarComentario(comentario);
-        publicacionRepository.save(publicacion);
 
         Comentario creado = comentarioRepository.save(comentario);
 
@@ -129,5 +127,22 @@ public class ComentarioService {
 
         comentario.setActivo(false);
         comentarioRepository.save(comentario);
+    }
+
+    // Uso exclusivo de MiembroService al dar de baja una cuenta (propia o por un administrador):
+    // da de baja todos los comentarios que el miembro escribio, esten en la publicacion que esten.
+    @Transactional
+    public void eliminarComentariosPorMiembro(Long idMiembro) {
+
+        List<Comentario> comentarios = comentarioRepository.findByMiembroIdAndActivoTrue(idMiembro);
+
+        comentarios.forEach(comentario -> {
+            // Borro las notificaciones asociadas al comentario
+            notificacionService.eliminarNotificacionesComentario(comentario.getId());
+
+            comentario.setActivo(false);
+        });
+
+        comentarioRepository.saveAll(comentarios);
     }
 }

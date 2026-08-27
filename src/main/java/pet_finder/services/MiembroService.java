@@ -29,8 +29,10 @@ public class MiembroService {
     public final PasswordEncoder passwordEncoder;
     public final MiembroMapper miembroMapper;
     public final SolicitudAdopcionService solicitudAdopcionService;
+    public final ComentarioService comentarioService;
+    public final NotificacionService notificacionService;
 
-    public MiembroService(MiembroRepository miembroRepository, MiembroValidation miembroValidation, PublicacionRepository publicacionRepository, PublicacionService publicacionService, PasswordEncoder passwordEncoder, MiembroMapper miembroMapper, @Lazy SolicitudAdopcionService solicitudAdopcionService) {
+    public MiembroService(MiembroRepository miembroRepository, MiembroValidation miembroValidation, PublicacionRepository publicacionRepository, PublicacionService publicacionService, PasswordEncoder passwordEncoder, MiembroMapper miembroMapper, @Lazy SolicitudAdopcionService solicitudAdopcionService, ComentarioService comentarioService, NotificacionService notificacionService) {
         this.miembroRepository = miembroRepository;
         this.miembroValidation = miembroValidation;
         this.publicacionRepository = publicacionRepository;
@@ -38,6 +40,8 @@ public class MiembroService {
         this.passwordEncoder = passwordEncoder;
         this.miembroMapper = miembroMapper;
         this.solicitudAdopcionService = solicitudAdopcionService;
+        this.comentarioService = comentarioService;
+        this.notificacionService = notificacionService;
     }
 
 
@@ -147,18 +151,31 @@ public class MiembroService {
 
         miembroRepository.save(miembroAEliminar);
 
-        //Traigo todas las publicaciones de ese miembro que dimos de baja
+        //IMPORTANTE: el orden de los cuatro pasos que siguen no se puede cambiar.
+        //La baja de publicaciones y el rechazo de solicitudes GENERAN notificaciones nuevas
+        //para otros miembros (con el miembro dado de baja como emisor), avisandoles que su
+        //solicitud fue rechazada. Esas notificaciones tienen que sobrevivir, asi que la
+        //limpieza de notificaciones va antes y no despues.
+
+        //1) Se dan de baja todos los comentarios que el miembro escribio, incluidos los que
+        //dejo en publicaciones de otros miembros, junto con sus notificaciones asociadas.
+        comentarioService.eliminarComentariosPorMiembro(id);
+
+        //2) Se dan de baja las notificaciones que el miembro emitio y las que tenia en su bandeja.
+        notificacionService.eliminarNotificacionesPorMiembro(id);
+
+        //3) Traigo todas las publicaciones de ese miembro que dimos de baja
         List<Publicacion> publicaciones = publicacionRepository.findByMiembroAndActivoTrue(miembroAEliminar);
 
         //Por cada publicacion del miembro dado de baja, se da de baja la publicación
         //sus mascotas, y los comentarios de la publicación.
         publicaciones.forEach(publicacionService::eliminar);
 
-        //Se rechazan las solicitudes pendientes que el miembro dado de baja envio
+        //4) Se rechazan las solicitudes pendientes que el miembro dado de baja envio
         //a publicaciones de otros miembros.
         solicitudAdopcionService.rechazarPendientesComoSolicitante(id);
 
-        return "Se ha dado de baja con éxito al miembro con ID: " + id + " y a sus publicaciones asociadas.";
+        return "Se ha dado de baja con éxito al miembro con ID: " + id + " y a sus publicaciones y comentarios asociados.";
     }
 
 }

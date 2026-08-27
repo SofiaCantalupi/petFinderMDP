@@ -15,6 +15,7 @@ import pet_finder.repositories.SolicitudAdopcionRepository;
 import pet_finder.validations.MiembroValidation;
 import pet_finder.validations.NotificacionValidation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -154,6 +155,22 @@ public class NotificacionService {
         eliminarPorReferencia(
                 TipoNotificacion.SOLICITUD_ADOPCION,
                 solicitudId);
+    }
+
+    //Uso exclusivo de MiembroService al dar de baja una cuenta (propia o por un administrador):
+    //da de baja las notificaciones en las que participa el miembro, tanto las que emitio
+    //como las que tenia en su bandeja.
+    @Transactional
+    public void eliminarNotificacionesPorMiembro(Long idMiembro){
+
+        //Las dos listas nunca se solapan: validarEmisorYReceptor garantiza que emisor != receptor.
+        List<Notificacion> notificaciones = new ArrayList<>();
+        notificaciones.addAll(notificacionRepository.findByEmisorIdAndActivaTrue(idMiembro));
+        notificaciones.addAll(notificacionRepository.findByReceptorIdAndActivaTrue(idMiembro));
+
+        notificaciones.forEach(n -> n.setActiva(false));
+
+        notificacionRepository.saveAll(notificaciones);
     }
 
     // Notifica a todos los solicitantes que fueron rechazados automáticamente

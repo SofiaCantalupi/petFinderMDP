@@ -11,4 +11,7 @@ public interface ComentarioRepository extends JpaRepository<Comentario, Long> {
 
     List<Comentario> findByPublicacionIdAndActivoTrue(Long idPublicacion);
 
+    //Trae los comentarios que escribio un miembro, sin importar de quien sea la publicacion.
+    List<Comentario> findByMiembroIdAndActivoTrue(Long idMiembro);
+
 }

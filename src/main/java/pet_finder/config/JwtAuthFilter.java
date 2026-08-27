@@ -53,8 +53,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             //Lo hace, y si lo esta no lo vuelve a hacer, ya que no es necesario.
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
 
-            // 5. Validar token
-            if (jwtService.validarToken(jwt, userDetails)) {
+            // 5. Validar token y que la cuenta siga activa.
+            //isEnabled() devuelve miembro.isActivo(), asi que un token emitido antes de la
+            //baja deja de servir apenas se da de baja la cuenta, sin esperar a que expire.
+            if (userDetails.isEnabled() && jwtService.validarToken(jwt, userDetails)) {
 
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

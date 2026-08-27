@@ -73,10 +73,7 @@ public class MiembroController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarPorId(@PathVariable Long id) {
 
-        miembroService.eliminarPorId(id);
-
-        return ResponseEntity
-                .ok("Se ha dado de baja con éxito al miembro con ID: " + id + " y a sus publicaciones asociadas.");
+        return ResponseEntity.ok(miembroService.eliminarPorId(id));
     }
 
     @PreAuthorize("hasAnyRole('MIEMBRO', 'ADMINISTRADOR')")
@@ -85,7 +82,7 @@ public class MiembroController {
 
         miembroService.eliminarPorId(userDetails.getId());
 
-        return ResponseEntity.ok("Tu cuenta y tus publicaciones asociadas fueron dadas de baja con éxito.");
+        return ResponseEntity.ok("Tu cuenta, tus publicaciones y tus comentarios fueron dados de baja con éxito.");
     }
 
 }

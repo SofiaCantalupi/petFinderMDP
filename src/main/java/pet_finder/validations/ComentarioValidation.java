@@ -19,8 +19,9 @@ public class ComentarioValidation {
                 .orElseThrow(() -> new EntityNotFoundException("No se encontro un comentario con esa id"));
     }
 
+    //Un activo en null se trata como inactivo, igual que en findByPublicacionIdAndActivoTrue.
     public void esActivo(Boolean activo) {
-        if (Boolean.FALSE.equals(activo)) {
+        if (!Boolean.TRUE.equals(activo)) {
             throw new IllegalStateException("El comentario ya fue dado de baja.");
         }
     }
