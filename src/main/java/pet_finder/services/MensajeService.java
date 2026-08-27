@@ -100,6 +100,7 @@ public class MensajeService {
                             contacto.getId(),
                             contacto.getNombre(),
                             contacto.getApellido(),
+                            contacto.isActivo(),
                             noLeidosPorContacto.getOrDefault(contacto.getId(), 0L),
                             ultimo != null ? (String) ultimo[1] : null,
                             ultimo != null ? (LocalDateTime) ultimo[2] : null
