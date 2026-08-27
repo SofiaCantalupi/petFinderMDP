@@ -55,7 +55,7 @@ public class PublicacionMapper implements Mapper<PublicacionRequestDTO, Publicac
 
         List<ComentarioDetailDTO> comentarioDetailDTOS = publicacion.getComentarios()// obtengo los comentarios asociados a la publicacion
                 .stream()
-                .filter(Comentario::getActivo) // primero filtro los comentarios activos
+                .filter(comentario -> Boolean.TRUE.equals(comentario.getActivo())) // primero filtro los comentarios activos
                 .map(comentarioMapper::aDetail)  // luego los convierto a DTO
                 .toList();
 
